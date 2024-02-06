@@ -12,8 +12,48 @@ export const actions = {
 				message: 'You must provide a file to upload'
 			});
 		}
-		//                     A  B  D  F  I  J   K   L
-		const needIndexList = [0, 1, 3, 5, 8, 9, 10, 11];
+		const map = new Map<string, number>([
+			['日期', 0],
+			['收據號碼', 1],
+			['收據類型', 2],
+			['類別', 3],
+			['SKU', 4],
+			['商品', 5],
+			['變體', 6],
+			['修飾符已应用的', 7],
+			['數量', 8],
+			['銷售總額', 9],
+			['折扣', 10],
+			['淨銷售額', 11],
+			['銷售成本', 12],
+			['毛利潤', 13],
+			['稅務', 14],
+			['POS', 15],
+			['商店', 16],
+			['收銀員名稱', 17],
+			['客戶名稱', 18],
+			['客戶聯繫電話', 19],
+			['註釋', 20],
+			['狀態', 21]
+		]);
+
+		const needInfo = [
+			'日期',
+			'收據號碼',
+			'類別',
+			'商品',
+			'數量',
+			'銷售總額',
+			'折扣',
+			'淨銷售額',
+			'狀態'
+		];
+		//                     A  B  D  F  I  J   K   L   V
+		const needIndexList: number[] = [];
+		needInfo.forEach((title) => {
+			const index = map.get(title);
+			index ? needIndexList.push(index) : null;
+		});
 		let result: string[][] = [];
 		result = await filesToArray(files, needIndexList);
 
@@ -21,7 +61,7 @@ export const actions = {
 	}
 };
 async function filesToArray(files: FormDataEntryValue[], needIndexList: number[]) {
-	let result: string[][] = [];
+	const result: string[][] = [];
 	for (let i = 0; i < files.length; i++) {
 		const file = files[i];
 		const datas = await fileToArray(file as File, needIndexList);
