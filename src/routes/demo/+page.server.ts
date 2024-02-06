@@ -52,7 +52,7 @@ export const actions = {
 		const needIndexList: number[] = [];
 		needInfo.forEach((title) => {
 			const index = map.get(title);
-			index ? needIndexList.push(index) : null;
+			index !== undefined ? needIndexList.push(index) : null;
 		});
 		let result: string[][] = [];
 		result = await filesToArray(files, needIndexList);
@@ -68,20 +68,21 @@ export const actions = {
 			discount: number;
 			net_sales: number;
 			state: string;
-		}[] = [
-			{
-				trade_date: '2009-07-15 08:00:00 -08:00',
-				trade_id: 'test',
-				artist_name: 'lele',
-				item_name: 'tet',
-				quantity: 0,
-				total_sales: 0,
-				discount: 0,
-				net_sales: 0,
-				state: ''
-			}
-		];
-		console.log('write');
+		}[] = [];
+		const resultBody = result.slice(1);
+		resultBody.forEach((element) => {
+			data.push({
+				trade_date: element[needIndexList.indexOf(map.get('日期'))],
+				trade_id: element[needIndexList.indexOf(map.get('收據號碼'))],
+				artist_name: element[needIndexList.indexOf(map.get('類別'))],
+				item_name: element[needIndexList.indexOf(map.get('商品'))],
+				quantity: parseInt(element[needIndexList.indexOf(map.get('數量'))]),
+				total_sales: parseInt(element[needIndexList.indexOf(map.get('銷售總額'))]),
+				discount: parseInt(element[needIndexList.indexOf(map.get('折扣'))]),
+				net_sales: parseInt(element[needIndexList.indexOf(map.get('淨銷售額'))]),
+				state: element[needIndexList.indexOf(map.get('狀態'))]
+			});
+		});
 		db.trade.write(data);
 
 		return result;
