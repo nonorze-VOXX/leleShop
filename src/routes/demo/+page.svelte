@@ -5,12 +5,11 @@
 	import type { ActionResult } from '@sveltejs/kit';
 	import type { ActionData } from './$types';
 
-	export let form: ActionData;
-
-	let error: any;
+	// export let form: ActionData;
 
 	let final: string[][];
 	async function handleSubmit(event: { currentTarget: EventTarget & HTMLFormElement }) {
+		console.log('handleSubmit');
 		const data = new FormData(event.currentTarget);
 
 		const response = await fetch(event.currentTarget.action, {
@@ -23,34 +22,24 @@
 		if (result.type === 'success') {
 			// rerun all `load` functions, following the successful update
 			final = result.data as unknown as string[][];
-			console.log(result);
-			console.log(typeof result);
-			console.log(final);
-			console.log(typeof final);
-			await invalidateAll();
+			// await invalidateAll();
 		}
 
 		applyAction(result);
 	}
 </script>
 
-<form
-	method="post"
-	use:enhance
-	on:submit|preventDefault={handleSubmit}
-	enctype="multipart/form-data"
->
-	<div class="group text-white">
+<form on:submit|preventDefault={handleSubmit} enctype="multipart/form-data">
+	<div class="group">
 		<label for="file">Upload your file</label>
-		<input type="file" id="file" name="fileToUpload" accept=".csv" required />
+		<input multiple type="file" id="file" name="fileToUpload" accept=".csv" required />
 	</div>
 
-	<button class="text-white" type="submit">Submit</button>
+	<button class="" type="submit">Submit</button>
 </form>
 
-{#if final}
-	<!-- <table class="table-auto text-white"> -->
-	<table class="min-w-full text-left text-base text-white font-medium">
+{#if final && final.length > 0}
+	<table class="min-w-full text-left text-base font-medium">
 		<thead class="border-b">
 			<tr>
 				{#each final[0] as cell}
