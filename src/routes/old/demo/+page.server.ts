@@ -1,5 +1,5 @@
 import { fail } from '@sveltejs/kit';
-import db from '../db.js';
+import db from '../../db.js';
 
 export const actions = {
 	default: async ({ request }) => {

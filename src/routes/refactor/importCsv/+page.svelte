@@ -24,12 +24,7 @@
 	}
 </script>
 
-<form
-	method="post"
-	use:enhance
-	on:submit|preventDefault={handleSubmit}
-	enctype="multipart/form-data"
->
+<form on:submit|preventDefault={handleSubmit} enctype="multipart/form-data">
 	<div class="group">
 		<label for="file">Upload your file</label>
 		<input multiple type="file" id="file" name="fileToUpload" accept=".csv" required />

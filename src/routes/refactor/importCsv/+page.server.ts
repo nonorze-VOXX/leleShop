@@ -1,4 +1,5 @@
 import { fail } from '@sveltejs/kit';
+import { supabase } from '../../db.js';
 
 const titleMap = new Map<string, number>([
 	['日期', 0],
@@ -49,8 +50,46 @@ export const actions = {
 		}
 		for (let i = 0; i < files.length; i++) {
 			const file = files[i] as File;
-			return fileToArray(file);
+			const fileArr2D = await fileToArray(file);
+			const groupByOrder = groupBy(
+				fileArr2D.slice(1),
+				(i) => i[titleMap.get('收據號碼') as number]
+			);
+
+			await storeToDB(groupByOrder);
 		}
+	}
+};
+
+const storeToDB = async (groupByIndex: Record<string, string[][]>) => {
+	console.log('storetodb');
+	for (const key in groupByIndex) {
+		const trySelect = await supabase.from('trade_head').select('*').eq('trade_id', key);
+		const element = groupByIndex[key];
+		if (trySelect.count == null) {
+			const err = await supabase.from('trade_head').insert({
+				trade_date: element[0][titleMap.get('日期') as number],
+				trade_id: element[0][titleMap.get('收據號碼') as number],
+				state: element[0][titleMap.get('狀態') as number]
+			});
+			for (let i = 0; i < element.length; i++) {
+				const err = await supabase.from('trade_body').insert({
+					artist_name: element[i][titleMap.get('類別') as number],
+					item_name: element[i][titleMap.get('商品') as number],
+					quantity: parseInt(element[i][titleMap.get('數量') as number]),
+					trade_id: element[i][titleMap.get('收據號碼') as number],
+					total_sales: parseFloat(element[i][titleMap.get('銷售總額') as number]),
+					discount: parseFloat(element[i][titleMap.get('折扣') as number]),
+					net_sales: parseFloat(element[i][titleMap.get('淨銷售額') as number])
+				});
+				// console.log('');
+				// console.log(i);
+				// console.log(err);
+			}
+		}
+
+		// const element = groupByIndex[key];
+		// const err = await supabase.from('trade_body').insert({});
 	}
 };
 const fileToArray = async (file: File) => {
@@ -61,24 +100,27 @@ const fileToArray = async (file: File) => {
 		const line = lines[i];
 		const words = line.split(',');
 		const result1D: string[] = [];
-		for (let i = 0; i < needInfo.length; i++) {
-			const index = titleMap.get(needInfo[i]) as number;
-			const word = words[index] ? words[index] : '';
+		for (let ii = 0; ii < line.length; ii++) {
+			// const index = titleMap.get(needInfo[i]) as number;
+			const word = words[ii] ? words[ii] : '';
 			result1D.push(word);
 		}
+		// for (let i = 0; i < needInfo.length; i++) {
+		// 	const index = titleMap.get(needInfo[i]) as number;
+		// 	const word = words[index] ? words[index] : '';
+		// 	result1D.push(word);
+		// }
 		result2D.push(result1D);
 	}
-	return groupByIndex(result2D);
 	return result2D;
 };
-function groupByIndex(array: string[][]) {
-	const grouped: { [id: string]: string[][] } = {};
-	array.forEach((subArray) => {
-		const key = subArray[titleMap.get('收據號碼') as number];
-		if (!grouped[key]) {
-			grouped[key] = [];
-		}
-		grouped[key].push(subArray);
-	});
-	return grouped;
-}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const groupBy = <T, K extends keyof any>(arr: T[], key: (i: T) => K) =>
+	arr.reduce(
+		(groups, item) => {
+			(groups[key(item)] ||= []).push(item);
+			return groups;
+		},
+		{} as Record<K, T[]>
+	);
