@@ -64,10 +64,19 @@ export const actions = {
 
 const storeToDB = async (groupByIndex: Record<string, string[][]>) => {
 	console.log('storetodb');
+	let tradeList = [];
+	const artistIndex = titleMap.get('類別') as number;
+	const itemNameIndex = titleMap.get('商品') as number;
+	const quantityIndex = titleMap.get('數量') as number;
+	const tradeIdIndex = titleMap.get('收據號碼') as number;
+	const totalIndex = titleMap.get('銷售總額') as number;
+	const discountIndex = titleMap.get('折扣') as number;
+	const netIndex = titleMap.get('淨銷售額') as number;
 	for (const key in groupByIndex) {
 		const trySelect = await supabase.from('trade_head').select('*').eq('trade_id', key);
+		console.log(trySelect);
 		const element = groupByIndex[key];
-		if (trySelect.count == null) {
+		if (trySelect === null || trySelect.count === 0) {
 			const date = new Date(element[0][titleMap.get('日期') as number]);
 
 			const err = await supabase.from('trade_head').insert({
@@ -76,24 +85,34 @@ const storeToDB = async (groupByIndex: Record<string, string[][]>) => {
 				state: element[0][titleMap.get('狀態') as number]
 			});
 			for (let i = 0; i < element.length; i++) {
-				const err = await supabase.from('trade_body').insert({
-					artist_name: element[i][titleMap.get('類別') as number],
-					item_name: element[i][titleMap.get('商品') as number],
-					quantity: parseInt(element[i][titleMap.get('數量') as number]),
-					trade_id: element[i][titleMap.get('收據號碼') as number],
-					total_sales: parseFloat(element[i][titleMap.get('銷售總額') as number]),
-					discount: parseFloat(element[i][titleMap.get('折扣') as number]),
-					net_sales: parseFloat(element[i][titleMap.get('淨銷售額') as number])
+				console.log('add' + i + 'to tradelist');
+				tradeList.push({
+					artist_name: element[i][artistIndex],
+					item_name: element[i][itemNameIndex],
+					quantity: parseInt(element[i][quantityIndex]),
+					trade_id: element[i][tradeIdIndex],
+					total_sales: parseFloat(element[i][totalIndex]),
+					discount: parseFloat(element[i][discountIndex]),
+					net_sales: parseFloat(element[i][netIndex])
 				});
-				// console.log('');
-				// console.log(i);
-				// console.log(err);
+			}
+			if (tradeList.length > 100) {
+				console.log('store100');
+				const err = await supabase.from('trade_body').insert(tradeList);
+				console.log(err);
+				tradeList = [];
 			}
 		}
 
 		// const element = groupByIndex[key];
 		// const err = await supabase.from('trade_body').insert({});
 	}
+	console.log('start store');
+	if (tradeList.length !== 0) {
+		const err = await supabase.from('trade_body').insert(tradeList);
+		console.log(err);
+	}
+	console.log('end store');
 };
 const fileToArray = async (file: File) => {
 	const result2D: string[][] = [];
