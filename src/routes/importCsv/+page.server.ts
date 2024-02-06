@@ -73,35 +73,36 @@ const storeToDB = async (groupByIndex: Record<string, string[][]>) => {
 	const discountIndex = titleMap.get('折扣') as number;
 	const netIndex = titleMap.get('淨銷售額') as number;
 	for (const key in groupByIndex) {
+		console.log(key);
+		if (key === undefined || key === 'undefined') continue;
 		const trySelect = await supabase.from('trade_head').select('*').eq('trade_id', key);
-		console.log(trySelect);
 		const element = groupByIndex[key];
-		if (trySelect.data?.length === 0) {
-			const date = new Date(element[0][titleMap.get('日期') as number]);
 
-			const err = await supabase.from('trade_head').insert({
-				trade_date: date.toISOString(),
-				trade_id: element[0][titleMap.get('收據號碼') as number],
-				state: element[0][titleMap.get('狀態') as number]
+		if (trySelect.data?.length !== 0) continue;
+		const date = new Date(element[0][titleMap.get('日期') as number]);
+
+		const err = await supabase.from('trade_head').insert({
+			trade_date: date.toISOString(),
+			trade_id: element[0][titleMap.get('收據號碼') as number],
+			state: element[0][titleMap.get('狀態') as number]
+		});
+		for (let i = 0; i < element.length; i++) {
+			console.log('add' + i + 'to tradelist');
+			tradeList.push({
+				artist_name: element[i][artistIndex],
+				item_name: element[i][itemNameIndex],
+				quantity: parseInt(element[i][quantityIndex]),
+				trade_id: element[i][tradeIdIndex],
+				total_sales: parseFloat(element[i][totalIndex]),
+				discount: parseFloat(element[i][discountIndex]),
+				net_sales: parseFloat(element[i][netIndex])
 			});
-			for (let i = 0; i < element.length; i++) {
-				console.log('add' + i + 'to tradelist');
-				tradeList.push({
-					artist_name: element[i][artistIndex],
-					item_name: element[i][itemNameIndex],
-					quantity: parseInt(element[i][quantityIndex]),
-					trade_id: element[i][tradeIdIndex],
-					total_sales: parseFloat(element[i][totalIndex]),
-					discount: parseFloat(element[i][discountIndex]),
-					net_sales: parseFloat(element[i][netIndex])
-				});
-			}
-			if (tradeList.length > 100) {
-				console.log('store100');
-				const err = await supabase.from('trade_body').insert(tradeList);
-				console.log(err);
-				tradeList = [];
-			}
+		}
+		if (tradeList.length > 100) {
+			console.log('store100');
+			const err = await supabase.from('trade_body').insert(tradeList);
+			console.log(err);
+			tradeList = [];
 		}
 
 		// const element = groupByIndex[key];
