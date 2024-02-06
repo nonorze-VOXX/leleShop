@@ -1,5 +1,5 @@
 import { fail } from '@sveltejs/kit';
-import { supabase } from '../../db.js';
+import { supabase } from '../db.js';
 
 const titleMap = new Map<string, number>([
 	['日期', 0],
