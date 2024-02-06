@@ -76,7 +76,7 @@ const storeToDB = async (groupByIndex: Record<string, string[][]>) => {
 		const trySelect = await supabase.from('trade_head').select('*').eq('trade_id', key);
 		console.log(trySelect);
 		const element = groupByIndex[key];
-		if (trySelect === null || trySelect.count === 0) {
+		if (trySelect.data?.length === 0) {
 			const date = new Date(element[0][titleMap.get('日期') as number]);
 
 			const err = await supabase.from('trade_head').insert({
