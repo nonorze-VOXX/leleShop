@@ -58,6 +58,7 @@ export const actions = {
 
 			await storeToDB(groupByOrder);
 		}
+		return true;
 	}
 };
 

@@ -3,9 +3,11 @@
 	import { invalidateAll } from '$app/navigation';
 	import type { ActionResult } from '@sveltejs/kit';
 	let final: string[][];
+	let processed = true;
 	async function handleSubmit(event: { currentTarget: EventTarget & HTMLFormElement }) {
 		const data = new FormData(event.currentTarget);
 
+		processed = false;
 		const response = await fetch(event.currentTarget.action, {
 			method: 'POST',
 			body: data
@@ -17,6 +19,8 @@
 		if (result.type === 'success') {
 			// rerun all `load` functions, following the successful update
 			console.log(result.data);
+			// processed = result.data;
+			processed = true;
 			await invalidateAll();
 		}
 
@@ -58,4 +62,10 @@
 			</tbody>
 		{/each}
 	</table>
+{/if}
+
+{#if !processed}
+	<p>Processing...</p>
+{:else}
+	<p>Processed</p>
 {/if}
