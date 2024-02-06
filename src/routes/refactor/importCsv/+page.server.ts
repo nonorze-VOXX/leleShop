@@ -68,8 +68,10 @@ const storeToDB = async (groupByIndex: Record<string, string[][]>) => {
 		const trySelect = await supabase.from('trade_head').select('*').eq('trade_id', key);
 		const element = groupByIndex[key];
 		if (trySelect.count == null) {
+			const date = new Date(element[0][titleMap.get('日期') as number]);
+
 			const err = await supabase.from('trade_head').insert({
-				trade_date: element[0][titleMap.get('日期') as number],
+				trade_date: date.toISOString(),
 				trade_id: element[0][titleMap.get('收據號碼') as number],
 				state: element[0][titleMap.get('狀態') as number]
 			});
