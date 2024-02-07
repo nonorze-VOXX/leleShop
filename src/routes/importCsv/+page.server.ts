@@ -77,7 +77,6 @@ type TradeBody = {
 };
 
 const storeToDB = async (groupByIndex: Record<string, string[][]>) => {
-	console.log('storetodb');
 	let tradeBodyList: TradeBody[] = [];
 	let tradeHeadList: TradeHead[] = [];
 	const artistIndex = titleMap.get('類別') as number;
@@ -94,7 +93,6 @@ const storeToDB = async (groupByIndex: Record<string, string[][]>) => {
 	const storedIdList = tradeQueryResult.map((i) => i.trade_id);
 
 	for (const key in groupByIndex) {
-		console.log(key);
 		if (key === undefined || key === 'undefined') continue;
 		if (storedIdList.includes(key)) continue;
 		const element = groupByIndex[key];
@@ -106,7 +104,6 @@ const storeToDB = async (groupByIndex: Record<string, string[][]>) => {
 		});
 
 		for (let i = 0; i < element.length; i++) {
-			console.log('add' + i + 'to tradelist');
 			tradeBodyList.push({
 				artist_name: element[i][artistIndex],
 				item_name: element[i][itemNameIndex],
@@ -118,28 +115,26 @@ const storeToDB = async (groupByIndex: Record<string, string[][]>) => {
 			});
 		}
 		if (tradeBodyList.length > 100) {
-			savePartToDb(tradeBodyList, tradeHeadList);
+			await savePartToDb(tradeBodyList, tradeHeadList);
 			tradeBodyList = [];
 			storedIdList.concat(tradeHeadList.map((i) => i.trade_id));
 			tradeHeadList = [];
 		}
 	}
 	if (tradeBodyList.length !== 0) {
-		savePartToDb(tradeBodyList, tradeHeadList);
+		await savePartToDb(tradeBodyList, tradeHeadList);
 	}
 };
 const savePartToDb = async (tradeBodyList: TradeBody[], tradeHeadList: TradeHead[]) => {
-	console.log('start store');
-	let err = await supabase.from('trade_head').insert(tradeHeadList);
-	if (err !== null) {
-		console.log(err);
+	const { error } = await supabase.from('trade_head').insert(tradeHeadList);
+	if (error !== null) {
+		console.log(error);
 	} else {
-		err = await supabase.from('trade_body').insert(tradeBodyList);
-		if (err !== null) {
-			console.log(err);
+		const error = await supabase.from('trade_body').insert(tradeBodyList);
+		if (error !== null) {
+			console.log(error);
 		}
 	}
-	console.log('end store');
 };
 
 const fileToArray = async (file: File) => {

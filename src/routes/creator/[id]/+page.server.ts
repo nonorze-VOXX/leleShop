@@ -12,8 +12,9 @@ export const load: PageServerLoad = async ({ params }) => {
 		.lt('trade_head.trade_date', lastDay.toISOString())
 		.textSearch('artist_name', params.id);
 
-	console.log(error);
-	console.log(data);
+	if (error !== null) {
+		console.log(error);
+	}
 
 	const result = data as unknown as tradeUnit[];
 	return {
