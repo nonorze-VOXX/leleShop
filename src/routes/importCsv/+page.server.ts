@@ -1,5 +1,5 @@
 import { fail } from '@sveltejs/kit';
-import { supabase } from '../db.js';
+import { supabase } from '../../lib/db.js';
 
 const titleMap = new Map<string, number>([
 	['日期', 0],
@@ -26,17 +26,17 @@ const titleMap = new Map<string, number>([
 	['狀態', 21]
 ]);
 
-const needInfo = [
-	'日期',
-	'收據號碼',
-	'類別',
-	'商品',
-	'數量',
-	'銷售總額',
-	'折扣',
-	'淨銷售額',
-	'狀態'
-];
+// const needInfo = [
+// 	'日期',
+// 	'收據號碼',
+// 	'類別',
+// 	'商品',
+// 	'數量',
+// 	'銷售總額',
+// 	'折扣',
+// 	'淨銷售額',
+// 	'狀態'
+// ];
 
 export const actions = {
 	default: async ({ request }) => {
@@ -61,10 +61,25 @@ export const actions = {
 		return true;
 	}
 };
+type TradeHead = {
+	trade_date: string;
+	trade_id: string;
+	state: string;
+};
+type TradeBody = {
+	artist_name: string;
+	item_name: string;
+	quantity: number;
+	trade_id: string;
+	total_sales: number;
+	discount: number;
+	net_sales: number;
+};
 
 const storeToDB = async (groupByIndex: Record<string, string[][]>) => {
 	console.log('storetodb');
-	let tradeList = [];
+	let tradeBodyList: TradeBody[] = [];
+	let tradeHeadList: TradeHead[] = [];
 	const artistIndex = titleMap.get('類別') as number;
 	const itemNameIndex = titleMap.get('商品') as number;
 	const quantityIndex = titleMap.get('數量') as number;
@@ -72,6 +87,8 @@ const storeToDB = async (groupByIndex: Record<string, string[][]>) => {
 	const totalIndex = titleMap.get('銷售總額') as number;
 	const discountIndex = titleMap.get('折扣') as number;
 	const netIndex = titleMap.get('淨銷售額') as number;
+	const stateIndex = titleMap.get('狀態') as number;
+	const dateIndex = titleMap.get('日期') as number;
 	for (const key in groupByIndex) {
 		console.log(key);
 		if (key === undefined || key === 'undefined') continue;
@@ -79,16 +96,16 @@ const storeToDB = async (groupByIndex: Record<string, string[][]>) => {
 		const element = groupByIndex[key];
 
 		if (trySelect.data?.length !== 0) continue;
-		const date = new Date(element[0][titleMap.get('日期') as number]);
-
-		const err = await supabase.from('trade_head').insert({
+		const date = new Date(element[0][dateIndex]);
+		tradeHeadList.push({
 			trade_date: date.toISOString(),
-			trade_id: element[0][titleMap.get('收據號碼') as number],
-			state: element[0][titleMap.get('狀態') as number]
+			trade_id: element[0][tradeIdIndex],
+			state: element[0][stateIndex]
 		});
+
 		for (let i = 0; i < element.length; i++) {
 			console.log('add' + i + 'to tradelist');
-			tradeList.push({
+			tradeBodyList.push({
 				artist_name: element[i][artistIndex],
 				item_name: element[i][itemNameIndex],
 				quantity: parseInt(element[i][quantityIndex]),
@@ -98,23 +115,30 @@ const storeToDB = async (groupByIndex: Record<string, string[][]>) => {
 				net_sales: parseFloat(element[i][netIndex])
 			});
 		}
-		if (tradeList.length > 100) {
-			console.log('store100');
-			const err = await supabase.from('trade_body').insert(tradeList);
-			console.log(err);
-			tradeList = [];
+		if (tradeBodyList.length > 100) {
+			savePartToDb(tradeBodyList, tradeHeadList);
+			tradeBodyList = [];
+			tradeHeadList = [];
 		}
-
-		// const element = groupByIndex[key];
-		// const err = await supabase.from('trade_body').insert({});
 	}
+	if (tradeBodyList.length !== 0) {
+		savePartToDb(tradeBodyList, tradeHeadList);
+	}
+};
+const savePartToDb = async (tradeBodyList: TradeBody[], tradeHeadList: TradeHead[]) => {
 	console.log('start store');
-	if (tradeList.length !== 0) {
-		const err = await supabase.from('trade_body').insert(tradeList);
+	let err = await supabase.from('trade_head').insert(tradeHeadList);
+	if (err !== null) {
 		console.log(err);
+	} else {
+		err = await supabase.from('trade_body').insert(tradeBodyList);
+		if (err !== null) {
+			console.log(err);
+		}
 	}
 	console.log('end store');
 };
+
 const fileToArray = async (file: File) => {
 	const result2D: string[][] = [];
 	const text = await file.text();

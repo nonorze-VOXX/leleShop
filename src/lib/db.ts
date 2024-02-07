@@ -33,8 +33,10 @@ export default {
 				state: string;
 			}[]
 		) {
-			let err = await supabase.from('trade').insert(data);
-			console.log(err);
+			const err = await supabase.from('trade').insert(data);
+			if (err !== null) {
+				console.log(err);
+			}
 		}
 	}
 };
