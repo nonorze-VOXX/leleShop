@@ -89,13 +89,15 @@ const storeToDB = async (groupByIndex: Record<string, string[][]>) => {
 	const netIndex = titleMap.get('淨銷售額') as number;
 	const stateIndex = titleMap.get('狀態') as number;
 	const dateIndex = titleMap.get('日期') as number;
+	const tradeQuery = await supabase.from('trade_head').select('trade_id');
+	const tradeQueryResult = tradeQuery.data as unknown as { trade_id: string }[];
+	const storedIdList = tradeQueryResult.map((i) => i.trade_id);
+
 	for (const key in groupByIndex) {
 		console.log(key);
 		if (key === undefined || key === 'undefined') continue;
-		const trySelect = await supabase.from('trade_head').select('*').eq('trade_id', key);
+		if (storedIdList.includes(key)) continue;
 		const element = groupByIndex[key];
-
-		if (trySelect.data?.length !== 0) continue;
 		const date = new Date(element[0][dateIndex]);
 		tradeHeadList.push({
 			trade_date: date.toISOString(),
@@ -118,6 +120,7 @@ const storeToDB = async (groupByIndex: Record<string, string[][]>) => {
 		if (tradeBodyList.length > 100) {
 			savePartToDb(tradeBodyList, tradeHeadList);
 			tradeBodyList = [];
+			storedIdList.concat(tradeHeadList.map((i) => i.trade_id));
 			tradeHeadList = [];
 		}
 	}
