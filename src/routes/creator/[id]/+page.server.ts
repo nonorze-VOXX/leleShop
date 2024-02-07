@@ -16,23 +16,7 @@ export const load: PageServerLoad = async ({ params }) => {
 		console.log(error);
 	}
 
-	const result = data as unknown as tradeUnit[];
 	return {
-		data: result ?? []
-	};
-};
-type tradeUnit = {
-	id: number;
-	trade_id: string;
-	artist_name: string;
-	item_name: string;
-	quantity: number;
-	total_sales: number;
-	discount: number;
-	net_sales: number;
-	trade_head: {
-		state: string;
-		trade_id: string;
-		trade_date: string;
+		data: data ?? []
 	};
 };

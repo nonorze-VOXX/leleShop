@@ -1,7 +1,8 @@
 import { createClient } from '@supabase/supabase-js';
 import { PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_KEY } from '$env/static/public';
+import { type Database } from './db.types';
 
-export const supabase = createClient(PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_KEY);
+export const supabase = createClient<Database>(PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_KEY);
 
 // const userStore = writable();
 
@@ -19,19 +20,7 @@ export const supabase = createClient(PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_KEY);
 
 export default {
 	trade: {
-		async write(
-			data: {
-				trade_date: string;
-				trade_id: string;
-				artist_name: string;
-				item_name: string;
-				quantity: number;
-				total_sales: number;
-				discount: number;
-				net_sales: number;
-				state: string;
-			}[]
-		) {
+		async write(data: Database['public']['Tables']['trade']['Insert']) {
 			const err = await supabase.from('trade').insert(data);
 			if (err !== null) {
 				console.log(err);
