@@ -2,12 +2,18 @@
 	import { applyAction, deserialize } from '$app/forms';
 	import { invalidateAll } from '$app/navigation';
 	import type { ActionResult } from '@sveltejs/kit';
+	enum ProcessedStatus {
+		NORMAL,
+		PROCESSING,
+		LOGIN_FAILED,
+		PROCESSED
+	}
 	let final: string[][];
-	let processed = true;
+	let processed: ProcessedStatus = ProcessedStatus.NORMAL;
 	async function handleSubmit(event: { currentTarget: EventTarget & HTMLFormElement }) {
 		const data = new FormData(event.currentTarget);
 
-		processed = false;
+		processed = ProcessedStatus.PROCESSING;
 		const response = await fetch(event.currentTarget.action, {
 			method: 'POST',
 			body: data
@@ -20,22 +26,64 @@
 			// rerun all `load` functions, following the successful update
 			console.log(result.data);
 			// processed = result.data;
-			processed = true;
+			processed = ProcessedStatus.PROCESSED;
 			await invalidateAll();
+		} else if (result.type === 'failure') {
+			processed = ProcessedStatus.LOGIN_FAILED;
 		}
 
 		applyAction(result);
 	}
 </script>
 
-<form on:submit|preventDefault={handleSubmit} enctype="multipart/form-data">
-	<div class="group">
-		<label for="file">Upload your file</label>
-		<input multiple type="file" id="file" name="fileToUpload" accept=".csv" required />
-	</div>
+<div class="flex flex-col justify-center h-screen">
+	<div class="flex justify-center">
+		<div class="flex flex-col rounded-xl bg-white items-center p-5">
+			<form
+				on:submit|preventDefault={handleSubmit}
+				class="flex flex-col gap-4 items-center text-lg"
+			>
+				<div class="w-full flex gap-3 justify-between items-center">
+					<label for="email">Email</label>
+					<input
+						type="email"
+						id="email"
+						name="email"
+						class="grow rounded-lg p-2 bg-gray-50 border border-gray-300"
+						placeholder="example@mail.com"
+						required
+					/>
+				</div>
+				<div class="w-full flex gap-3 justify-between items-center">
+					<label for="password">password</label>
+					<input
+						type="password"
+						id="password"
+						class="grow rounded-lg p-2 bg-gray-50 border border-gray-300"
+						name="password"
+						required
+					/>
+				</div>
+				<div>
+					<label for="file">Upload your file</label>
+					<input multiple type="file" id="file" name="fileToUpload" accept=".csv" required />
+				</div>
 
-	<button class="" type="submit">Submit</button>
-</form>
+				<button class="rounded-full px-3 bg-green-600 w-fit text-white font-bold" type="submit"
+					>Submit</button
+				>
+			</form>
+
+			{#if processed === ProcessedStatus.PROCESSING}
+				<p class="text-7xl">Processing...</p>
+			{:else if processed === ProcessedStatus.PROCESSED}
+				<p class="text-7xl">DONE</p>
+			{:else if processed === ProcessedStatus.LOGIN_FAILED}
+				<p class="text-7xl text-red-600">Login failed</p>
+			{/if}
+		</div>
+	</div>
+</div>
 {#if final && final.length > 0}
 	<!-- <table class="table-auto text-white"> -->
 	<table class="min-w-full text-left text-base text-white font-medium">
@@ -62,10 +110,4 @@
 			</tbody>
 		{/each}
 	</table>
-{/if}
-
-{#if !processed}
-	<p>Processing...</p>
-{:else}
-	<p>Processed</p>
 {/if}

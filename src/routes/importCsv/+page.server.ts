@@ -43,12 +43,25 @@ export const actions = {
 	default: async ({ request }) => {
 		const formData = await request.formData();
 		const files = formData.getAll('fileToUpload');
+		const email = formData.get('email') as string;
+		const password = formData.get('password') as string;
 		if (files.length === 0) {
 			return fail(400, {
 				error: true,
 				message: 'You must provide a file to upload'
 			});
 		}
+		const { error } = await supabase.auth.signInWithPassword({
+			email: email,
+			password: password
+		});
+		if (error !== null) {
+			return fail(400, {
+				error: true,
+				message: 'login failed'
+			});
+		}
+
 		for (let i = 0; i < files.length; i++) {
 			const file = files[i] as File;
 			const fileArr2D = await fileToArray(file);
@@ -59,6 +72,7 @@ export const actions = {
 
 			await storeToDB(groupByOrder);
 		}
+		supabase.auth.signOut();
 		return true;
 	}
 };
@@ -116,6 +130,7 @@ const storeToDB = async (groupByIndex: Record<string, string[][]>) => {
 };
 const savePartToDb = async (tradeBodyList: TradeBody[], tradeHeadList: TradeHead[]) => {
 	const { error } = await supabase.from('trade_head').insert(tradeHeadList);
+
 	if (error !== null) {
 		console.log(error);
 	} else {
