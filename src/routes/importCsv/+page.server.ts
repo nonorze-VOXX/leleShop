@@ -1,5 +1,6 @@
 import { fail } from '@sveltejs/kit';
 import { supabase } from '$lib/db.js';
+import type { Database } from '$lib/db.types.js';
 
 const titleMap = new Map<string, number>([
 	['日期', 0],
@@ -61,20 +62,8 @@ export const actions = {
 		return true;
 	}
 };
-type TradeHead = {
-	trade_date: string;
-	trade_id: string;
-	state: string;
-};
-type TradeBody = {
-	artist_name: string;
-	item_name: string;
-	quantity: number;
-	trade_id: string;
-	total_sales: number;
-	discount: number;
-	net_sales: number;
-};
+type TradeHead = Database['public']['Tables']['trade_head']['Insert'];
+type TradeBody = Database['public']['Tables']['trade_body']['Insert'];
 
 const storeToDB = async (groupByIndex: Record<string, string[][]>) => {
 	let tradeBodyList: TradeBody[] = [];
