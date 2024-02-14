@@ -10,6 +10,7 @@ export const load: PageServerLoad = async ({ params }) => {
 		.select('*, trade_head!inner(trade_id, trade_date, state)')
 		.gt('trade_head.trade_date', firstDay.toISOString())
 		.lt('trade_head.trade_date', lastDay.toISOString())
+		.eq('trade_head.state', '關閉')
 		.textSearch('artist_name', params.id);
 
 	if (error !== null) {
