@@ -86,7 +86,11 @@ const storeToDB = async (groupByIndex: Record<string, string[][]>) => {
 
 	for (const key in groupByIndex) {
 		if (key === undefined || key === 'undefined') continue;
-		if (storedIdList.includes(key)) continue;
+		if (storedIdList.includes(key)) {
+			console.log('DB had it');
+			continue;
+		}
+
 		const element = groupByIndex[key];
 		const date = new Date(element[0][dateIndex()]);
 		tradeHeadList.push({
@@ -136,10 +140,10 @@ const fileToArray = async (file: File) => {
 	const text = await file.text();
 	const lines = text.split('\n');
 	for (let i = 0; i < lines.length; i++) {
-		const line = lines[i];
+		const line = lines[i].split('\r')[0];
 		const words = line.split(',');
 		const result1D: string[] = [];
-		for (let ii = 0; ii < line.length; ii++) {
+		for (let ii = 0; ii < words.length; ii++) {
 			const word = words[ii] ? words[ii] : '';
 			result1D.push(word);
 		}
