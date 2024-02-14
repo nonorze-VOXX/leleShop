@@ -35,9 +35,6 @@ const dateIndex = () => {
 	return findIndex('日期');
 };
 
-const tradeQuery = await supabase.from('trade_head').select('trade_id');
-const tradeQueryResult = tradeQuery.data as unknown as { trade_id: string }[];
-const storedIdList = tradeQueryResult.map((i) => i.trade_id);
 export const actions = {
 	default: async ({ request }) => {
 		const formData = await request.formData();
@@ -81,8 +78,14 @@ type TradeBody = Database['public']['Tables']['trade_body']['Insert'];
 
 const storeToDB = async (groupByIndex: Record<string, string[][]>) => {
 	console.log('start store');
-	let tradeBodyList: TradeBody[] = [];
-	let tradeHeadList: TradeHead[] = [];
+	const tradeBodyList: TradeBody[] = [];
+	const tradeHeadList: TradeHead[] = [];
+	const { data, error } = await supabase.from('trade_head').select('trade_id');
+	if (error != null) {
+		console.log('fetch head fail');
+	}
+	const tradeQueryResult = data as unknown as { trade_id: string }[];
+	const storedIdList = tradeQueryResult.map((i) => i.trade_id);
 
 	for (const key in groupByIndex) {
 		if (key === undefined || key === 'undefined') continue;
@@ -109,12 +112,6 @@ const storeToDB = async (groupByIndex: Record<string, string[][]>) => {
 				discount: parseFloat(element[i][discountIndex()]),
 				net_sales: parseFloat(element[i][netIndex()])
 			});
-		}
-		if (tradeBodyList.length > 100) {
-			await savePartToDb(tradeBodyList, tradeHeadList);
-			tradeBodyList = [];
-			storedIdList.concat(tradeHeadList.map((i) => i.trade_id));
-			tradeHeadList = [];
 		}
 	}
 	if (tradeBodyList.length !== 0) {
