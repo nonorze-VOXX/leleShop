@@ -30,14 +30,14 @@ export default {
 		return { error, data };
 	},
 	async SaveTradeBody(data: TradeBody[]) {
-		const error = await supabase.from('trade_body').insert(data);
+		const { error } = await supabase.from('trade_body').insert(data);
 		if (error !== null) {
 			console.log(error);
 		}
 		return { error };
 	},
 	async SaveTradeHead(data: TradeHead[]) {
-		const error = await supabase.from('trade_head').insert(data);
+		const { error } = await supabase.from('trade_head').insert(data);
 		if (error !== null) {
 			console.log(error);
 		}
