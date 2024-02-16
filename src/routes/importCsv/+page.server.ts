@@ -112,11 +112,12 @@ const storeToDB = async (groupByIndex: Record<string, string[][]>) => {
 			const artist_name = element[i][artistIndex()];
 			if (!artistNameInDb?.includes(artist_name)) {
 				const { error, data } = await db.SaveArtistName([{ artist_name }]);
-				artistList.push(data as Artist);
+				const artist = data !== null ? data[0] : {};
+				artistList.push(artist);
 				artistNameInDb?.push(artist_name);
 				if (error !== null) console.log(error);
 			}
-			const artist_id = artistList.find((artist) => artist.artist_name == artist_name)?.id;
+			const artist_id = artistList.find((artist) => artist.artist_name === artist_name)?.id;
 
 			tradeBodyList.push({
 				item_name: element[i][itemNameIndex()],
