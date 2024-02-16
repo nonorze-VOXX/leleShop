@@ -9,6 +9,21 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      artist: {
+        Row: {
+          artist_name: string | null
+          id: number
+        }
+        Insert: {
+          artist_name?: string | null
+          id?: never
+        }
+        Update: {
+          artist_name?: string | null
+          id?: never
+        }
+        Relationships: []
+      }
       countries: {
         Row: {
           id: number
@@ -24,48 +39,9 @@ export type Database = {
         }
         Relationships: []
       }
-      trade: {
-        Row: {
-          artist_name: string | null
-          discount: number | null
-          id: number
-          item_name: string | null
-          net_sales: number | null
-          quantity: number | null
-          state: string | null
-          total_sales: number | null
-          trade_date: string | null
-          trade_id: string | null
-        }
-        Insert: {
-          artist_name?: string | null
-          discount?: number | null
-          id?: never
-          item_name?: string | null
-          net_sales?: number | null
-          quantity?: number | null
-          state?: string | null
-          total_sales?: number | null
-          trade_date?: string | null
-          trade_id?: string | null
-        }
-        Update: {
-          artist_name?: string | null
-          discount?: number | null
-          id?: never
-          item_name?: string | null
-          net_sales?: number | null
-          quantity?: number | null
-          state?: string | null
-          total_sales?: number | null
-          trade_date?: string | null
-          trade_id?: string | null
-        }
-        Relationships: []
-      }
       trade_body: {
         Row: {
-          artist_name: string | null
+          artist_id: number | null
           discount: number | null
           id: number
           item_name: string | null
@@ -75,7 +51,7 @@ export type Database = {
           trade_id: string | null
         }
         Insert: {
-          artist_name?: string | null
+          artist_id?: number | null
           discount?: number | null
           id?: never
           item_name?: string | null
@@ -85,7 +61,7 @@ export type Database = {
           trade_id?: string | null
         }
         Update: {
-          artist_name?: string | null
+          artist_id?: number | null
           discount?: number | null
           id?: never
           item_name?: string | null
@@ -95,6 +71,13 @@ export type Database = {
           trade_id?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "trade_body_artist_id_fkey"
+            columns: ["artist_id"]
+            isOneToOne: false
+            referencedRelation: "artist"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "trade_body_trade_id_fkey"
             columns: ["trade_id"]
