@@ -11,9 +11,7 @@
 	let total_quantity = 0;
 	export let data: PageData;
 	onMount(() => {
-		if (data.data.length > 0) {
-			artist_name = data.data.at(0)?.artist_name as string;
-		}
+		artist_name = data.artist_name as string;
 		total = 0;
 		net_total = 0;
 		discount_total = 0;
