@@ -29,18 +29,18 @@ export default {
 		}
 		return { error, data };
 	},
-	async SaveTradeBody(data: TradeBody[]) {
-		const { error } = await supabase.from('trade_body').insert(data);
+	async SaveTradeBody(body: TradeBody[]) {
+		const { data, error } = await supabase.from('trade_body').insert(body).select();
 		if (error !== null) {
 			console.log(error);
 		}
-		return { error };
+		return { data, error };
 	},
-	async SaveTradeHead(data: TradeHead[]) {
-		const { error } = await supabase.from('trade_head').insert(data);
+	async SaveTradeHead(head: TradeHead[]) {
+		const { data, error } = await supabase.from('trade_head').insert(head).select();
 		if (error !== null) {
 			console.log(error);
 		}
-		return { error };
+		return { data, error };
 	}
 };
