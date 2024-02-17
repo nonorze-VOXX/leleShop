@@ -18,5 +18,15 @@ export const actions = {
 			});
 		}
 		return true;
+	},
+	logout: async () => {
+		const { error } = await supabase.auth.signOut();
+		if (error !== null) {
+			return fail(400, {
+				error: true,
+				message: 'logout failed'
+			});
+		}
+		return true;
 	}
 };
