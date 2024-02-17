@@ -1,6 +1,7 @@
 import { fail } from '@sveltejs/kit';
-import { supabase } from '$lib/db.js';
-import type { Database } from '$lib/db.types.js';
+import { supabase } from '$lib/db';
+import db from '$lib/db';
+import { type TradeBody, type TradeHead, type Artist } from '$lib/db';
 
 let dataHeader: string[] = [];
 const findIndex = (target: string) => {
@@ -73,8 +74,6 @@ export const actions = {
 		return true;
 	}
 };
-type TradeHead = Database['public']['Tables']['trade_head']['Insert'];
-type TradeBody = Database['public']['Tables']['trade_body']['Insert'];
 
 const storeToDB = async (groupByIndex: Record<string, string[][]>) => {
 	console.log('start store');
@@ -86,6 +85,13 @@ const storeToDB = async (groupByIndex: Record<string, string[][]>) => {
 	}
 	const tradeQueryResult = data as unknown as { trade_id: string }[];
 	const storedIdList = tradeQueryResult.map((i) => i.trade_id);
+
+	const artistResult = await supabase.from('artist').select();
+	if (artistResult.error != null) {
+		console.log('fetch artist name fail');
+	}
+	let artistNameInDb = artistResult.data?.map((i) => i.artist_name);
+	let artistList = artistResult.data as unknown as Artist[];
 
 	for (const key in groupByIndex) {
 		if (key === undefined || key === 'undefined') continue;
@@ -103,14 +109,24 @@ const storeToDB = async (groupByIndex: Record<string, string[][]>) => {
 		});
 
 		for (let i = 0; i < element.length; i++) {
+			const artist_name = element[i][artistIndex()];
+			if (!artistNameInDb?.includes(artist_name)) {
+				const { error, data } = await db.SaveArtistName([{ artist_name }]);
+				const artist = data !== null ? data[0] : {};
+				artistList.push(artist);
+				artistNameInDb?.push(artist_name);
+				if (error !== null) console.log(error);
+			}
+			const artist_id = artistList.find((artist) => artist.artist_name === artist_name)?.id;
+
 			tradeBodyList.push({
-				artist_name: element[i][artistIndex()],
 				item_name: element[i][itemNameIndex()],
 				quantity: parseInt(element[i][quantityIndex()]),
 				trade_id: element[i][tradeIdIndex()],
 				total_sales: parseFloat(element[i][totalIndex()]),
 				discount: parseFloat(element[i][discountIndex()]),
-				net_sales: parseFloat(element[i][netIndex()])
+				net_sales: parseFloat(element[i][netIndex()]),
+				artist_id: artist_id
 			});
 		}
 	}
@@ -120,16 +136,14 @@ const storeToDB = async (groupByIndex: Record<string, string[][]>) => {
 	console.log('end store');
 };
 const savePartToDb = async (tradeBodyList: TradeBody[], tradeHeadList: TradeHead[]) => {
-	const { error } = await supabase.from('trade_head').insert(tradeHeadList);
-
-	if (error !== null) {
-		console.log(error);
-	} else {
-		const error = await supabase.from('trade_body').insert(tradeBodyList);
-		if (error !== null) {
-			console.log(error);
+	const { error } = await db.SaveTradeHead(tradeHeadList);
+	if (error === null) {
+		const { error } = await db.SaveTradeBody(tradeBodyList);
+		if (error === null) {
+			return { error: null };
 		}
 	}
+	return { error };
 };
 
 const fileToArray = async (file: File) => {
