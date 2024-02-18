@@ -16,3 +16,20 @@ export const load = async () => {
 	}
 	return { data };
 };
+
+export const actions = {
+	UpdateReportKey: async ({ request }) => {
+		const formData = await request.formData();
+		const id = formData.get('id') as string;
+		const random = randomString(5);
+		const { data, error } = await supabase
+			.from('artist')
+			.update({ report_key: random })
+			.eq('id', id)
+			.select();
+		console.log(data);
+		console.log(error);
+		const key = data?.at(0).report_key;
+		return { key };
+	}
+};
