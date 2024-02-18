@@ -1,5 +1,14 @@
 <script lang="ts">
 	export let tableData: string[][];
+	export let buttonPart: {
+		haveButton: boolean;
+		buttonText: string;
+		ButtonFunction: (value: string[]) => Promise<void>;
+	} = {
+		haveButton: false,
+		buttonText: '',
+		ButtonFunction: async (value: string[]) => {}
+	};
 </script>
 
 {#if tableData && tableData.length > 0}
@@ -23,6 +32,16 @@
 							{cell}
 						</td>
 					{/each}
+					{#if buttonPart.haveButton}
+						<td class="py-2 px-2">
+							<button
+								class="bg-green-500 text-white rounded-md p-1"
+								on:click={() => buttonPart.ButtonFunction(table)}
+							>
+								{buttonPart.buttonText}
+							</button>
+						</td>
+					{/if}
 				</tr>
 			</tbody>
 		{/each}
