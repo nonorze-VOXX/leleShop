@@ -13,13 +13,14 @@
 	let discount_total = 0;
 	let commission = 0;
 	let total_quantity = 0;
-	let artist_id = '3726';
+	let artist_id: string = '';
 	export let data: PageData;
 	let admit = false;
 	let admit_fail = false;
 	let tradeData: TradeBody[] = [];
 	onMount(() => {
 		artist_name = data.artist_name as string;
+		artist_id = data.id;
 	});
 	const noCommisionText = '這個月優惠，不抽成喔';
 	const SubmitKey = async (event: { currentTarget: EventTarget & HTMLFormElement }) => {

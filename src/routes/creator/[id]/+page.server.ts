@@ -5,7 +5,8 @@ import type { PageServerLoad } from './$types';
 export const load: PageServerLoad = async ({ params }) => {
 	const artist_name = await GetArtistName(parseInt(params.id));
 	return {
-		artist_name
+		artist_name,
+		id: params.id
 	};
 };
 export const actions = {
