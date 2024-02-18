@@ -1,4 +1,6 @@
 <script lang="ts">
+	import LeleTable from '$lib/Component/LeleTable.svelte';
+
 	import { applyAction, deserialize } from '$app/forms';
 	import { invalidateAll } from '$app/navigation';
 	import type { ActionResult } from '@sveltejs/kit';
@@ -8,7 +10,7 @@
 		LOGIN_FAILED,
 		PROCESSED
 	}
-	let final: string[][];
+	let tableData: string[][];
 	let processed: ProcessedStatus = ProcessedStatus.NORMAL;
 	async function handleSubmit(event: { currentTarget: EventTarget & HTMLFormElement }) {
 		const data = new FormData(event.currentTarget);
@@ -84,30 +86,4 @@
 		</div>
 	</div>
 </div>
-{#if final && final.length > 0}
-	<!-- <table class="table-auto text-white"> -->
-	<table class="min-w-full text-left text-base text-white font-medium">
-		<thead class="border-b">
-			<tr>
-				{#each final[0] as cell}
-					<td>
-						{cell}
-					</td>
-				{/each}
-			</tr>
-		</thead>
-		{#each final.slice(1) as table}
-			<tbody>
-				<tr
-					class="border-b transition duration-300 ease-in-out hover:bg-neutral-100 dark:border-neutral-500 dark:hover:bg-neutral-600"
-				>
-					{#each table as cell}
-						<td class="py-2 px-2">
-							{cell}
-						</td>
-					{/each}
-				</tr>
-			</tbody>
-		{/each}
-	</table>
-{/if}
+<LeleTable bind:tableData></LeleTable>
