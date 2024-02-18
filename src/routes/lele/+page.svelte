@@ -16,6 +16,7 @@
 	}
 
 	let tableData: string[][];
+	let tableHead: string[] = ['artist name'];
 	onMount(async () => {
 		tableData = data.data?.map((artist) => {
 			return [artist.artist_name];
@@ -24,14 +25,20 @@
 	const ButtonFunction = async (value: string[]) => {};
 </script>
 
-{#if data.data !== null}
+<!-- {#if data.data !== null}
 	{#each data.data as artist}
 		<div>
 			{artist.artist_name}
 		</div>
 	{/each}
-{/if}
-<LeleTable
-	bind:tableData
-	buttonPart={{ haveButton: true, buttonText: 'UpdatePassword', ButtonFunction }}
-></LeleTable>
+{/if} -->
+
+<div class="flex flex-col items-center">
+	<div class="lg:w-1/2 rounded-lg overflow-hidden bg-slate-400">
+		<LeleTable
+			bind:tableHead
+			bind:tableData
+			buttonPart={{ haveButton: true, buttonText: 'UpdatePassword', ButtonFunction }}
+		></LeleTable>
+	</div>
+</div>

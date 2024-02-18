@@ -1,4 +1,5 @@
 <script lang="ts">
+	export let tableHead: string[];
 	export let tableData: string[][];
 	export let buttonPart: {
 		haveButton: boolean;
@@ -15,14 +16,14 @@
 	<table class="min-w-full text-left text-base text-white font-medium">
 		<thead class="border-b">
 			<tr>
-				{#each tableData[0] as cell}
-					<td>
+				{#each tableHead as cell}
+					<td class="text-center p-2 text-lg font-semibold">
 						{cell}
 					</td>
 				{/each}
 			</tr>
 		</thead>
-		{#each tableData.slice(1) as table}
+		{#each tableData as table}
 			<tbody>
 				<tr
 					class="border-b transition duration-300 ease-in-out hover:bg-neutral-100 dark:border-neutral-500 dark:hover:bg-neutral-600"
