@@ -50,7 +50,7 @@
 </script>
 
 <div class="flex flex-col items-center">
-	<div class=" rounded-lg bg-slate-400">
+	<div class=" rounded-lg bg-slate-600">
 		<LeleTable
 			bind:tableHead
 			bind:tableData

@@ -6,7 +6,7 @@
 	import { goto } from '$app/navigation';
 	export let data: PageData;
 	let tableData: string[][] = [];
-	let tableHead: string[] = [];
+	let tableHead: string[] = ['artist_name'];
 	let artistData: Artist[];
 
 	onMount(() => {
@@ -33,7 +33,7 @@
 	</div>
 </div>
 <div class="flex flex-col items-center">
-	<div class="w-1/2 bg-slate-600 rounded-lg overflow-hidden">
+	<div class=" bg-slate-600 rounded-lg">
 		<LeleTable
 			bind:tableData
 			bind:tableHead
