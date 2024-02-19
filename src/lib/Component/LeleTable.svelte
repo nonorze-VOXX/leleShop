@@ -13,7 +13,7 @@
 </script>
 
 {#if tableData && tableData.length > 0}
-	<table class="min-w-full text-left text-base text-white font-medium">
+	<table class="min-w-full table-auto text-left text-base text-white font-medium">
 		<thead class="border-b">
 			<tr>
 				{#each tableHead as cell}
@@ -26,7 +26,7 @@
 		{#each tableData as table}
 			<tbody>
 				<tr
-					class="border-b justify-between flex transition duration-300 ease-in-out hover:bg-neutral-100 dark:border-neutral-500 dark:hover:bg-neutral-600"
+					class="border-b transition duration-300 ease-in-out hover:bg-neutral-100 dark:border-neutral-500 dark:hover:bg-neutral-600"
 				>
 					{#each table as cell}
 						<td class="py-2 px-2">
@@ -34,7 +34,7 @@
 						</td>
 					{/each}
 					{#if buttonPart.haveButton}
-						<td class="py-2 px-2 grow-0">
+						<td class="py-2 px-2">
 							<button
 								class="bg-green-500 text-white rounded-md p-1"
 								on:click={() => buttonPart.ButtonFunction(table)}
