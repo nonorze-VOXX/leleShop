@@ -8,16 +8,6 @@
 	import type { Artist } from '$lib/db';
 
 	export let data: PageData;
-	async function UpdateHash(artist_id: string) {
-		const data = new FormData();
-		data.append('artist_id', artist_id.toString());
-		const response = await fetch('?/updateHash', {
-			method: 'POST',
-			body: data
-		});
-		const result = await response.text();
-		console.log(result);
-	}
 
 	let tableData: string[][];
 	let tableHead: string[] = ['artist name'];
@@ -43,8 +33,16 @@
 			body: data
 		});
 		const result: ActionResult = deserialize(await response.text());
+		console.log(result.type);
 		if (result.type === 'success') {
-			invalidateAll();
+			console.log('refresh');
+			let artistIndex = tableData.findIndex((e) => e[0] === artist.artist_name);
+			console.log(artistIndex);
+
+			if (artistIndex !== undefined) {
+				tableData[artistIndex][1] = result.data?.key;
+			}
+			await invalidateAll();
 		}
 	};
 </script>

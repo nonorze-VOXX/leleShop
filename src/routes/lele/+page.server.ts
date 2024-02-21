@@ -10,7 +10,7 @@ const randomString = (length: number) => {
 };
 
 export const load = async () => {
-	const { data, error } = await supabase.from('artist').select();
+	const { data, error } = await supabase.from('artist').select().order('id', { ascending: true });
 	if (error) {
 		console.log(error);
 	}
@@ -27,9 +27,11 @@ export const actions = {
 			.update({ report_key: random })
 			.eq('id', id)
 			.select();
-		console.log(data);
-		console.log(error);
-		const key = data?.at(0).report_key;
+		if (error) {
+			console.log(error);
+		}
+
+		const key = data?.at(0)?.report_key;
 		return { key };
 	}
 };
