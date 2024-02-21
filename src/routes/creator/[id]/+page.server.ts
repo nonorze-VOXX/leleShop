@@ -1,7 +1,35 @@
 import { supabase } from '$lib/db';
+import { fail } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ params }) => {
+	const artist_name = await GetArtistName(parseInt(params.id));
+	return {
+		artist_name,
+		id: params.id
+	};
+};
+export const actions = {
+	GetTradeData: async ({ request }) => {
+		const formData = await request.formData();
+		const key = formData.get('password') as string;
+		const id = formData.get('id') as string;
+		const { data, error } = await supabase
+			.from('artist')
+			.select('report_key')
+			.eq('id', parseInt(id));
+		if (error) {
+			console.log(error);
+		}
+		const keyList = data?.map((e) => e.report_key);
+		if (keyList?.includes(key)) {
+			const tradeData = await GetTradeData(id);
+			return { admit: true, tradeData };
+		}
+		return fail(400, { error: true, message: 'key not right' });
+	}
+};
+const GetTradeData = async (id: string) => {
 	const date = new Date();
 	const firstDay = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth() - 1, 1));
 	const lastDay = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), 1));
@@ -11,24 +39,17 @@ export const load: PageServerLoad = async ({ params }) => {
 		.gt('trade_head.trade_date', firstDay.toISOString())
 		.lt('trade_head.trade_date', lastDay.toISOString())
 		.eq('trade_head.state', '關閉')
-		.eq('artist_id', params.id);
-	console.log(data);
+		.eq('artist_id', id);
 	if (error !== null) {
 		console.log(error);
 	}
-	const tradeData = data;
-	const artist_name = await GetArtistName(parseInt(params.id));
-	return {
-		data: tradeData ?? [],
-		artist_name
-	};
+	return data;
 };
 const GetArtistName = async (id: number) => {
 	const { data, error } = await supabase.from('artist').select().eq('id', id);
 	if (error !== null) {
 		console.log(error);
 	}
-	console.log(data);
 	if (data === null || data.length === 0) {
 		return 'not found this artist';
 	}

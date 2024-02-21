@@ -13,14 +13,17 @@ export type Database = {
         Row: {
           artist_name: string | null
           id: number
+          report_key: string | null
         }
         Insert: {
           artist_name?: string | null
           id?: never
+          report_key?: string | null
         }
         Update: {
           artist_name?: string | null
           id?: never
+          report_key?: string | null
         }
         Relationships: []
       }
@@ -41,34 +44,34 @@ export type Database = {
       }
       trade_body: {
         Row: {
-          artist_id: number | null
-          discount: number | null
+          artist_id: number
+          discount: number
           id: number
-          item_name: string | null
-          net_sales: number | null
-          quantity: number | null
-          total_sales: number | null
-          trade_id: string | null
+          item_name: string
+          net_sales: number
+          quantity: number
+          total_sales: number
+          trade_id: string
         }
         Insert: {
-          artist_id?: number | null
-          discount?: number | null
+          artist_id: number
+          discount: number
           id?: never
-          item_name?: string | null
-          net_sales?: number | null
-          quantity?: number | null
-          total_sales?: number | null
-          trade_id?: string | null
+          item_name: string
+          net_sales: number
+          quantity: number
+          total_sales: number
+          trade_id: string
         }
         Update: {
-          artist_id?: number | null
-          discount?: number | null
+          artist_id?: number
+          discount?: number
           id?: never
-          item_name?: string | null
-          net_sales?: number | null
-          quantity?: number | null
-          total_sales?: number | null
-          trade_id?: string | null
+          item_name?: string
+          net_sales?: number
+          quantity?: number
+          total_sales?: number
+          trade_id?: string
         }
         Relationships: [
           {

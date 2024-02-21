@@ -1,40 +1,24 @@
 <script lang="ts">
-	import LeleTable from '$lib/Component/LeleTable.svelte';
-
-	import { applyAction, deserialize } from '$app/forms';
-	import { invalidateAll } from '$app/navigation';
+	import { deserialize } from '$app/forms';
 	import type { ActionResult } from '@sveltejs/kit';
-	enum ProcessedStatus {
-		NORMAL,
-		PROCESSING,
-		LOGIN_FAILED,
-		PROCESSED
-	}
-	let tableData: string[][];
-	let processed: ProcessedStatus = ProcessedStatus.NORMAL;
-	async function handleSubmit(event: { currentTarget: EventTarget & HTMLFormElement }) {
+	import type { PageData } from './$types';
+	import { invalidateAll } from '$app/navigation';
+	export let data: PageData;
+
+	let loginFailed = false;
+	async function LoginSubmit(event: { currentTarget: EventTarget & HTMLFormElement }) {
 		const data = new FormData(event.currentTarget);
 
-		processed = ProcessedStatus.PROCESSING;
 		const response = await fetch(event.currentTarget.action, {
 			method: 'POST',
 			body: data
 		});
-
 		const result: ActionResult = deserialize(await response.text());
-		console.log(result);
-
 		if (result.type === 'success') {
-			// rerun all `load` functions, following the successful update
-			console.log(result.data);
-			// processed = result.data;
-			processed = ProcessedStatus.PROCESSED;
-			await invalidateAll();
-		} else if (result.type === 'failure') {
-			processed = ProcessedStatus.LOGIN_FAILED;
+			invalidateAll();
+		} else {
+			loginFailed = true;
 		}
-
-		applyAction(result);
 	}
 </script>
 
@@ -42,7 +26,8 @@
 	<div class="flex justify-center">
 		<div class="flex flex-col rounded-xl bg-white items-center p-5">
 			<form
-				on:submit|preventDefault={handleSubmit}
+				action="?/login"
+				on:submit|preventDefault={LoginSubmit}
 				class="flex flex-col gap-4 items-center text-lg"
 			>
 				<div class="w-full flex gap-3 justify-between items-center">
@@ -66,23 +51,14 @@
 						required
 					/>
 				</div>
-				<div>
-					<label for="file">Upload your file</label>
-					<input multiple type="file" id="file" name="fileToUpload" accept=".csv" required />
-				</div>
+				{#if loginFailed}
+					<div class="text-xl text-red-700 text-center">Login fail</div>
+				{/if}
 
 				<button class="rounded-full px-3 bg-green-600 w-fit text-white font-bold" type="submit"
 					>Submit</button
 				>
 			</form>
-
-			{#if processed === ProcessedStatus.PROCESSING}
-				<p class="text-7xl">Processing...</p>
-			{:else if processed === ProcessedStatus.PROCESSED}
-				<p class="text-7xl">DONE</p>
-			{:else if processed === ProcessedStatus.LOGIN_FAILED}
-				<p class="text-7xl text-red-600">Login failed</p>
-			{/if}
 		</div>
 	</div>
 </div>
