@@ -26,12 +26,14 @@ export const actions = {
 			.from('artist')
 			.update({ report_key: random })
 			.eq('id', id)
-			.select();
+			.select()
+			.single();
+
 		if (error) {
-			console.log(error);
+			console.error(error);
 		}
 
-		const key = data?.at(0)?.report_key;
+		const key = data?.report_key;
 		return { key };
 	}
 };

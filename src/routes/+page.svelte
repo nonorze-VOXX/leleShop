@@ -33,7 +33,7 @@
 	</div>
 </div>
 <div class="flex flex-col items-center">
-	<div class=" bg-slate-600 rounded-lg">
+	<div class="w-1/2 p-3">
 		<LeleTable
 			bind:tableData
 			bind:tableHead

@@ -90,8 +90,8 @@ const storeToDB = async (groupByIndex: Record<string, string[][]>) => {
 	if (artistResult.error != null) {
 		console.log('fetch artist name fail');
 	}
-	let artistNameInDb = artistResult.data?.map((i) => i.artist_name);
-	let artistList = artistResult.data as unknown as Artist[];
+	const artistNameInDb = artistResult.data?.map((i) => i.artist_name);
+	const artistList = artistResult.data as unknown as Artist[];
 
 	for (const key in groupByIndex) {
 		if (key === undefined || key === 'undefined') continue;

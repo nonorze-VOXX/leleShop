@@ -46,12 +46,12 @@ const GetTradeData = async (id: string) => {
 	return data;
 };
 const GetArtistName = async (id: number) => {
-	const { data, error } = await supabase.from('artist').select().eq('id', id);
+	const { data, error } = await supabase.from('artist').select().eq('id', id).maybeSingle();
 	if (error !== null) {
-		console.log(error);
+		console.error(error);
 	}
-	if (data === null || data.length === 0) {
+	if (data === null) {
 		return 'not found this artist';
 	}
-	return data[0].artist_name;
+	return data.artist_name;
 };
