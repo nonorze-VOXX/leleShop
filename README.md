@@ -1,22 +1,30 @@
-# create-svelte
+# lele shop (A.K.A the create)
 
-Everything you need to build a Svelte project, powered by [`create-svelte`](https://github.com/sveltejs/kit/tree/main/packages/create-svelte).
+## About
 
-## Creating a project
-
-If you're seeing this, you've probably already done this step. Congrats!
-
-```bash
-# create a new project in the current directory
-npm create svelte@latest
-
-# create a new project in my-app
-npm create svelte@latest my-app
-```
+this is a project for "the create" shop to use.
 
 ## Developing
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+> [!WARNING]  
+> Because this [ssl issue](https://github.com/sveltejs/kit/issues/11365),
+> use node@20 to dev. \
+> volta is a good command to resolve this problem.
+
+### Volta pre setup
+
+```bash
+volta install node@20
+volta install npm
+```
+
+### Setup
+
+```bash
+npm i
+```
+
+### Start code
 
 ```bash
 npm run dev
