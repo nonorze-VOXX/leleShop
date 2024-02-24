@@ -48,11 +48,9 @@
 </script>
 
 <div class="flex flex-col items-center">
-	<div class=" rounded-lg bg-slate-600">
-		<LeleTable
-			bind:tableHead
-			bind:tableData
-			buttonPart={{ haveButton: true, buttonText: 'UpdatePassword', ButtonFunction }}
-		></LeleTable>
-	</div>
+	<LeleTable
+		bind:tableHead
+		bind:tableData
+		buttonPart={{ haveButton: true, buttonText: 'update key', ButtonFunction }}
+	></LeleTable>
 </div>
