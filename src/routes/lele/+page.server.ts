@@ -1,13 +1,20 @@
 import { supabase } from '$lib/db';
 
-const randomString = (length: number) => {
-	const array = new Uint32Array(length);
-	crypto.getRandomValues(array);
-	return btoa(array.join('')) //
-		.replace(/\+/g, '-')
-		.replace(/\//g, '_')
-		.replace(/=+$/, '');
+const randomNumber = (length: number) => {
+	let number = '';
+	for (let i = 0; i < length; i++) {
+		number += Math.floor(Math.random() * 10).toString();
+	}
+	return number;
 };
+// const randomString = (length: number) => {
+// 	const array = new Uint32Array(length);
+// 	crypto.getRandomValues(array);
+// 	return btoa(array.join('')) //
+// 		.replace(/\+/g, '-')
+// 		.replace(/\//g, '_')
+// 		.replace(/=+$/, '');
+// };
 
 export const load = async () => {
 	const { data, error } = await supabase.from('artist').select().order('id', { ascending: true });
@@ -21,7 +28,7 @@ export const actions = {
 	UpdateReportKey: async ({ request }) => {
 		const formData = await request.formData();
 		const id = formData.get('id') as string;
-		const random = randomString(5);
+		const random = randomNumber(5);
 		const { data, error } = await supabase
 			.from('artist')
 			.update({ report_key: random })
