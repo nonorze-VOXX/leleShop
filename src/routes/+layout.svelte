@@ -7,6 +7,8 @@
 		<div class="w-24 h-24">
 			<img src="/favicon.png" alt="no icon" />
 		</div>
+		<div class="p-4">
+			<slot />
+		</div>
 	</div>
-	<slot />
 </div>
