@@ -13,9 +13,9 @@
 </script>
 
 {#if tableData && tableData.length > 0}
-	<div class="border-red-900 border-2 rounded-lg overflow-hidden w-full">
+	<div class="border-lele-line border-2 rounded-lg overflow-hidden w-full">
 		<table class="min-w-fit text-left text-base font-medium table-auto w-full">
-			<thead class="border-b dark:border-neutral-500">
+			<thead class="border-b border-lele-line">
 				<tr>
 					{#each tableHead as cell}
 						<td class="text-center p-2 text-lg font-semibold">
