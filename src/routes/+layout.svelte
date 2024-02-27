@@ -7,7 +7,7 @@
 		<div class="w-24 h-24">
 			<img src="/favicon.png" alt="no icon" />
 		</div>
-		<div class="p-4">
+		<div class="p-4 xl:w-3/4 lg:w-3/4 w-full">
 			<slot />
 		</div>
 	</div>
