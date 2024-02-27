@@ -4,9 +4,9 @@
 	import type { PageData } from './$types';
 	import type { Artist } from '$lib/db';
 	import { goto } from '$app/navigation';
+	import LeleBox from '$lib/Component/LeleBox.svelte';
 	export let data: PageData;
 	let tableData: string[][] = [];
-	let tableHead: string[] = ['artist_name'];
 	let artistData: Artist[];
 
 	onMount(() => {
@@ -27,17 +27,41 @@
 	};
 </script>
 
-<div class="w-screen h-fit gap-4 p-4 flex flex-wrap">
-	<div class="rounded-lg border-4 w-fit h-fit border-blue-700 p-3 text-5xl">
-		<a href="./importCsv">import csv</a>
+<LeleBox>
+	<!-- <LeleTable
+		bind:tableData
+		bind:tableHead
+		buttonPart={{ haveButton: true, buttonText: 'view', ButtonFunction }}
+	/> -->
+	<div class="overflow-auto relative">
+		<table class="w-full text-left table-fixed">
+			<thead class=" border-b-4 border-lele-line border-opacity-70">
+				<tr>
+					<th scope="col" class="p-2 text-lg w-fit"> 品牌 </th>
+					<th scope="col" class="p-2 text-lg"> 繳費狀態 </th>
+					<th scope="col" class="p-2 text-lg w-20"> 銷售 </th>
+				</tr>
+			</thead>
+			<tbody>
+				{#if data.data}
+					{#each data.data as artists}
+						<tr class="text-base font-semibold hover:bg-slate-600 hover:text-white">
+							<td class="p-2">
+								{artists.artist_name}
+							</td>
+							<td class="p-2">
+								continue...
+								<!-- {artists.artist_name} -->
+							</td>
+							<td class="p-2">
+								<a class="bg-lele-line text-lele-bg rounded-lg p-2" href={'/creator/' + artists.id}>
+									報表
+								</a>
+							</td>
+						</tr>
+					{/each}
+				{/if}
+			</tbody>
+		</table>
 	</div>
-</div>
-<div class="flex flex-col items-center">
-	<div class="w-1/2 p-3">
-		<LeleTable
-			bind:tableData
-			bind:tableHead
-			buttonPart={{ haveButton: true, buttonText: 'view', ButtonFunction }}
-		/>
-	</div>
-</div>
+</LeleBox>

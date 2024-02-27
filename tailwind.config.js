@@ -2,7 +2,12 @@
 export default {
 	content: ['./src/**/*.{html,js,svelte,ts}'],
 	theme: {
-		extend: {}
+		extend: {
+			colors: {
+				'lele-bg': '#FFFBE2',
+				'lele-line': '#583225'
+			}
+		}
 	},
 	plugins: []
 };
