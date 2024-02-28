@@ -94,8 +94,8 @@
 </script>
 
 <div class="flex flex-col gap-3 items-center">
-	<h1 class="text-center p-5 text-3xl font-bold">{artist_name}</h1>
 	{#if !admit}
+		<h1 class="text-center p-5 text-3xl font-bold">{artist_name}</h1>
 		<form action="?/GetTradeData" on:submit|preventDefault={SubmitKey} class="flex">
 			<input type="password" id="password" name="password" required />
 
@@ -109,10 +109,11 @@
 			{/if}
 		</form>
 	{:else}
-		<div class="w-full flex justify-between">
+		<div class="w-full text-center text-xl font-bold flex justify-center gap-4">
 			<div></div>
+			<h1 class="">{artist_name}</h1>
 			{#if net_total != -1}
-				<div class="text-center text-xl font-bold">
+				<div class="flex">
 					<p class="inline">抽成10%:</p>
 					{#if net_total >= 2000}
 						{commission}
@@ -123,7 +124,7 @@
 			{/if}
 		</div>
 		{#if data}
-			<div>
+			<div class="flex flex-col w-full">
 				<div class="flex justify-start px-2">
 					{#each tabDataList as tabData}
 						<div
@@ -134,8 +135,8 @@
 					{/each}
 				</div>
 
-				<div class="border-lele-line max-h-screen w-full border-2 rounded-lg overflow-auto">
-					<table class="min-w-fit text-left text-sm font-medium table-fixed w-full relative">
+				<div class="border-lele-line max-h-screen w-full border-2 rounded-lg overflow-x-auto">
+					<table class="text-left text-sm font-medium table-fixed w-full relative">
 						<thead class="shadow-lg text-lele-bg font-semibold text-sm bg-lele-line sticky top-0">
 							<th scope="col" class="py-2 px-4 w-20"> 日期 </th>
 							<th scope="col" class="py-2 px-4 w-20"> 收據號碼 </th>
