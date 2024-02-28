@@ -33,7 +33,7 @@
 		bind:tableHead
 		buttonPart={{ haveButton: true, buttonText: 'view', ButtonFunction }}
 	/> -->
-	<div class="overflow-auto relative">
+	<div class="overflow-auto relative p-2">
 		<table class="w-full text-left table-fixed">
 			<thead class=" border-b-4 border-lele-line border-opacity-70">
 				<tr>

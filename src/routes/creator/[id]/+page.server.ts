@@ -22,22 +22,22 @@ export const actions = {
 			console.log(error);
 		}
 		const keyList = data?.map((e) => e.report_key);
-		if (keyList?.includes(key)) {
-			const tradeData = await GetTradeData(id);
-			return { admit: true, tradeData };
+		if (!keyList?.includes(key)) {
+			return fail(400, { admit: true, tradeData: [] });
 		}
-		return fail(400, { error: true, message: 'key not right' });
+		const tradeData = await GetTradeData(id);
+		return { admit: true, tradeData };
 	}
 };
 const GetTradeData = async (id: string) => {
-	const date = new Date();
-	const firstDay = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth() - 1, 1));
-	const lastDay = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), 1));
+	// const date = new Date();
+	// const firstDay = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth() - 1, 1));
+	// const lastDay = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), 1));
 	const { data, error } = await supabase
 		.from('trade_body')
 		.select('*, trade_head!inner(trade_id, trade_date, state)')
-		.gt('trade_head.trade_date', firstDay.toISOString())
-		.lt('trade_head.trade_date', lastDay.toISOString())
+		// .gt('trade_head.trade_date', firstDay.toISOString())
+		// .lt('trade_head.trade_date', lastDay.toISOString())
 		.eq('trade_head.state', '關閉')
 		.eq('artist_id', id);
 	if (error !== null) {
