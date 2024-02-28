@@ -37,8 +37,8 @@
 		<table class="w-full text-left table-fixed">
 			<thead class=" border-b-4 border-lele-line border-opacity-70">
 				<tr>
-					<th scope="col" class="p-2 text-lg w-fit"> 品牌 </th>
-					<th scope="col" class="p-2 text-lg"> 繳費狀態 </th>
+					<th scope="col" class="p-2 text-lg w-auto"> 品牌 </th>
+					<th scope="col" class="p-2 text-lg w-28"> 繳費狀態 </th>
 					<th scope="col" class="p-2 text-lg w-20"> 銷售 </th>
 				</tr>
 			</thead>
