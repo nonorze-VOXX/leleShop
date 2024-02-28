@@ -74,6 +74,7 @@
 				tabDataList.push(m);
 			}
 		});
+		tabDataList.sort((a, b) => parseInt(a) - parseInt(b));
 
 		console.log(tabDataList);
 	};
@@ -90,6 +91,18 @@
 			total_quantity += element.quantity ? element.quantity : 0;
 		});
 		commission = net_total >= 2000 ? Math.floor(net_total * 0.1) : 0;
+	};
+	const FormatDate = (dateStr: string) => {
+		const date = new Date(dateStr);
+		return (
+			date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate()
+			//+ ' ' +
+			// date.getHours() +
+			// ':' +
+			// date.getMinutes() +
+			// ':' +
+			// date.getSeconds()
+		);
 	};
 </script>
 
@@ -130,7 +143,18 @@
 						<div
 							class="border-t-4 border-l-4 border-r-4 border-lele-line px-1 rounded-t-xl font-semibold"
 						>
-							{tabData}
+							<button
+								on:click={() => {
+									firstDay = new Date(
+										Date.UTC(firstDay.getUTCFullYear(), parseInt(tabData) - 1, 1)
+									);
+									lastDay = new Date(Date.UTC(firstDay.getUTCFullYear(), parseInt(tabData), 1));
+									UpdateShowedTradeDataList();
+									console.log(tabData);
+								}}
+							>
+								{tabData}
+							</button>
 						</div>
 					{/each}
 				</div>
@@ -171,7 +195,7 @@
 								>
 									<td class="py-2 px-4">
 										<p>
-											{trade.trade_head?.trade_date?.split('+')[0].split('T')[0]}
+											{FormatDate(trade.trade_head?.trade_date)}
 										</p>
 										<!-- <p>
 										{trade.trade_head?.trade_date?.split('+')[0].split('T')[1]}
