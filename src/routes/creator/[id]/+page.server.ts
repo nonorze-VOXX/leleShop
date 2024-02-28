@@ -22,11 +22,11 @@ export const actions = {
 			console.log(error);
 		}
 		const keyList = data?.map((e) => e.report_key);
-		if (keyList?.includes(key)) {
-			const tradeData = await GetTradeData(id);
-			return { admit: true, tradeData };
+		if (!keyList?.includes(key)) {
+			return fail(400, { admit: true, tradeData: [] });
 		}
-		return fail(400, { error: true, message: 'key not right' });
+		const tradeData = await GetTradeData(id);
+		return { admit: true, tradeData };
 	}
 };
 const GetTradeData = async (id: string) => {
