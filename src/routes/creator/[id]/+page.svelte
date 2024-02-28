@@ -57,7 +57,7 @@
 	};
 </script>
 
-<div class="flex flex-col p-5 gap-3 items-center">
+<div class="flex flex-col gap-3 items-center">
 	<h1 class="text-center p-5 text-3xl font-bold">{artist_name}</h1>
 	{#if !admit}
 		<form action="?/GetTradeData" on:submit|preventDefault={SubmitKey}>
@@ -68,70 +68,68 @@
 			{/if}
 		</form>
 	{:else}
-		{#if net_total != -1}
-			{#if net_total >= 2000}
-				<div>
+		<div class="w-full flex justify-between">
+			<div></div>
+			{#if net_total != -1}
+				<div class="text-center text-xl font-bold">
 					<p class="inline">抽成10%:</p>
-					{commission}
-				</div>
-			{:else}
-				<div class="text-xl font-medium">
-					<p class="inline">抽成10%:</p>
-					{noCommisionText}
+					{#if net_total >= 2000}
+						{commission}
+					{:else}
+						{noCommisionText}
+					{/if}
 				</div>
 			{/if}
-		{/if}
+		</div>
 		{#if data}
-			<div class="flex justify-center">
-				<div class="border-red-900 border-2 rounded-lg overflow-hidden">
-					<table class="min-w-fit text-left text-base font-medium table-auto">
-						<thead class="border-b dark:border-neutral-500">
-							{#each title as head}
-								<td class="py-2 px-4 font-semibold text-xl">{head}</td>
-							{/each}
-						</thead>
+			<div class="border-red-900 max-h-screen w-full border-2 rounded-lg overflow-auto">
+				<table class="min-w-fit text-left text-sm font-medium table-auto w-full relative">
+					<thead class="shadow-lg text-lele-bg bg-lele-line sticky top-0">
+						{#each title as head}
+							<th class="py-2 px-4 font-semibold text-sm">{head}</th>
+						{/each}
+					</thead>
 
-						<tbody>
+					<tbody class="overflow-y-auto">
+						<tr
+							class=" border-b transition duration-300 ease-in-out hover:bg-neutral-100 dark:border-neutral-500 dark:hover:bg-neutral-300"
+						>
+							<td></td>
+							<td></td>
+							<td class="py-2 px-4">總和</td>
+							<td class="py-2 px-4">{total_quantity}</td>
+							<td class="py-2 px-4">
+								{total}
+							</td>
+							<td class="py-2 px-4">
+								{discount_total}
+							</td>
+							<td class="py-2 px-4">
+								{net_total}
+							</td>
+						</tr>
+						{#each tradeData as trade}
 							<tr
 								class=" border-b transition duration-300 ease-in-out hover:bg-neutral-100 dark:border-neutral-500 dark:hover:bg-neutral-300"
 							>
-								<td></td>
-								<td></td>
-								<td class="py-2 px-4">總和</td>
-								<td class="py-2 px-4">{total_quantity}</td>
 								<td class="py-2 px-4">
-									{total}
+									<p>
+										{trade.trade_head?.trade_date?.split('+')[0].split('T')[0]}
+									</p>
+									<p>
+										{trade.trade_head?.trade_date?.split('+')[0].split('T')[1]}
+									</p>
 								</td>
-								<td class="py-2 px-4">
-									{discount_total}
-								</td>
-								<td class="py-2 px-4">
-									{net_total}
-								</td>
+								<td class="py-2 px-4"> {trade.trade_id}</td>
+								<td class="py-2 px-4"> {trade.item_name}</td>
+								<td class="py-2 px-4"> {trade.quantity}</td>
+								<td class="py-2 px-4"> {trade.total_sales}</td>
+								<td class="py-2 px-4"> {trade.discount}</td>
+								<td class="py-2 px-4"> {trade.net_sales}</td>
 							</tr>
-							{#each tradeData as trade}
-								<tr
-									class=" border-b transition duration-300 ease-in-out hover:bg-neutral-100 dark:border-neutral-500 dark:hover:bg-neutral-300"
-								>
-									<td class="py-2 px-4">
-										<p>
-											{trade.trade_head?.trade_date?.split('+')[0].split('T')[0]}
-										</p>
-										<p>
-											{trade.trade_head?.trade_date?.split('+')[0].split('T')[1]}
-										</p>
-									</td>
-									<td class="py-2 px-4"> {trade.trade_id}</td>
-									<td class="py-2 px-4"> {trade.item_name}</td>
-									<td class="py-2 px-4"> {trade.quantity}</td>
-									<td class="py-2 px-4"> {trade.total_sales}</td>
-									<td class="py-2 px-4"> {trade.discount}</td>
-									<td class="py-2 px-4"> {trade.net_sales}</td>
-								</tr>
-							{/each}
-						</tbody>
-					</table>
-				</div>
+						{/each}
+					</tbody>
+				</table>
 			</div>
 		{/if}
 	{/if}
