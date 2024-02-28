@@ -6,7 +6,6 @@
 	import { deserialize } from '$app/forms';
 	import type { TradeBody } from '$lib/db';
 
-	const title = ['日期', '收據號碼', '商品', '數量', '銷售總額', '折扣', '淨銷售額'];
 	let artist_name: string = '';
 	let total = 0;
 	let net_total = -1;
@@ -83,11 +82,15 @@
 		</div>
 		{#if data}
 			<div class="border-red-900 max-h-screen w-full border-2 rounded-lg overflow-auto">
-				<table class="min-w-fit text-left text-sm font-medium table-auto w-full relative">
+				<table class="min-w-fit text-left text-sm font-medium table-fixed w-full relative">
 					<thead class="shadow-lg text-lele-bg bg-lele-line sticky top-0">
-						{#each title as head}
-							<th class="py-2 px-4 font-semibold text-sm">{head}</th>
-						{/each}
+						<th scope="col" class="py-2 px-4 font-semibold text-sm w-20"> 日期 </th>
+						<th scope="col" class="py-2 px-4 font-semibold text-sm w-20"> 收據號碼 </th>
+						<th scope="col" class="py-2 px-4 font-semibold text-sm w-40"> 商品 </th>
+						<th scope="col" class="py-2 px-4 font-semibold text-sm w-16"> 數量 </th>
+						<th scope="col" class="py-2 px-4 font-semibold text-sm w-16"> 銷售總額 </th>
+						<th scope="col" class="py-2 px-4 font-semibold text-sm w-16"> 折扣 </th>
+						<th scope="col" class="py-2 px-4 font-semibold text-sm w-16"> 淨銷售額 </th>
 					</thead>
 
 					<tbody class="overflow-y-auto">
@@ -116,9 +119,9 @@
 									<p>
 										{trade.trade_head?.trade_date?.split('+')[0].split('T')[0]}
 									</p>
-									<p>
+									<!-- <p>
 										{trade.trade_head?.trade_date?.split('+')[0].split('T')[1]}
-									</p>
+									</p> -->
 								</td>
 								<td class="py-2 px-4"> {trade.trade_id}</td>
 								<td class="py-2 px-4"> {trade.item_name}</td>
