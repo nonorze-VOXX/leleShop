@@ -33,13 +33,13 @@
 		bind:tableHead
 		buttonPart={{ haveButton: true, buttonText: 'view', ButtonFunction }}
 	/> -->
-	<div class="overflow-auto relative p-2">
-		<table class="w-full text-left table-fixed">
+	<div class="relative overflow-auto p-2">
+		<table class="w-full table-fixed text-left">
 			<thead class=" border-b-4 border-lele-line border-opacity-70">
 				<tr>
-					<th scope="col" class="p-2 text-lg w-auto"> 品牌 </th>
-					<th scope="col" class="p-2 text-lg w-28"> 繳費狀態 </th>
-					<th scope="col" class="p-2 text-lg w-20"> 銷售 </th>
+					<th scope="col" class="w-auto p-2 text-lg"> 品牌 </th>
+					<th scope="col" class="w-28 p-2 text-lg"> 繳費狀態 </th>
+					<th scope="col" class="w-20 p-2 text-lg"> 銷售 </th>
 				</tr>
 			</thead>
 			<tbody>
@@ -54,7 +54,7 @@
 								<!-- {artists.artist_name} -->
 							</td>
 							<td class="p-2">
-								<a class="bg-lele-line text-lele-bg rounded-lg p-2" href={'/creator/' + artists.id}>
+								<a class="rounded-lg bg-lele-line p-2 text-lele-bg" href={'/creator/' + artists.id}>
 									報表
 								</a>
 							</td>

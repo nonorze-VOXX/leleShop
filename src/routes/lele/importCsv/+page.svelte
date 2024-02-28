@@ -38,12 +38,12 @@
 	}
 </script>
 
-<div class="flex flex-col justify-center h-screen">
+<div class="flex h-screen flex-col justify-center">
 	<div class="flex justify-center">
-		<div class="flex flex-col rounded-xl bg-white items-center p-5">
+		<div class="flex flex-col items-center rounded-xl bg-white p-5">
 			<form
 				on:submit|preventDefault={handleSubmit}
-				class="flex flex-col gap-4 items-center text-lg"
+				class="flex flex-col items-center gap-4 text-lg"
 			>
 				<!-- <div class="w-full flex gap-3 justify-between items-center">
 					<label for="email">Email</label>
@@ -71,7 +71,7 @@
 					<input multiple type="file" id="file" name="fileToUpload" accept=".csv" required />
 				</div>
 
-				<button class="rounded-full px-3 bg-green-600 w-fit text-white font-bold" type="submit"
+				<button class="w-fit rounded-full bg-green-600 px-3 font-bold text-white" type="submit"
 					>Submit</button
 				>
 			</form>

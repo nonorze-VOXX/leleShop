@@ -21,10 +21,10 @@
 
 {#if $page.url.pathname !== '/lele/login'}
 	<div class="flex justify-center border-b-2 border-red-800 bg-gray-400">
-		<div class="flex justify-between w-full">
+		<div class="flex w-full justify-between">
 			<div></div>
 			<div class="flex justify-end">
-				<div class="rounded-xl bg-red-600 text-white px-3 font-semibold m-2">
+				<div class="m-2 rounded-xl bg-red-600 px-3 font-semibold text-white">
 					<form action="/lele/login?/logout" on:submit|preventDefault={LogoutSubmit}>
 						<button type="submit">Logout</button>
 					</form>
