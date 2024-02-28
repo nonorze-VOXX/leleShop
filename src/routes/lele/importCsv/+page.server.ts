@@ -48,18 +48,18 @@ export const actions = {
 			});
 		}
 
-		const email = formData.get('email') as string;
-		const password = formData.get('password') as string;
-		const { error } = await supabase.auth.signInWithPassword({
-			email: email,
-			password: password
-		});
-		if (error !== null) {
-			return fail(400, {
-				error: true,
-				message: 'login failed'
-			});
-		}
+		// const email = formData.get('email') as string;
+		// const password = formData.get('password') as string;
+		// const { error } = await supabase.auth.signInWithPassword({
+		// 	email: email,
+		// 	password: password
+		// });
+		// if (error !== null) {
+		// 	return fail(400, {
+		// 		error: true,
+		// 		message: 'login failed'
+		// 	});
+		// }
 
 		for (let i = 0; i < files.length; i++) {
 			const file = files[i] as File;
@@ -70,7 +70,7 @@ export const actions = {
 
 			await storeToDB(groupByOrder);
 		}
-		supabase.auth.signOut();
+		// supabase.auth.signOut();
 		return true;
 	}
 };
@@ -126,7 +126,7 @@ const storeToDB = async (groupByIndex: Record<string, string[][]>) => {
 				total_sales: parseFloat(element[i][totalIndex()]),
 				discount: parseFloat(element[i][discountIndex()]),
 				net_sales: parseFloat(element[i][netIndex()]),
-				artist_id: artist_id
+				artist_id: parseInt(artist_id as unknown as string)
 			});
 		}
 	}

@@ -45,7 +45,7 @@
 				on:submit|preventDefault={handleSubmit}
 				class="flex flex-col gap-4 items-center text-lg"
 			>
-				<div class="w-full flex gap-3 justify-between items-center">
+				<!-- <div class="w-full flex gap-3 justify-between items-center">
 					<label for="email">Email</label>
 					<input
 						type="email"
@@ -65,7 +65,7 @@
 						name="password"
 						required
 					/>
-				</div>
+				</div> -->
 				<div>
 					<label for="file">Upload your file</label>
 					<input multiple type="file" id="file" name="fileToUpload" accept=".csv" required />
