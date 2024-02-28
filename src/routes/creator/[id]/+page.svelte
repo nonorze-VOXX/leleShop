@@ -17,11 +17,18 @@
 	export let data: PageData;
 	let admit = false;
 	let admit_fail = false;
-	let tradeData: TradeBody[] = [];
+	let tradeDataList: TradeBody[] = [];
+	let tradeHeadList: TradeHead[] = [];
+	let showedTradeDataList: TradeBody[] = [];
 	let tabDataList: string[] = [];
+	let firstDay: Date = new Date();
+	let lastDay: Date = new Date();
 	onMount(() => {
 		artist_name = data.artist_name as string;
 		artist_id = data.id;
+		const date = new Date();
+		firstDay = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth() - 1, 1));
+		lastDay = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), 1));
 	});
 	const noCommisionText = '這個月優惠，不抽成喔';
 	const SubmitKey = async (event: { currentTarget: EventTarget & HTMLFormElement }) => {
@@ -34,14 +41,26 @@
 		});
 		const result: ActionResult = deserialize(await response.text());
 		if (result.type === 'success') {
-			// invalidateAll();
 			admit = result.data?.admit;
-			tradeData = result.data?.tradeData;
-			UpdateTotalData(tradeData);
-			UpdateTabData(tradeData.map((e) => e.trade_head));
+			tradeDataList = result.data?.tradeData;
+			tradeHeadList = tradeDataList.map((e) => e.trade_head);
+			UpdateTabData(tradeHeadList);
+			UpdateShowedTradeDataList();
 		} else {
 			admit_fail = true;
 		}
+	};
+	const UpdateShowedTradeDataList = () => {
+		const showedHeadList = tradeHeadList.filter(
+			(element) =>
+				element.trade_date &&
+				new Date(element.trade_date) >= firstDay &&
+				new Date(element.trade_date) < lastDay
+		);
+		showedTradeDataList = tradeDataList.filter((element) => {
+			return showedHeadList.some((e) => e.trade_id === element.trade_id);
+		});
+		UpdateTotalData(showedTradeDataList);
 	};
 	const UpdateTabData = (data: TradeHead[]) => {
 		tabDataList = [];
@@ -77,7 +96,7 @@
 <div class="flex flex-col gap-3 items-center">
 	<h1 class="text-center p-5 text-3xl font-bold">{artist_name}</h1>
 	{#if !admit}
-		<form action="?/GetTradeData" on:submit|preventDefault={SubmitKey}>
+		<form action="?/GetTradeData" on:submit|preventDefault={SubmitKey} class="flex">
 			<input type="password" id="password" name="password" required />
 
 			<LeleBox>
@@ -107,7 +126,9 @@
 			<div>
 				<div class="flex justify-start px-2">
 					{#each tabDataList as tabData}
-						<div class="border-4 border-lele-line px-1 rounded-t-lg">
+						<div
+							class="border-t-4 border-l-4 border-r-4 border-lele-line px-1 rounded-t-xl font-semibold"
+						>
 							{tabData}
 						</div>
 					{/each}
@@ -143,7 +164,7 @@
 									{net_total}
 								</td>
 							</tr>
-							{#each tradeData as trade}
+							{#each showedTradeDataList as trade}
 								<tr
 									class=" border-b transition duration-300 ease-in-out hover:bg-neutral-100 dark:border-neutral-500 dark:hover:bg-neutral-300"
 								>
