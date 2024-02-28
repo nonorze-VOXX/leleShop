@@ -1,1 +1,1 @@
-<div class="border-lele-line border-4 rounded-2xl overflow-hidden"><slot /></div>
+<div class="overflow-hidden rounded-2xl border-4 border-lele-line"><slot /></div>

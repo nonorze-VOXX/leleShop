@@ -106,14 +106,14 @@
 	};
 </script>
 
-<div class="flex flex-col gap-3 items-center">
+<div class="flex flex-col items-center gap-3">
 	{#if !admit}
-		<h1 class="text-center p-5 text-3xl font-bold">{artist_name}</h1>
+		<h1 class="p-5 text-center text-3xl font-bold">{artist_name}</h1>
 		<form action="?/GetTradeData" on:submit|preventDefault={SubmitKey} class="flex">
 			<input type="password" id="password" name="password" required />
 
 			<LeleBox>
-				<button type="submit" class="w-full h-full bg-lele-line text-lele-bg font-bold"
+				<button type="submit" class="h-full w-full bg-lele-line font-bold text-lele-bg"
 					>submit</button
 				>
 			</LeleBox>
@@ -122,7 +122,7 @@
 			{/if}
 		</form>
 	{:else}
-		<div class="w-full text-center text-xl font-bold flex justify-center gap-4">
+		<div class="flex w-full justify-center gap-4 text-center text-xl font-bold">
 			<div></div>
 			<h1 class="">{artist_name}</h1>
 			{#if net_total != -1}
@@ -137,11 +137,11 @@
 			{/if}
 		</div>
 		{#if data}
-			<div class="flex flex-col w-full">
+			<div class="flex w-full flex-col">
 				<div class="flex justify-start px-2">
 					{#each tabDataList as tabData}
 						<div
-							class="border-t-4 border-l-4 border-r-4 border-lele-line px-1 rounded-t-xl font-semibold"
+							class="rounded-t-xl border-l-4 border-r-4 border-t-4 border-lele-line px-1 font-semibold"
 						>
 							<button
 								on:click={() => {
@@ -159,16 +159,16 @@
 					{/each}
 				</div>
 
-				<div class="border-lele-line max-h-screen w-full border-2 rounded-lg overflow-x-auto">
-					<table class="text-left text-sm font-medium table-fixed w-full relative">
-						<thead class="shadow-lg text-lele-bg font-semibold text-sm bg-lele-line sticky top-0">
-							<th scope="col" class="py-2 px-4 w-20"> 日期 </th>
-							<th scope="col" class="py-2 px-4 w-20"> 收據號碼 </th>
-							<th scope="col" class="py-2 px-4 w-40"> 商品 </th>
-							<th scope="col" class="py-2 px-4 w-16"> 數量 </th>
-							<th scope="col" class="py-2 px-4 w-16"> 銷售總額 </th>
-							<th scope="col" class="py-2 px-4 w-16"> 折扣 </th>
-							<th scope="col" class="py-2 px-4 w-16"> 淨銷售額 </th>
+				<div class="max-h-screen w-full overflow-x-auto rounded-lg border-2 border-lele-line">
+					<table class="relative w-full table-fixed text-left text-sm font-medium">
+						<thead class="sticky top-0 bg-lele-line text-sm font-semibold text-lele-bg shadow-lg">
+							<th scope="col" class="w-20 px-4 py-2"> 日期 </th>
+							<th scope="col" class="w-20 px-4 py-2"> 收據號碼 </th>
+							<th scope="col" class="w-40 px-4 py-2"> 商品 </th>
+							<th scope="col" class="w-16 px-4 py-2"> 數量 </th>
+							<th scope="col" class="w-16 px-4 py-2"> 銷售總額 </th>
+							<th scope="col" class="w-16 px-4 py-2"> 折扣 </th>
+							<th scope="col" class="w-16 px-4 py-2"> 淨銷售額 </th>
 						</thead>
 
 						<tbody class="overflow-y-auto">
@@ -177,15 +177,15 @@
 							>
 								<td></td>
 								<td></td>
-								<td class="py-2 px-4">總和</td>
-								<td class="py-2 px-4">{total_quantity}</td>
-								<td class="py-2 px-4">
+								<td class="px-4 py-2">總和</td>
+								<td class="px-4 py-2">{total_quantity}</td>
+								<td class="px-4 py-2">
 									{total}
 								</td>
-								<td class="py-2 px-4">
+								<td class="px-4 py-2">
 									{discount_total}
 								</td>
-								<td class="py-2 px-4">
+								<td class="px-4 py-2">
 									{net_total}
 								</td>
 							</tr>
@@ -193,7 +193,7 @@
 								<tr
 									class=" border-b transition duration-300 ease-in-out hover:bg-neutral-100 dark:border-neutral-500 dark:hover:bg-neutral-300"
 								>
-									<td class="py-2 px-4">
+									<td class="px-4 py-2">
 										<p>
 											{FormatDate(trade.trade_head?.trade_date)}
 										</p>
@@ -201,12 +201,12 @@
 										{trade.trade_head?.trade_date?.split('+')[0].split('T')[1]}
 									</p> -->
 									</td>
-									<td class="py-2 px-4"> {trade.trade_id}</td>
-									<td class="py-2 px-4"> {trade.item_name}</td>
-									<td class="py-2 px-4"> {trade.quantity}</td>
-									<td class="py-2 px-4"> {trade.total_sales}</td>
-									<td class="py-2 px-4"> {trade.discount}</td>
-									<td class="py-2 px-4"> {trade.net_sales}</td>
+									<td class="px-4 py-2"> {trade.trade_id}</td>
+									<td class="px-4 py-2"> {trade.item_name}</td>
+									<td class="px-4 py-2"> {trade.quantity}</td>
+									<td class="px-4 py-2"> {trade.total_sales}</td>
+									<td class="px-4 py-2"> {trade.discount}</td>
+									<td class="px-4 py-2"> {trade.net_sales}</td>
 								</tr>
 							{/each}
 						</tbody>

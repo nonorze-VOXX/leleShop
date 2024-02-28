@@ -22,40 +22,40 @@
 	}
 </script>
 
-<div class="flex flex-col justify-center h-screen">
+<div class="flex h-screen flex-col justify-center">
 	<div class="flex justify-center">
-		<div class="flex flex-col rounded-xl bg-white items-center p-5">
+		<div class="flex flex-col items-center rounded-xl bg-white p-5">
 			<form
 				action="?/login"
 				on:submit|preventDefault={LoginSubmit}
-				class="flex flex-col gap-4 items-center text-lg"
+				class="flex flex-col items-center gap-4 text-lg"
 			>
-				<div class="w-full flex gap-3 justify-between items-center">
+				<div class="flex w-full items-center justify-between gap-3">
 					<label for="email">Email</label>
 					<input
 						type="email"
 						id="email"
 						name="email"
-						class="grow rounded-lg p-2 bg-gray-50 border border-gray-300"
+						class="grow rounded-lg border border-gray-300 bg-gray-50 p-2"
 						placeholder="example@mail.com"
 						required
 					/>
 				</div>
-				<div class="w-full flex gap-3 justify-between items-center">
+				<div class="flex w-full items-center justify-between gap-3">
 					<label for="password">password</label>
 					<input
 						type="password"
 						id="password"
-						class="grow rounded-lg p-2 bg-gray-50 border border-gray-300"
+						class="grow rounded-lg border border-gray-300 bg-gray-50 p-2"
 						name="password"
 						required
 					/>
 				</div>
 				{#if loginFailed}
-					<div class="text-xl text-red-700 text-center">Login fail</div>
+					<div class="text-center text-xl text-red-700">Login fail</div>
 				{/if}
 
-				<button class="rounded-full px-3 bg-green-600 w-fit text-white font-bold" type="submit"
+				<button class="w-fit rounded-full bg-green-600 px-3 font-bold text-white" type="submit"
 					>Submit</button
 				>
 			</form>

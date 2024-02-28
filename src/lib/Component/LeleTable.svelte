@@ -13,12 +13,12 @@
 </script>
 
 {#if tableData && tableData.length > 0}
-	<div class="border-lele-line border-2 rounded-lg overflow-hidden w-full">
-		<table class="min-w-fit text-left text-base font-medium table-auto w-full">
+	<div class="w-full overflow-hidden rounded-lg border-2 border-lele-line">
+		<table class="w-full min-w-fit table-auto text-left text-base font-medium">
 			<thead class="border-b border-lele-line">
 				<tr>
 					{#each tableHead as cell}
-						<td class="text-center p-2 text-lg font-semibold">
+						<td class="p-2 text-center text-lg font-semibold">
 							{cell}
 						</td>
 					{/each}
@@ -30,14 +30,14 @@
 						class=" border-b transition duration-300 ease-in-out hover:bg-neutral-100 dark:border-neutral-500 dark:hover:bg-neutral-300"
 					>
 						{#each table as cell}
-							<td class="py-2 px-2">
+							<td class="px-2 py-2">
 								{cell}
 							</td>
 						{/each}
 						{#if buttonPart.haveButton}
-							<td class="py-2 px-2">
+							<td class="px-2 py-2">
 								<button
-									class="bg-green-500 w-full text-white rounded-md p-1"
+									class="w-full rounded-md bg-green-500 p-1 text-white"
 									on:click={() => buttonPart.ButtonFunction(table)}
 								>
 									{buttonPart.buttonText}
