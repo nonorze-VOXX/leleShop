@@ -38,7 +38,7 @@
 			<thead class=" border-b-4 border-lele-line border-opacity-70">
 				<tr>
 					<th scope="col" class="w-auto p-2 text-lg"> 品牌 </th>
-					<th scope="col" class="w-28 p-2 text-lg"> 繳費狀態 </th>
+					<!-- <th scope="col" class="w-28 p-2 text-lg"> 繳費狀態 </th> -->
 					<th scope="col" class="w-20 p-2 text-lg"> 銷售 </th>
 				</tr>
 			</thead>
@@ -49,10 +49,9 @@
 							<td class="p-2">
 								{artists.artist_name}
 							</td>
-							<td class="p-2">
+							<!-- <td class="p-2">
 								continue...
-								<!-- {artists.artist_name} -->
-							</td>
+							</td> -->
 							<td class="p-2">
 								<a class="rounded-lg bg-lele-line p-2 text-lele-bg" href={'/creator/' + artists.id}>
 									報表
