@@ -9,6 +9,7 @@
 	import LeleTbody from '$lib/Component/htmlWrapper/LeleTbody.svelte';
 	import LeleThead from '$lib/Component/htmlWrapper/LeleThead.svelte';
 	import LeleTable from '$lib/Component/htmlWrapper/LeleTable.svelte';
+	import LeleTbodyTr from '$lib/Component/htmlWrapper/LeleTbodyTr.svelte';
 
 	let artist_name: string = '';
 	let total = 0;
@@ -166,19 +167,19 @@
 
 				<LeleTable>
 					<LeleThead>
-						<th scope="col" class="w-20 px-4 py-2"> 日期 </th>
-						<th scope="col" class="w-20 px-4 py-2"> 收據號碼 </th>
-						<th scope="col" class="w-40 px-4 py-2"> 商品 </th>
-						<th scope="col" class="w-16 px-4 py-2"> 數量 </th>
-						<th scope="col" class="w-16 px-4 py-2"> 銷售總額 </th>
-						<th scope="col" class="w-16 px-4 py-2"> 折扣 </th>
-						<th scope="col" class="w-16 px-4 py-2"> 淨銷售額 </th>
+						<tr>
+							<th scope="col" class="w-20 px-4 py-2"> 日期 </th>
+							<th scope="col" class="w-20 px-4 py-2"> 收據號碼 </th>
+							<th scope="col" class="w-40 px-4 py-2"> 商品 </th>
+							<th scope="col" class="w-16 px-4 py-2"> 數量 </th>
+							<th scope="col" class="w-16 px-4 py-2"> 銷售總額 </th>
+							<th scope="col" class="w-16 px-4 py-2"> 折扣 </th>
+							<th scope="col" class="w-16 px-4 py-2"> 淨銷售額 </th>
+						</tr>
 					</LeleThead>
 
 					<LeleTbody>
-						<tr
-							class=" border-b transition duration-300 ease-in-out hover:bg-neutral-100 dark:border-neutral-500 dark:hover:bg-neutral-300"
-						>
+						<LeleTbodyTr>
 							<td></td>
 							<td></td>
 							<td class="px-4 py-2">總和</td>
@@ -192,11 +193,9 @@
 							<td class="px-4 py-2">
 								{net_total}
 							</td>
-						</tr>
+						</LeleTbodyTr>
 						{#each showedTradeDataList as trade}
-							<tr
-								class=" border-b transition duration-300 ease-in-out hover:bg-neutral-100 dark:border-neutral-500 dark:hover:bg-neutral-300"
-							>
+							<LeleTbodyTr>
 								<td class="px-4 py-2">
 									<p>
 										{FormatDate(trade.trade_head?.trade_date)}
@@ -211,7 +210,7 @@
 								<td class="px-4 py-2"> {trade.total_sales}</td>
 								<td class="px-4 py-2"> {trade.discount}</td>
 								<td class="px-4 py-2"> {trade.net_sales}</td>
-							</tr>
+							</LeleTbodyTr>
 						{/each}
 					</LeleTbody>
 				</LeleTable>
