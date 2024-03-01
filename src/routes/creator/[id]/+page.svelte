@@ -126,7 +126,7 @@
 			{/if}
 		</form>
 	{:else}
-		<div class="flex w-full justify-center gap-4 text-center text-xl font-bold">
+		<div class="flex flex-col justify-center gap-4 text-center text-sm font-semibold">
 			<h1 class="rounded-xl bg-lele-line p-2 text-lele-bg">{artist_name}</h1>
 			{#if net_total != -1}
 				<div class="flex rounded-xl bg-lele-line p-2 text-lele-bg">
