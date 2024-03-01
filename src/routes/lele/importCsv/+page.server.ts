@@ -39,6 +39,7 @@ const dateIndex = () => {
 export const actions = {
 	default: async ({ request }) => {
 		const formData = await request.formData();
+		const clientDate = formData.get('date') as string;
 
 		const files = formData.getAll('fileToUpload');
 		if (files.length === 0) {
@@ -68,15 +69,18 @@ export const actions = {
 
 			const groupByOrder = groupBy(fileArr2D.slice(1), (i) => i[tradeIdIndex()]);
 
-			await storeToDB(groupByOrder);
+			await storeToDB(groupByOrder, clientDate);
 		}
 		// supabase.auth.signOut();
 		return true;
 	}
 };
 
-const storeToDB = async (groupByIndex: Record<string, string[][]>) => {
+const storeToDB = async (groupByIndex: Record<string, string[][]>, clientISODate: string) => {
 	console.log('start store');
+	const serverDate = new Date();
+	const timeOffsetInMS =
+		(new Date(clientISODate).getTimezoneOffset() - serverDate.getTimezoneOffset()) * 60000;
 	const tradeBodyList: TradeBody[] = [];
 	const tradeHeadList: TradeHead[] = [];
 	const { data, error } = await supabase.from('trade_head').select('trade_id');
@@ -102,6 +106,7 @@ const storeToDB = async (groupByIndex: Record<string, string[][]>) => {
 
 		const element = groupByIndex[key];
 		const date = new Date(element[0][dateIndex()]);
+		date.setTime(date.getTime() + timeOffsetInMS);
 		tradeHeadList.push({
 			trade_date: date.toISOString(),
 			trade_id: element[0][tradeIdIndex()],

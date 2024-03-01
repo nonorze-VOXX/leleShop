@@ -12,6 +12,7 @@
 	let processed: ProcessedStatus = ProcessedStatus.NORMAL;
 	async function handleSubmit(event: { currentTarget: EventTarget & HTMLFormElement }) {
 		const data = new FormData(event.currentTarget);
+		data.append('date', new Date().toISOString());
 
 		processed = ProcessedStatus.PROCESSING;
 		const response = await fetch(event.currentTarget.action, {
