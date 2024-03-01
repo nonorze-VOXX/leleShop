@@ -1,5 +1,5 @@
 <script lang="ts">
-	import LeleTable from '$lib/Component/LeleTable.svelte';
+	import LeleDataTable from '$lib/Component/LeleDataTable.svelte';
 	import { onMount } from 'svelte';
 	import type { PageData } from './$types';
 	import { deserialize } from '$app/forms';
@@ -48,11 +48,11 @@
 </script>
 
 <div class="flex flex-col items-center">
-	<LeleTable
+	<LeleDataTable
 		bind:tableHead
 		bind:tableData
 		buttonPart={{ haveButton: true, buttonText: 'update key', ButtonFunction }}
-	></LeleTable>
+	></LeleDataTable>
 </div>
 
 <div class="flex h-fit w-screen flex-wrap gap-4 p-4">

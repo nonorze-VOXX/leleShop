@@ -1,6 +1,4 @@
 <script lang="ts">
-	import LeleTable from '$lib/Component/LeleTable.svelte';
-
 	import { applyAction, deserialize } from '$app/forms';
 	import { invalidateAll } from '$app/navigation';
 	import type { ActionResult } from '@sveltejs/kit';
