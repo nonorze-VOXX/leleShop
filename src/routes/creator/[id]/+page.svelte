@@ -2,7 +2,6 @@
 	import { onMount } from 'svelte';
 	import type { PageData } from './$types';
 	import type { ActionResult } from '@sveltejs/kit';
-	import { invalidateAll } from '$app/navigation';
 	import { deserialize } from '$app/forms';
 	import type { TradeBody, TradeHead } from '$lib/db';
 	import LeleBox from '$lib/Component/LeleBox.svelte';

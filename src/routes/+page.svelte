@@ -3,7 +3,6 @@
 	import type { PageData } from './$types';
 	import type { Artist } from '$lib/db';
 	import { goto } from '$app/navigation';
-	import LeleBox from '$lib/Component/LeleBox.svelte';
 	import LeleThead from '$lib/Component/htmlWrapper/LeleThead.svelte';
 	import LeleTbody from '$lib/Component/htmlWrapper/LeleTbody.svelte';
 	import LeleTable from '$lib/Component/htmlWrapper/LeleTable.svelte';
