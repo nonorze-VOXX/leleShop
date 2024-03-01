@@ -8,10 +8,18 @@
 		LOGIN_FAILED,
 		PROCESSED
 	}
+	const timeZoneOffsetToHHMM = (timeZoneOffset: number) => {
+		const sign = timeZoneOffset < 0 ? '+' : '-';
+		const abs = Math.abs(timeZoneOffset);
+		const hour = Math.floor(abs / 60);
+		const minute = abs % 60;
+		return sign + (hour < 10 ? '0' : '') + hour + ':' + (minute < 10 ? '0' : '') + minute;
+	};
 	let tableData: string[][];
 	let processed: ProcessedStatus = ProcessedStatus.NORMAL;
 	async function handleSubmit(event: { currentTarget: EventTarget & HTMLFormElement }) {
 		const data = new FormData(event.currentTarget);
+		data.append('dateOffset', timeZoneOffsetToHHMM(new Date().getTimezoneOffset()));
 
 		processed = ProcessedStatus.PROCESSING;
 		const response = await fetch(event.currentTarget.action, {
