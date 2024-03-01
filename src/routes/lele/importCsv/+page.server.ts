@@ -39,7 +39,7 @@ const dateIndex = () => {
 export const actions = {
 	default: async ({ request }) => {
 		const formData = await request.formData();
-		const clientDate = formData.get('date') as string;
+		const timezoneOffset = formData.get('dateOffset') as string;
 
 		const files = formData.getAll('fileToUpload');
 		if (files.length === 0) {
@@ -69,18 +69,16 @@ export const actions = {
 
 			const groupByOrder = groupBy(fileArr2D.slice(1), (i) => i[tradeIdIndex()]);
 
-			await storeToDB(groupByOrder, clientDate);
+			await storeToDB(groupByOrder, timezoneOffset);
 		}
 		// supabase.auth.signOut();
 		return true;
 	}
 };
 
-const storeToDB = async (groupByIndex: Record<string, string[][]>, clientISODate: string) => {
+const storeToDB = async (groupByIndex: Record<string, string[][]>, timezoneOffset: string) => {
 	console.log('start store');
-	const serverDate = new Date();
-	const timeOffsetInMS =
-		(new Date(clientISODate).getTimezoneOffset() - serverDate.getTimezoneOffset()) * 60000;
+
 	const tradeBodyList: TradeBody[] = [];
 	const tradeHeadList: TradeHead[] = [];
 	const { data, error } = await supabase.from('trade_head').select('trade_id');
@@ -105,8 +103,8 @@ const storeToDB = async (groupByIndex: Record<string, string[][]>, clientISODate
 		}
 
 		const element = groupByIndex[key];
-		const date = new Date(element[0][dateIndex()]);
-		date.setTime(date.getTime() + timeOffsetInMS);
+		const date = new Date(element[0][dateIndex()].replace(/ /g, 'T') + timezoneOffset);
+
 		tradeHeadList.push({
 			trade_date: date.toISOString(),
 			trade_id: element[0][tradeIdIndex()],
