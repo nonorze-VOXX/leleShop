@@ -98,15 +98,15 @@
 	};
 	const FormatDate = (dateStr: string) => {
 		const date = new Date(dateStr);
-		return (
-			date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate()
-			//+ ' ' +
-			// date.getHours() +
-			// ':' +
-			// date.getMinutes() +
-			// ':' +
-			// date.getSeconds()
-		);
+		return (date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate())
+			.toString()
+			.replace(/-/g, '/');
+		//+ ' ' +
+		// date.getHours() +
+		// ':' +
+		// date.getMinutes() +
+		// ':' +
+		// date.getSeconds()
 	};
 </script>
 
@@ -156,7 +156,6 @@
 									);
 									lastDay = new Date(Date.UTC(firstDay.getUTCFullYear(), parseInt(tabData), 1));
 									UpdateShowedTradeDataList();
-									console.log(tabData);
 								}}
 							>
 								{tabData}
@@ -168,8 +167,8 @@
 				<LeleTable>
 					<LeleThead>
 						<tr>
-							<th scope="col" class="w-20 px-4 py-2"> 日期 </th>
-							<th scope="col" class="w-20 px-4 py-2"> 收據號碼 </th>
+							<th scope="col" class="w-24 px-4 py-2"> 日期 </th>
+							<th scope="col" class="w-24 px-4 py-2"> 收據號碼 </th>
 							<th scope="col" class="w-40 px-4 py-2"> 商品 </th>
 							<th scope="col" class="w-16 px-4 py-2"> 數量 </th>
 							<th scope="col" class="w-16 px-4 py-2"> 銷售總額 </th>
