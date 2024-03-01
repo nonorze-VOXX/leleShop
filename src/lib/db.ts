@@ -42,7 +42,7 @@ export default {
 				console.log(error);
 			}
 
-			return data;
+			return data?.filter((e) => e.trade_head !== null);
 		} else {
 			const { data, error } = await supabase
 				.from('trade_body')
@@ -53,7 +53,7 @@ export default {
 				console.log(error);
 			}
 
-			return data;
+			return data?.filter((e) => e.trade_head !== null);
 		}
 	}
 };
