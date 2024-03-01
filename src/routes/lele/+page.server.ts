@@ -1,4 +1,5 @@
-import { supabase } from '$lib/db';
+import { supabase, type TradeBodyWithTradeHead } from '$lib/db';
+import db from '$lib/db';
 
 const randomNumber = (length: number) => {
 	let number = '';
@@ -15,13 +16,21 @@ const randomNumber = (length: number) => {
 // 		.replace(/\//g, '_')
 // 		.replace(/=+$/, '');
 // };
-
-export const load = async () => {
+const ArtistData = async () => {
 	const { data, error } = await supabase.from('artist').select().order('id', { ascending: true });
 	if (error) {
 		console.log(error);
 	}
-	return { data };
+	return data;
+};
+
+export const load = async () => {
+	const artistData = await ArtistData();
+	const tradeDataList: TradeBodyWithTradeHead = (await db.GetTradeData(
+		'*'
+	)) as TradeBodyWithTradeHead;
+
+	return { data: artistData, tradeDataList: tradeDataList };
 };
 
 export const actions = {
