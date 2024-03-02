@@ -1,4 +1,4 @@
-import { supabase, type TradeBodyWithTradeHead } from '$lib/db';
+import { supabase, type QueryTradeBodyWithTradeHead } from '$lib/db';
 import db from '$lib/db';
 
 const randomNumber = (length: number) => {
@@ -26,9 +26,9 @@ const ArtistData = async () => {
 
 export const load = async () => {
 	const artistData = await ArtistData();
-	const tradeDataList: TradeBodyWithTradeHead = (await db.GetTradeData(
+	const tradeDataList: QueryTradeBodyWithTradeHead = (await db.GetTradeData(
 		'*'
-	)) as TradeBodyWithTradeHead;
+	)) as QueryTradeBodyWithTradeHead;
 
 	return { data: artistData, tradeDataList: tradeDataList };
 };

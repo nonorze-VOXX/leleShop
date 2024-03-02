@@ -5,14 +5,14 @@
 	import { deserialize } from '$app/forms';
 	import type { ActionResult } from '@sveltejs/kit';
 	import { invalidateAll } from '$app/navigation';
-	import type { Artist, TradeBodyWithTradeHead } from '$lib/db';
+	import type { Artist, QueryTradeBodyWithTradeHead } from '$lib/db';
 
 	export let data: PageData;
 
 	let tableData: string[][];
 	let tableHead: string[] = ['artist name'];
 	let artistData: Artist[] = [];
-	let tradeDataList: TradeBodyWithTradeHead;
+	let tradeDataList: QueryTradeBodyWithTradeHead;
 	enum TabEnum {
 		artist_list,
 		trade,
@@ -24,7 +24,7 @@
 		tableData = data.data?.map((artist) => {
 			return [artist.artist_name, artist.report_key];
 		}) as string[][];
-		tradeDataList = data.tradeDataList as TradeBodyWithTradeHead;
+		tradeDataList = data.tradeDataList as QueryTradeBodyWithTradeHead;
 	});
 	const ButtonFunction = async (value: string[]) => {
 		const data = new FormData();

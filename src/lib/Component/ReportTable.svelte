@@ -1,0 +1,87 @@
+<script lang="ts">
+	import type { QueryTradeBodyWithTradeHead } from '$lib/db';
+	import LeleTable from './htmlWrapper/LeleTable.svelte';
+	import LeleTbody from './htmlWrapper/LeleTbody.svelte';
+	import LeleTbodyTr from './htmlWrapper/LeleTbodyTr.svelte';
+	import LeleThead from './htmlWrapper/LeleThead.svelte';
+	export let showedTradeDataList: QueryTradeBodyWithTradeHead;
+
+	let total = -1;
+	let net_total = -1;
+	let discount_total = 0;
+	let total_quantity = 0;
+	// let commission = 0;
+
+	$: {
+		UpdateTotalData(showedTradeDataList);
+	}
+	const UpdateTotalData = (data: QueryTradeBodyWithTradeHead) => {
+		total = 0;
+		net_total = 0;
+		discount_total = 0;
+		total_quantity = 0;
+		data.forEach((element) => {
+			total += element.total_sales ?? 0;
+			net_total += element.net_sales ?? 0;
+			discount_total += element.discount ?? 0;
+			total_quantity += element.quantity ?? 0;
+		});
+		// commission = net_total >= 2000 ? Math.floor(net_total * 0.1) : 0;
+	};
+	const FormatDate = (dateStr: string | null | undefined) => {
+		if (dateStr === null || dateStr === undefined) return '';
+		const date = new Date(dateStr);
+		return (date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate())
+			.toString()
+			.replace(/-/g, '/');
+	};
+</script>
+
+<LeleTable>
+	<LeleThead>
+		<tr>
+			<th scope="col" class="w-24 px-4 py-2"> 日期 </th>
+			<th scope="col" class="w-24 px-4 py-2"> 收據號碼 </th>
+			<th scope="col" class="w-40 px-4 py-2"> 商品 </th>
+			<th scope="col" class="w-16 px-4 py-2"> 數量 </th>
+			<th scope="col" class="w-16 px-4 py-2"> 銷售總額 </th>
+			<th scope="col" class="w-16 px-4 py-2"> 折扣 </th>
+			<th scope="col" class="w-16 px-4 py-2"> 淨銷售額 </th>
+		</tr>
+	</LeleThead>
+	<LeleTbody>
+		<LeleTbodyTr>
+			<td></td>
+			<td></td>
+			<td class="px-4 py-2">總和</td>
+			<td class="px-4 py-2">{total_quantity}</td>
+			<td class="px-4 py-2">
+				{total}
+			</td>
+			<td class="px-4 py-2">
+				{discount_total}
+			</td>
+			<td class="px-4 py-2">
+				{net_total}
+			</td>
+		</LeleTbodyTr>
+		{#each showedTradeDataList as trade}
+			<LeleTbodyTr>
+				<td class="px-4 py-2">
+					<p>
+						{FormatDate(trade.trade_head?.trade_date)}
+					</p>
+					<!-- <p>
+										{trade.trade_head?.trade_date?.split('+')[0].split('T')[1]}
+									</p> -->
+				</td>
+				<td class="px-4 py-2"> {trade.trade_id}</td>
+				<td class="px-4 py-2"> {trade.item_name}</td>
+				<td class="px-4 py-2"> {trade.quantity}</td>
+				<td class="px-4 py-2"> {trade.total_sales}</td>
+				<td class="px-4 py-2"> {trade.discount}</td>
+				<td class="px-4 py-2"> {trade.net_sales}</td>
+			</LeleTbodyTr>
+		{/each}
+	</LeleTbody>
+</LeleTable>

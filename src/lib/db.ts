@@ -9,7 +9,7 @@ export type TradeBody = Database['public']['Tables']['trade_body']['Insert'];
 export type Artist = Database['public']['Tables']['artist']['Insert'];
 
 const QueryTradeHeadAndBody = supabase.from('trade_body').select('*, trade_head(*)');
-export type TradeBodyWithTradeHead = QueryData<typeof QueryTradeHeadAndBody>;
+export type QueryTradeBodyWithTradeHead = QueryData<typeof QueryTradeHeadAndBody>;
 export default {
 	async SaveArtistName(artist: Artist[]) {
 		const { error, data } = await supabase.from('artist').insert(artist).select();
