@@ -3,7 +3,11 @@
 	import type { PageData } from './$types';
 	import type { ActionResult } from '@sveltejs/kit';
 	import { deserialize } from '$app/forms';
-	import type { TradeBody, TradeHead } from '$lib/db';
+	import type {
+		TradeBody,
+		TradeBodyWithTradeHead as QueryTradeBodyWithTradeHead,
+		TradeHead
+	} from '$lib/db';
 	import LeleBox from '$lib/Component/LeleBox.svelte';
 	import LeleTbody from '$lib/Component/htmlWrapper/LeleTbody.svelte';
 	import LeleThead from '$lib/Component/htmlWrapper/LeleThead.svelte';
@@ -20,9 +24,9 @@
 	export let data: PageData;
 	let admit = false;
 	let admit_fail = false;
-	let tradeDataList: TradeBody[] = [];
+	let tradeDataList: QueryTradeBodyWithTradeHead = [];
 	let tradeHeadList: TradeHead[] = [];
-	let showedTradeDataList: TradeBody[] = [];
+	let showedTradeDataList: QueryTradeBodyWithTradeHead = [];
 	let tabDataList: string[] = [];
 	let firstDay: Date = new Date();
 	let lastDay: Date = new Date();
@@ -82,20 +86,21 @@
 		console.log(tabDataList);
 	};
 
-	const UpdateTotalData = (data: TradeBody[]) => {
+	const UpdateTotalData = (data: QueryTradeBodyWithTradeHead) => {
 		total = 0;
 		net_total = 0;
 		discount_total = 0;
 		total_quantity = 0;
 		data.forEach((element) => {
-			total += element.total_sales ? element.total_sales : 0;
-			net_total += element.net_sales ? element.net_sales : 0;
-			discount_total += element.discount ? element.discount : 0;
-			total_quantity += element.quantity ? element.quantity : 0;
+			total += element.total_sales ?? 0;
+			net_total += element.net_sales ?? 0;
+			discount_total += element.discount ?? 0;
+			total_quantity += element.quantity ?? 0;
 		});
 		commission = net_total >= 2000 ? Math.floor(net_total * 0.1) : 0;
 	};
-	const FormatDate = (dateStr: string) => {
+	const FormatDate = (dateStr: string | null | undefined) => {
+		if (dateStr === null || dateStr === undefined) return '';
 		const date = new Date(dateStr);
 		return (date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate())
 			.toString()
