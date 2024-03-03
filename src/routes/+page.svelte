@@ -17,24 +17,14 @@
 			artistData = data.data as unknown as Artist[];
 		}
 	});
-	const ButtonFunction = async (value: string[]) => {
-		console.log('value' + value);
-		console.log(artistData);
-		const artistIndex = artistData.findIndex((e) => {
-			return value.includes(e.artist_name as string);
-		});
-
-		console.log(artistIndex);
-		goto('./creator/' + artistData[artistIndex]?.id);
-	};
 </script>
 
 <LeleTable>
 	<LeleThead>
 		<tr>
-			<th scope="col" class="w-auto p-2 text-lg"> 品牌 </th>
+			<th scope="col" class="w-auto p-2"> 品牌 </th>
 			<!-- <th scope="col" class="w-28 p-2 text-lg"> 繳費狀態 </th> -->
-			<th scope="col" class="w-20 p-2 text-lg"> 銷售 </th>
+			<th scope="col" class="w-20 p-2"> 銷售 </th>
 		</tr>
 	</LeleThead>
 	<LeleTbody>
