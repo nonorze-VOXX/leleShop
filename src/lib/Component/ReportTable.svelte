@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { QueryTradeBodyWithTradeHead } from '$lib/db';
+	import { FormatDate } from './Utils';
 	import LeleTable from './htmlWrapper/LeleTable.svelte';
 	import LeleTbody from './htmlWrapper/LeleTbody.svelte';
 	import LeleTbodyTr from './htmlWrapper/LeleTbodyTr.svelte';
@@ -27,13 +28,6 @@
 			total_quantity += element.quantity ?? 0;
 		});
 		// commission = net_total >= 2000 ? Math.floor(net_total * 0.1) : 0;
-	};
-	const FormatDate = (dateStr: string | null | undefined) => {
-		if (dateStr === null || dateStr === undefined) return '';
-		const date = new Date(dateStr);
-		return (date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate())
-			.toString()
-			.replace(/-/g, '/');
 	};
 </script>
 

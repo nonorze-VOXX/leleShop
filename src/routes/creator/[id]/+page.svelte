@@ -9,33 +9,20 @@
 		TradeHead
 	} from '$lib/db';
 	import LeleBox from '$lib/Component/LeleBox.svelte';
-	import LeleTbody from '$lib/Component/htmlWrapper/LeleTbody.svelte';
-	import LeleThead from '$lib/Component/htmlWrapper/LeleThead.svelte';
-	import LeleTable from '$lib/Component/htmlWrapper/LeleTable.svelte';
-	import LeleTbodyTr from '$lib/Component/htmlWrapper/LeleTbodyTr.svelte';
-	import ReportTable from '$lib/Component/ReportTable.svelte';
+	import MonthTabReportTable from '$lib/Component/MonthTabReportTable.svelte';
 
 	let artist_name: string = '';
 	let net_total = -1;
-	let discount_total = 0;
 	let commission = 0;
-	let total_quantity = 0;
 	let artist_id: string = '';
 	export let data: PageData;
 	let admit = false;
 	let admit_fail = false;
 	let tradeDataList: QueryTradeBodyWithTradeHead = [];
-	let tradeHeadList: TradeHead[] = [];
-	let showedTradeDataList: QueryTradeBodyWithTradeHead = [];
-	let tabDataList: string[] = [];
-	let firstDay: Date = new Date();
-	let lastDay: Date = new Date();
+	let showedLength = 0;
 	onMount(() => {
 		artist_name = data.artist_name as string;
 		artist_id = data.id;
-		const date = new Date();
-		firstDay = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth() - 1, 1));
-		lastDay = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), 1));
 	});
 	const noCommisionText = '這個月優惠，不抽成喔';
 	const SubmitKey = async (event: { currentTarget: EventTarget & HTMLFormElement }) => {
@@ -50,42 +37,9 @@
 		if (result.type === 'success') {
 			admit = result.data?.admit;
 			tradeDataList = result.data?.tradeData;
-			tradeHeadList = tradeDataList
-				.filter((e) => e.trade_head !== null) // Filter out null values
-				.map((e) => e.trade_head);
-			UpdateTabData(tradeHeadList);
-			UpdateShowedTradeDataList();
 		} else {
 			admit_fail = true;
 		}
-	};
-	const UpdateShowedTradeDataList = () => {
-		const showedHeadList = tradeHeadList.filter(
-			(element) =>
-				element.trade_date &&
-				new Date(element.trade_date) >= firstDay &&
-				new Date(element.trade_date) < lastDay
-		);
-		showedTradeDataList = tradeDataList.filter((element) => {
-			return showedHeadList.some((e) => e.trade_id === element.trade_id);
-		});
-		UpdateCommissionData(showedTradeDataList);
-	};
-	const UpdateTabData = (data: TradeHead[]) => {
-		tabDataList = [];
-		console.log(data);
-
-		const monthList = data.map(
-			(element) => element.trade_date?.split('+')[0].split('T')[0].split('-')[1] as string
-		);
-		monthList.forEach((m) => {
-			if (!tabDataList.includes(m)) {
-				tabDataList.push(m);
-			}
-		});
-		tabDataList.sort((a, b) => parseInt(a) - parseInt(b));
-
-		console.log(tabDataList);
 	};
 
 	const UpdateCommissionData = (data: QueryTradeBodyWithTradeHead) => {
@@ -94,6 +48,10 @@
 			net_total += element.net_sales ?? 0;
 		});
 		commission = net_total >= 2000 ? Math.floor(net_total * 0.1) : 0;
+	};
+	const OnShowedDataListChange = (showedTradeDataList: QueryTradeBodyWithTradeHead) => {
+		UpdateCommissionData(showedTradeDataList);
+		showedLength = showedTradeDataList.length;
 	};
 </script>
 
@@ -126,32 +84,16 @@
 				</div>
 			{/if}
 			<div class="rounded-xl bg-lele-line p-2 text-lele-bg">
-				交易次數：{showedTradeDataList.length}
+				交易次數：{showedLength}
 			</div>
 		</div>
 		{#if data}
-			<div class="flex w-full flex-col">
-				<div class="flex justify-start px-2">
-					{#each tabDataList as tabData}
-						<div
-							class="rounded-t-xl border-l-4 border-r-4 border-t-4 border-lele-line px-1 font-semibold"
-						>
-							<button
-								on:click={() => {
-									firstDay = new Date(
-										Date.UTC(firstDay.getUTCFullYear(), parseInt(tabData) - 1, 1)
-									);
-									lastDay = new Date(Date.UTC(firstDay.getUTCFullYear(), parseInt(tabData), 1));
-									UpdateShowedTradeDataList();
-								}}
-							>
-								{tabData}
-							</button>
-						</div>
-					{/each}
-				</div>
-				<ReportTable bind:showedTradeDataList></ReportTable>
-			</div>
+			<MonthTabReportTable
+				bind:tradeDataList
+				on:clickTab={(e) => {
+					OnShowedDataListChange(e.detail.showedTradeDataList);
+				}}
+			></MonthTabReportTable>
 		{/if}
 	{/if}
 </div>
