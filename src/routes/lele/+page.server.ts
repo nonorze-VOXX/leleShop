@@ -1,4 +1,5 @@
-import { supabase } from '$lib/db';
+import { supabase, type QueryTradeBodyWithTradeHead } from '$lib/db';
+import db from '$lib/db';
 
 const randomNumber = (length: number) => {
 	let number = '';
@@ -15,13 +16,21 @@ const randomNumber = (length: number) => {
 // 		.replace(/\//g, '_')
 // 		.replace(/=+$/, '');
 // };
-
-export const load = async () => {
+const ArtistData = async () => {
 	const { data, error } = await supabase.from('artist').select().order('id', { ascending: true });
 	if (error) {
 		console.log(error);
 	}
-	return { data };
+	return data;
+};
+
+export const load = async () => {
+	const artistData = await ArtistData();
+	// const tradeDataList: QueryTradeBodyWithTradeHead = (await db.GetTradeData(
+	// 	'*'
+	// )) as QueryTradeBodyWithTradeHead;
+
+	return { data: artistData };
 };
 
 export const actions = {
@@ -42,5 +51,21 @@ export const actions = {
 
 		const key = data?.report_key;
 		return { key };
+	},
+	UpdateTradeData: async ({ request }) => {
+		const formData = await request.formData();
+		const firstDate = formData.get('firstDate') as string;
+		const lastDate = formData.get('lastDate') as string;
+
+		const tradeDataList: QueryTradeBodyWithTradeHead = (await db.GetTradeData('*', {
+			firstDate: new Date(firstDate),
+			lastDate: new Date(lastDate)
+		})) as QueryTradeBodyWithTradeHead;
+		const count = await db.GetTradeDataCount('*', {
+			firstDate: new Date(firstDate),
+			lastDate: new Date(lastDate)
+		});
+
+		return { tradeDataList: tradeDataList, count };
 	}
 };
