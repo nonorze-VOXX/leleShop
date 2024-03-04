@@ -6,6 +6,7 @@
 	import type { ActionResult } from '@sveltejs/kit';
 	import { invalidateAll } from '$app/navigation';
 	import type { Artist, QueryTradeBodyWithTradeHead } from '$lib/db';
+	import MonthTabReportTable from '$lib/Component/MonthTabReportTable.svelte';
 
 	export let data: PageData;
 
@@ -53,6 +54,7 @@
 			await invalidateAll();
 		}
 	};
+	let showedLength = 0;
 </script>
 
 <div class="flex justify-start gap-2 p-2">
@@ -77,7 +79,18 @@
 		</div>
 	</div>
 {/if}
-{#if tabType === TabEnum.trade}{/if}
+{#if tabType === TabEnum.trade}
+	<div class="rounded-xl bg-lele-line p-2 text-lele-bg">
+		交易次數：{showedLength}
+	</div>
+	<MonthTabReportTable
+		bind:tradeDataList
+		on:changeShowedDataList={(e) => {
+			showedLength = e.detail.showedTradeDataList.length;
+			console.log(e);
+		}}
+	></MonthTabReportTable>
+{/if}
 {#if tabType === TabEnum.report_key}
 	<LeleDataTable
 		bind:tableHead

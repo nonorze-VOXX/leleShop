@@ -32,18 +32,20 @@
 		return filteredTradeDataList;
 	};
 	const dispatch = createEventDispatcher<{
-		clickTab: { showedTradeDataList: QueryTradeBodyWithTradeHead };
+		changeShowedDataList: { showedTradeDataList: QueryTradeBodyWithTradeHead };
 	}>();
 	const ClickTab = (tabData: string) => {
 		const date = new Date();
 		firstDay = new Date(date.getUTCFullYear(), parseInt(tabData) - 1, 1);
 		lastDay = new Date(date.getUTCFullYear(), parseInt(tabData), 1);
 		showedTradeDataList = [...GetShowedTradeDataList()];
-		dispatch('clickTab', {
-			showedTradeDataList
-		});
 	};
 	ClickTab((firstDay.getMonth() + 1).toString());
+	$: {
+		dispatch('changeShowedDataList', {
+			showedTradeDataList
+		});
+	}
 </script>
 
 <div class="flex w-full flex-col">

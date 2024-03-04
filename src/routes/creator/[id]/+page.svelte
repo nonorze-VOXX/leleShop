@@ -50,7 +50,6 @@
 		commission = net_total >= 2000 ? Math.floor(net_total * 0.1) : 0;
 	};
 	const OnShowedDataListChange = (showedTradeDataList: QueryTradeBodyWithTradeHead) => {
-		UpdateCommissionData(showedTradeDataList);
 		showedLength = showedTradeDataList.length;
 	};
 </script>
@@ -90,8 +89,9 @@
 		{#if data}
 			<MonthTabReportTable
 				bind:tradeDataList
-				on:clickTab={(e) => {
+				on:changeShowedDataList={(e) => {
 					OnShowedDataListChange(e.detail.showedTradeDataList);
+					UpdateCommissionData(e.detail.showedTradeDataList);
 				}}
 			></MonthTabReportTable>
 		{/if}
