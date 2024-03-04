@@ -32,30 +32,60 @@ export default {
 		}
 		return { data, error };
 	},
-	async GetTradeData(id: string) {
-		if (id === '*' || id === '') {
-			const { data, error } = await supabase
-				.from('trade_body')
-				.select('*, trade_head!inner(trade_id, trade_date, state)')
-				.eq('trade_head.state', '關閉');
-			if (error) {
-				console.log(error);
-			}
+	async GetTradeData(
+		id: string,
+		date: { firstDate: Date | null; lastDate: Date | null } = { firstDate: null, lastDate: null }
+	) {
+		if (date.firstDate === null || date.lastDate === null) {
+			if (id === '*' || id === '') {
+				const { data, error } = await supabase
+					.from('trade_body')
+					.select('*, trade_head!inner(trade_id, trade_date, state)')
+					.eq('trade_head.state', '關閉');
+				if (error) {
+					console.log(error);
+				}
 
-			return data?.filter((e) => e.trade_head !== null);
+				return data?.filter((e) => e.trade_head !== null);
+			} else {
+				const { data, error } = await supabase
+					.from('trade_body')
+					.select('*, trade_head!inner(trade_id, trade_date, state)')
+					.eq('trade_head.state', '關閉')
+					.eq('artist_id', id);
+				if (error) {
+					console.log(error);
+				}
+
+				return data;
+			}
 		} else {
-			const { data, error } = await supabase
-				.from('trade_body')
-				.select('*, trade_head!inner(trade_id, trade_date, state)')
-				.eq('trade_head.state', '關閉')
-				.eq('artist_id', id);
-			// .gte('trade_head.trade_date', firstDate)
-			// .lte('trade_head.trade_date', lastDate);
-			if (error) {
-				console.log(error);
-			}
+			if (id === '*' || id === '') {
+				const { data, error } = await supabase
+					.from('trade_body')
+					.select('*, trade_head!inner(trade_id, trade_date, state)')
+					.eq('trade_head.state', '關閉')
+					.gte('trade_head.trade_date', date.firstDate.toISOString())
+					.lte('trade_head.trade_date', date.lastDate.toISOString());
+				if (error) {
+					console.log(error);
+				}
 
-			return data;
+				return data?.filter((e) => e.trade_head !== null);
+			} else {
+				const { data, error } = await supabase
+					.from('trade_body')
+					.select('*, trade_head!inner(trade_id, trade_date, state)')
+					.eq('trade_head.state', '關閉')
+					.eq('artist_id', id)
+					.gte('trade_head.trade_date', date.firstDate.toISOString())
+					.lte('trade_head.trade_date', date.lastDate.toISOString());
+				if (error) {
+					console.log(error);
+				}
+
+				return data;
+			}
 		}
 	}
 };
