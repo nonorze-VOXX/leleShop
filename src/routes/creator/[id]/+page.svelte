@@ -62,7 +62,7 @@
 			<input type="password" id="password" name="password" required />
 
 			<LeleBox>
-				<button type="submit" class="h-full w-full bg-lele-line font-bold text-lele-bg"
+				<button type="submit" class="h-full w-full bg-lele-line px-2 font-bold text-lele-bg"
 					>submit</button
 				>
 			</LeleBox>

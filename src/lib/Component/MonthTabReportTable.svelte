@@ -46,10 +46,6 @@
 	ClickTab((firstDay.getMonth() + 1).toString());
 </script>
 
-<button on:click={() => ClickTab('1')}>1</button>
-<button on:click={() => ClickTab('2')}>2</button>
-<button on:click={() => ClickTab('3')}>3</button>
-
 <div class="flex w-full flex-col">
 	<div class="flex justify-start px-2">
 		{#each tabDataList as tabData}
