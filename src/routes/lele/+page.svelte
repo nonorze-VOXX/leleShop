@@ -25,7 +25,11 @@
 		tableData = data.data?.map((artist) => {
 			return [artist.artist_name, artist.report_key];
 		}) as string[][];
-		tradeDataList = data.tradeDataList as QueryTradeBodyWithTradeHead;
+		// tradeDataList = data.tradeDataList as QueryTradeBodyWithTradeHead;
+		const date = new Date();
+		let firstDay: Date = new Date(date.getFullYear(), date.getMonth() - 1, 1);
+		let lastDay: Date = new Date(date.getFullYear(), date.getMonth(), 1);
+		UpdateTradeData(firstDay, lastDay);
 	});
 	const ButtonFunction = async (value: string[]) => {
 		const data = new FormData();
@@ -55,6 +59,20 @@
 		}
 	};
 	let showedLength = 0;
+	const UpdateTradeData = async (firstDate: Date, lastDate: Date) => {
+		const data = new FormData();
+		data.append('firstDate', firstDate.toISOString());
+		data.append('lastDate', lastDate.toISOString());
+		const response = await fetch('?/UpdateTradeData', {
+			method: 'POST',
+			body: data
+		});
+		const result = deserialize(await response.text());
+		if (result.type === 'success') {
+			tradeDataList = result.data?.tradeDataList as QueryTradeBodyWithTradeHead;
+			showedLength = result.data?.count as number;
+		}
+	};
 </script>
 
 <div class="flex justify-start gap-2 p-2">
@@ -80,16 +98,20 @@
 	</div>
 {/if}
 {#if tabType === TabEnum.trade}
-	<div class="rounded-xl bg-lele-line p-2 text-lele-bg">
-		交易次數：{showedLength}
+	<div class="flex flex-col gap-2">
+		<div class="flex px-2">
+			<div class="rounded-xl bg-lele-line p-2 text-lele-bg">
+				交易次數：{showedLength}
+			</div>
+		</div>
+		<MonthTabReportTable
+			bind:tradeDataList
+			on:changeShowedDataList={(e) => {
+				UpdateTradeData(e.detail.firstDay, e.detail.lastDay);
+				console.log(e);
+			}}
+		></MonthTabReportTable>
 	</div>
-	<MonthTabReportTable
-		bind:tradeDataList
-		on:changeShowedDataList={(e) => {
-			showedLength = e.detail.showedTradeDataList.length;
-			console.log(e);
-		}}
-	></MonthTabReportTable>
 {/if}
 {#if tabType === TabEnum.report_key}
 	<LeleDataTable

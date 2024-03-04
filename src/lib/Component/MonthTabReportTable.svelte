@@ -6,54 +6,45 @@
 
 	export let tradeDataList: QueryTradeBodyWithTradeHead;
 	let showedTradeDataList: QueryTradeBodyWithTradeHead;
-	let tabDataList: string[] = [];
+	let tabDataList: string[] = [
+		'01',
+		'02',
+		'03',
+		'04',
+		'05',
+		'06',
+		'07',
+		'08',
+		'09',
+		'10',
+		'11',
+		'12'
+	];
 	const date = new Date();
 	let firstDay: Date = new Date(date.getFullYear(), date.getMonth() - 1, 1);
 	let lastDay: Date = new Date(date.getFullYear(), date.getMonth(), 1);
-	const GetTabDataList = (data: TradeHead[]) => {
-		const monthSet = new Set(
-			data.map((element) => element.trade_date?.split('+')[0].split('T')[0].split('-')[1] as string)
-		);
-		const monstList = Array.from(monthSet);
-		return monstList.sort((a, b) => parseInt(a) - parseInt(b));
-	};
-	tabDataList = GetTabDataList(tradeDataList.map((e) => e.trade_head) as TradeHead[]);
-	showedTradeDataList = tradeDataList;
-	const GetShowedTradeDataList = () => {
-		const filteredTradeDataList = tradeDataList.filter((element) => {
-			return (
-				element.trade_head &&
-				element.trade_head.trade_date &&
-				new Date(element.trade_head.trade_date) >= firstDay &&
-				new Date(element.trade_head.trade_date) < lastDay
-			);
-		});
-
-		return filteredTradeDataList;
-	};
 	const dispatch = createEventDispatcher<{
-		changeShowedDataList: { showedTradeDataList: QueryTradeBodyWithTradeHead };
+		changeShowedDataList: { firstDay: Date; lastDay: Date };
 	}>();
 	const ClickTab = (tabData: string) => {
 		const date = new Date();
-		firstDay = new Date(date.getUTCFullYear(), parseInt(tabData) - 1, 1);
-		lastDay = new Date(date.getUTCFullYear(), parseInt(tabData), 1);
-		showedTradeDataList = [...GetShowedTradeDataList()];
+		firstDay = new Date(date.getFullYear(), parseInt(tabData) - 1, 1);
+		lastDay = new Date(date.getFullYear(), parseInt(tabData), 1);
+		dispatch('changeShowedDataList', {
+			firstDay: firstDay,
+			lastDay: lastDay
+		});
 	};
 	ClickTab((firstDay.getMonth() + 1).toString());
 	$: {
-		dispatch('changeShowedDataList', {
-			showedTradeDataList
-		});
+		showedTradeDataList = tradeDataList;
 	}
 </script>
 
-<div class="flex w-full flex-col">
-	<div class="flex justify-start px-2">
+<div class="flex w-full flex-col gap-2">
+	<div class="flex justify-start gap-2 px-2">
 		{#each tabDataList as tabData}
-			<div
-				class="rounded-t-xl border-l-4 border-r-4 border-t-4 border-lele-line px-1 font-semibold"
-			>
+			<div class="rounded-lg border-4 border-lele-line px-1 font-semibold">
 				<button on:click={() => ClickTab(tabData)}>
 					{tabData}
 				</button>

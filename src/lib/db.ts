@@ -32,6 +32,74 @@ export default {
 		}
 		return { data, error };
 	},
+	async GetTradeDataCount(
+		id: string,
+		date: { firstDate: Date | null; lastDate: Date | null } = { firstDate: null, lastDate: null }
+	) {
+		if (date.firstDate === null || date.lastDate === null) {
+			if (id === '*' || id === '') {
+				const { count, error } = await supabase
+					.from('trade_body')
+					.select('*, trade_head!inner(trade_id, trade_date, state)', {
+						count: 'exact',
+						head: true
+					})
+					.eq('trade_head.state', '關閉');
+				if (error) {
+					console.log(error);
+				}
+
+				return count;
+			} else {
+				const { count, error } = await supabase
+					.from('trade_body')
+					.select('*, trade_head!inner(trade_id, trade_date, state)', {
+						count: 'exact',
+						head: true
+					})
+					.eq('trade_head.state', '關閉')
+					.eq('artist_id', id);
+				if (error) {
+					console.log(error);
+				}
+
+				return count;
+			}
+		} else {
+			if (id === '*' || id === '') {
+				const { count, error } = await supabase
+					.from('trade_body')
+					.select('*, trade_head!inner(trade_id, trade_date, state)', {
+						count: 'exact',
+						head: true
+					})
+					.eq('trade_head.state', '關閉')
+					.gte('trade_head.trade_date', date.firstDate.toISOString())
+					.lte('trade_head.trade_date', date.lastDate.toISOString());
+				if (error) {
+					console.log(error);
+				}
+
+				return count;
+			} else {
+				const { count, error } = await supabase
+					.from('trade_body')
+					.select('*, trade_head!inner(trade_id, trade_date, state)', {
+						count: 'exact',
+						head: true
+					})
+					.eq('trade_head.state', '關閉')
+					.eq('artist_id', id)
+					.gte('trade_head.trade_date', date.firstDate.toISOString())
+					.lte('trade_head.trade_date', date.lastDate.toISOString());
+				if (error) {
+					console.log(error);
+				}
+
+				return count;
+			}
+		}
+	},
 	async GetTradeData(
 		id: string,
 		date: { firstDate: Date | null; lastDate: Date | null } = { firstDate: null, lastDate: null }
