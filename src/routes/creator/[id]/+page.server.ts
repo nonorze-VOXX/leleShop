@@ -16,9 +16,8 @@ export const actions = {
 		const formData = await request.formData();
 		const key = formData.get('password') as string;
 		const id = formData.get('id') as string;
-		const date = new Date();
-		const firstDate = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth() - 1, 1));
-		const lastDate = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), 1));
+		const firstDate = new Date(formData.get('firstDate') as string);
+		const lastDate = new Date(formData.get('lastDate') as string);
 		const { data, error } = await supabase
 			.from('artist')
 			.select('report_key')

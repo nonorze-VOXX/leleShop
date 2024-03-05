@@ -26,10 +26,6 @@ const ArtistData = async () => {
 
 export const load = async () => {
 	const artistData = await ArtistData();
-	// const tradeDataList: QueryTradeBodyWithTradeHead = (await db.GetTradeData(
-	// 	'*'
-	// )) as QueryTradeBodyWithTradeHead;
-
 	return { data: artistData };
 };
 

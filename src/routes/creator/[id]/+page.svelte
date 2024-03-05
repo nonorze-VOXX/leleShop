@@ -28,6 +28,11 @@
 	const SubmitKey = async (event: { currentTarget: EventTarget & HTMLFormElement }) => {
 		const data = new FormData(event.currentTarget);
 		data.append('id', artist_id);
+		const date = new Date();
+		let firstDate: Date = new Date(date.getFullYear(), date.getMonth() - 1, 1);
+		let lastDate: Date = new Date(date.getFullYear(), date.getMonth(), 1);
+		data.append('firstDate', firstDate.toISOString());
+		data.append('lastDate', lastDate.toISOString());
 
 		const response = await fetch(event.currentTarget.action, {
 			method: 'POST',
