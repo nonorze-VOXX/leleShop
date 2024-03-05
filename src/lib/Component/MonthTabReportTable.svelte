@@ -42,7 +42,7 @@
 </script>
 
 <div class="flex w-full flex-col gap-2">
-	<div class="flex justify-start gap-2 px-2">
+	<div class="flex flex-wrap justify-start gap-2 px-2">
 		{#each tabDataList as tabData}
 			<div class="rounded-lg border-4 border-lele-line px-1 font-semibold">
 				<button on:click={() => ClickTab(tabData)}>
