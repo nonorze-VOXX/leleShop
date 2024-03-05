@@ -26,10 +26,6 @@ const ArtistData = async () => {
 
 export const load = async () => {
 	const artistData = await ArtistData();
-	// const tradeDataList: QueryTradeBodyWithTradeHead = (await db.GetTradeData(
-	// 	'*'
-	// )) as QueryTradeBodyWithTradeHead;
-
 	return { data: artistData };
 };
 
@@ -57,11 +53,13 @@ export const actions = {
 		const firstDate = formData.get('firstDate') as string;
 		const lastDate = formData.get('lastDate') as string;
 
-		const tradeDataList: QueryTradeBodyWithTradeHead = (await db.GetTradeData('*', {
-			firstDate: new Date(firstDate),
-			lastDate: new Date(lastDate)
-		})) as QueryTradeBodyWithTradeHead;
-		const count = await db.GetTradeDataCount('*', {
+		const tradeDataList: QueryTradeBodyWithTradeHead = (
+			await db.GetTradeData('*', {
+				firstDate: new Date(firstDate),
+				lastDate: new Date(lastDate)
+			})
+		).data as QueryTradeBodyWithTradeHead;
+		const { count } = await db.GetTradeDataCount('*', {
 			firstDate: new Date(firstDate),
 			lastDate: new Date(lastDate)
 		});

@@ -36,124 +36,58 @@ export default {
 		id: string,
 		date: { firstDate: Date | null; lastDate: Date | null } = { firstDate: null, lastDate: null }
 	) {
-		if (date.firstDate === null || date.lastDate === null) {
-			if (id === '*' || id === '') {
-				const { count, error } = await supabase
-					.from('trade_body')
-					.select('*, trade_head!inner(trade_id, trade_date, state)', {
-						count: 'exact',
-						head: true
-					})
-					.eq('trade_head.state', '關閉');
-				if (error) {
-					console.log(error);
-				}
-
-				return count;
-			} else {
-				const { count, error } = await supabase
-					.from('trade_body')
-					.select('*, trade_head!inner(trade_id, trade_date, state)', {
-						count: 'exact',
-						head: true
-					})
-					.eq('trade_head.state', '關閉')
-					.eq('artist_id', id);
-				if (error) {
-					console.log(error);
-				}
-
-				return count;
-			}
-		} else {
-			if (id === '*' || id === '') {
-				const { count, error } = await supabase
-					.from('trade_body')
-					.select('*, trade_head!inner(trade_id, trade_date, state)', {
-						count: 'exact',
-						head: true
-					})
-					.eq('trade_head.state', '關閉')
-					.gte('trade_head.trade_date', date.firstDate.toISOString())
-					.lte('trade_head.trade_date', date.lastDate.toISOString());
-				if (error) {
-					console.log(error);
-				}
-
-				return count;
-			} else {
-				const { count, error } = await supabase
-					.from('trade_body')
-					.select('*, trade_head!inner(trade_id, trade_date, state)', {
-						count: 'exact',
-						head: true
-					})
-					.eq('trade_head.state', '關閉')
-					.eq('artist_id', id)
-					.gte('trade_head.trade_date', date.firstDate.toISOString())
-					.lte('trade_head.trade_date', date.lastDate.toISOString());
-				if (error) {
-					console.log(error);
-				}
-
-				return count;
-			}
+		let query = supabase
+			.from('trade_body')
+			.select('*, trade_head!inner(trade_id, trade_date, state)', {
+				count: 'exact',
+				head: true
+			})
+			.eq('trade_head.state', '關閉');
+		if (id !== '*' && id !== '') {
+			query = query.eq('artist_id', id);
 		}
+		if (date.firstDate !== null && date.lastDate !== null) {
+			query = query
+				.gte('trade_head.trade_date', date.firstDate.toISOString())
+				.lte('trade_head.trade_date', date.lastDate.toISOString());
+		}
+		const { count, error } = await query;
+
+		if (error) {
+			console.log(error);
+		}
+
+		return { count };
 	},
 	async GetTradeData(
 		id: string,
 		date: { firstDate: Date | null; lastDate: Date | null } = { firstDate: null, lastDate: null }
 	) {
-		if (date.firstDate === null || date.lastDate === null) {
-			if (id === '*' || id === '') {
-				const { data, error } = await supabase
-					.from('trade_body')
-					.select('*, trade_head!inner(trade_id, trade_date, state)')
-					.eq('trade_head.state', '關閉');
-				if (error) {
-					console.log(error);
-				}
+		const count = (await this.GetTradeDataCount(id, date)).count as number;
+		let result: QueryTradeBodyWithTradeHead = [];
 
-				return data?.filter((e) => e.trade_head !== null);
-			} else {
-				const { data, error } = await supabase
-					.from('trade_body')
-					.select('*, trade_head!inner(trade_id, trade_date, state)')
-					.eq('trade_head.state', '關閉')
-					.eq('artist_id', id);
-				if (error) {
-					console.log(error);
-				}
+		for (let i = 0; i < count; i += 1000) {
+			let query = supabase
+				.from('trade_body')
+				.select('*, trade_head!inner(trade_id, trade_date, state)')
+				.eq('trade_head.state', '關閉');
 
-				return data;
+			if (id !== '*' && id !== '') {
+				query = query.eq('artist_id', id);
 			}
-		} else {
-			if (id === '*' || id === '') {
-				const { data, error } = await supabase
-					.from('trade_body')
-					.select('*, trade_head!inner(trade_id, trade_date, state)')
-					.eq('trade_head.state', '關閉')
+			if (date.firstDate !== null && date.lastDate !== null) {
+				query = query
 					.gte('trade_head.trade_date', date.firstDate.toISOString())
 					.lte('trade_head.trade_date', date.lastDate.toISOString());
-				if (error) {
-					console.log(error);
-				}
-
-				return data?.filter((e) => e.trade_head !== null);
-			} else {
-				const { data, error } = await supabase
-					.from('trade_body')
-					.select('*, trade_head!inner(trade_id, trade_date, state)')
-					.eq('trade_head.state', '關閉')
-					.eq('artist_id', id)
-					.gte('trade_head.trade_date', date.firstDate.toISOString())
-					.lte('trade_head.trade_date', date.lastDate.toISOString());
-				if (error) {
-					console.log(error);
-				}
-
-				return data;
 			}
+			const { data, error } = await query.range(i, i + 1000);
+			// console.log(data);
+			if (error) {
+				console.log(error);
+			}
+
+			result = result.concat(data as QueryTradeBodyWithTradeHead);
 		}
+		return { data: result };
 	}
 };
