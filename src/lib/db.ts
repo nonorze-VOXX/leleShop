@@ -74,7 +74,6 @@ export default {
 
 			if (id !== '*' && id !== '') {
 				query = query.eq('artist_id', id);
-				console.log('id:' + id);
 			}
 			if (date.firstDate !== null && date.lastDate !== null) {
 				query = query
