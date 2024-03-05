@@ -42,15 +42,27 @@
 		}
 	};
 
+	const UpdateTradeData = async (firstDate: Date, lastDate: Date) => {
+		const data = new FormData();
+		data.append('firstDate', firstDate.toISOString());
+		data.append('lastDate', lastDate.toISOString());
+		const response = await fetch('?/UpdateTradeData', {
+			method: 'POST',
+			body: data
+		});
+		const result = deserialize(await response.text());
+		if (result.type === 'success') {
+			tradeDataList = result.data?.tradeDataList as QueryTradeBodyWithTradeHead;
+			showedLength = tradeDataList.length as number;
+			UpdateCommissionData(tradeDataList);
+		}
+	};
 	const UpdateCommissionData = (data: QueryTradeBodyWithTradeHead) => {
 		net_total = 0;
 		data.forEach((element) => {
 			net_total += element.net_sales ?? 0;
 		});
 		commission = net_total >= 2000 ? Math.floor(net_total * 0.1) : 0;
-	};
-	const OnShowedDataListChange = (showedTradeDataList: QueryTradeBodyWithTradeHead) => {
-		showedLength = showedTradeDataList.length;
 	};
 </script>
 
@@ -90,8 +102,7 @@
 			<MonthTabReportTable
 				bind:tradeDataList
 				on:changeShowedDataList={(e) => {
-					OnShowedDataListChange(e.detail.showedTradeDataList);
-					UpdateCommissionData(e.detail.showedTradeDataList);
+					UpdateTradeData(e.detail.firstDay, e.detail.lastDay);
 				}}
 			></MonthTabReportTable>
 		{/if}

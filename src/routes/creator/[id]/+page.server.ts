@@ -1,4 +1,4 @@
-import { supabase } from '$lib/db';
+import { supabase, type QueryTradeBodyWithTradeHead } from '$lib/db';
 import db from '$lib/db';
 import { fail } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
@@ -27,7 +27,25 @@ export const actions = {
 			return fail(400, { admit: true, tradeData: [] });
 		}
 		const tradeData = await db.GetTradeData(id);
-		return { admit: true, tradeData };
+		return { admit: true, tradeData: tradeData.data };
+	},
+	UpdateTradeData: async ({ request, params }) => {
+		const formData = await request.formData();
+		const firstDate = formData.get('firstDate') as string;
+		const lastDate = formData.get('lastDate') as string;
+
+		const tradeDataList: QueryTradeBodyWithTradeHead = (
+			await db.GetTradeData(params.id, {
+				firstDate: new Date(firstDate),
+				lastDate: new Date(lastDate)
+			})
+		).data as QueryTradeBodyWithTradeHead;
+		const { count } = await db.GetTradeDataCount('*', {
+			firstDate: new Date(firstDate),
+			lastDate: new Date(lastDate)
+		});
+
+		return { tradeDataList: tradeDataList, count };
 	}
 };
 const GetArtistName = async (id: number) => {
