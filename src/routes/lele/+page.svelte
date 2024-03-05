@@ -46,7 +46,6 @@
 			body: data
 		});
 		const result: ActionResult = deserialize(await response.text());
-		console.log(result.type);
 		if (result.type === 'success') {
 			console.log('refresh');
 			let artistIndex = tableData.findIndex((e) => e[0] === artist.artist_name);
@@ -108,7 +107,6 @@
 			bind:tradeDataList
 			on:changeShowedDataList={(e) => {
 				UpdateTradeData(e.detail.firstDay, e.detail.lastDay);
-				console.log(e);
 			}}
 		></MonthTabReportTable>
 	</div>
