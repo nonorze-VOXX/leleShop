@@ -43,6 +43,20 @@ export default {
 		}
 		return { data };
 	},
+
+	async GetArtistDataList(
+		option: { ordered: boolean; ascending: boolean } = { ordered: false, ascending: false }
+	) {
+		let query = supabase.from('artist').select();
+		if (option.ordered) {
+			query = query.order('id', { ascending: option.ascending });
+		}
+		const { data, error } = await query;
+		if (error) {
+			console.error(error);
+		}
+		return data;
+	},
 	async GetTradeIdList() {
 		const { data, error } = await supabase.from('trade_head').select('trade_id');
 		if (error != null) {

@@ -8,24 +8,9 @@ const randomNumber = (length: number) => {
 	}
 	return number;
 };
-// const randomString = (length: number) => {
-// 	const array = new Uint32Array(length);
-// 	crypto.getRandomValues(array);
-// 	return btoa(array.join('')) //
-// 		.replace(/\+/g, '-')
-// 		.replace(/\//g, '_')
-// 		.replace(/=+$/, '');
-// };
-const ArtistData = async () => {
-	const { data, error } = await supabase.from('artist').select().order('id', { ascending: true });
-	if (error) {
-		console.log(error);
-	}
-	return data;
-};
 
 export const load = async () => {
-	const artistData = await ArtistData();
+	const artistData = await db.GetArtistDataList({ ordered: true, ascending: true });
 	return { data: artistData };
 };
 
