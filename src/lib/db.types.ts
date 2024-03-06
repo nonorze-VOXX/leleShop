@@ -27,18 +27,27 @@ export type Database = {
         }
         Relationships: []
       }
-      countries: {
+      posts: {
         Row: {
+          content: string
+          create_time: string
+          edit_time: string
           id: number
-          name: string
+          title: string
         }
         Insert: {
-          id?: number
-          name: string
+          content?: string
+          create_time?: string
+          edit_time?: string
+          id?: never
+          title?: string
         }
         Update: {
-          id?: number
-          name?: string
+          content?: string
+          create_time?: string
+          edit_time?: string
+          id?: never
+          title?: string
         }
         Relationships: []
       }
