@@ -2,7 +2,6 @@
 	import type { QueryTradeBodyWithTradeHead, TradeHead } from '$lib/db';
 	import ReportTable from './ReportTable.svelte';
 	import { createEventDispatcher } from 'svelte';
-	import { FormatDate } from './Utils';
 
 	export let tradeDataList: QueryTradeBodyWithTradeHead;
 	let showedTradeDataList: QueryTradeBodyWithTradeHead;
