@@ -1,5 +1,4 @@
 import type { Artist, ArtistRow, TradeBody, TradeHead } from '$lib/db';
-import db from '$lib/db';
 
 export const findIndex = (dataHeader: string[], target: string) => {
 	return dataHeader.findLastIndex((e) => e === target);
