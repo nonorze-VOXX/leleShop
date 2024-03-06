@@ -1,10 +1,11 @@
 import { fail } from '@sveltejs/kit';
-import db from '$lib/db';
+import db, { type Artist, type ArtistRow } from '$lib/db';
 import { type TradeBody, type TradeHead } from '$lib/db';
+import { groupBy } from '$lib/function/Utils';
 
 let dataHeader: string[] = [];
 const findIndex = (target: string) => {
-	return dataHeader.findLastIndex((e) => e == target);
+	return dataHeader.findLastIndex((e) => e === target);
 };
 
 const artistIndex = () => {
@@ -55,20 +56,56 @@ export const actions = {
 
 			const groupByOrder = groupBy(fileArr2D.slice(1), (i) => i[tradeIdIndex()]);
 
-			await storeToDB(groupByOrder, timezoneOffset);
+			const tradeIdList = (await db.GetTradeIdList()).data ?? [];
+			let artistList = (await db.GetArtistDataList()).data ?? [];
+			const newArtistList = GetNewArtistList(artistList, groupByOrder);
+			{
+				if (newArtistList.length > 0) {
+					const { data } = await db.SaveArtistName(newArtistList);
+					artistList = artistList.concat(data ?? []);
+				}
+			}
+
+			const { tradeBodyList, tradeHeadList } = GetStoreData(
+				tradeIdList,
+				artistList,
+				groupByOrder,
+				timezoneOffset
+			);
+			const { error } = await savePartToDb(tradeBodyList, tradeHeadList);
+			if (error !== null) {
+				return false;
+			}
 		}
 		return true;
 	}
 };
+const GetNewArtistList = (artistList: ArtistRow[], groupByIndex: Record<string, string[][]>) => {
+	const newArtistList: Artist[] = [];
+	for (const key in groupByIndex) {
+		if (key === undefined || key === 'undefined') continue;
+		const element = groupByIndex[key];
+		for (let i = 0; i < element.length; i++) {
+			const artist_name = element[i][artistIndex()];
+			if (
+				artistList.findLastIndex((artist) => artist.artist_name === artist_name) === -1 &&
+				newArtistList.findLastIndex((artist) => artist.artist_name === artist_name) === -1
+			) {
+				newArtistList.push({ artist_name });
+			}
+		}
+	}
+	return newArtistList;
+};
 
-const storeToDB = async (groupByIndex: Record<string, string[][]>, timezoneOffset: string) => {
-	console.log('start store');
-
+const GetStoreData = (
+	tradeIdList: { trade_id: string }[],
+	artistList: ArtistRow[],
+	groupByIndex: Record<string, string[][]>,
+	timezoneOffset: string
+) => {
 	const tradeBodyList: TradeBody[] = [];
 	const tradeHeadList: TradeHead[] = [];
-	const tradeIdList = (await db.GetTradeIdList()).data ?? [];
-
-	const artistList = (await db.GetArtistName()).data ?? [];
 
 	for (const key in groupByIndex) {
 		if (key === undefined || key === 'undefined') continue;
@@ -89,10 +126,7 @@ const storeToDB = async (groupByIndex: Record<string, string[][]>, timezoneOffse
 		for (let i = 0; i < element.length; i++) {
 			const artist_name = element[i][artistIndex()];
 			if (artistList.findLastIndex((artist) => artist.artist_name === artist_name) === -1) {
-				const { data } = await db.SaveArtistName([{ artist_name }]);
-				if (data !== null) {
-					artistList.push(data[0]);
-				}
+				console.error('artist not found', artist_name);
 			}
 			const artist_id = artistList.find((artist) => artist.artist_name === artist_name)?.id;
 
@@ -107,20 +141,22 @@ const storeToDB = async (groupByIndex: Record<string, string[][]>, timezoneOffse
 			});
 		}
 	}
-	if (tradeBodyList.length !== 0) {
-		await savePartToDb(tradeBodyList, tradeHeadList);
-	}
-	console.log('end store');
+	return { tradeBodyList, tradeHeadList };
 };
 const savePartToDb = async (tradeBodyList: TradeBody[], tradeHeadList: TradeHead[]) => {
-	const { error } = await db.SaveTradeHead(tradeHeadList);
-	if (error === null) {
-		const { error } = await db.SaveTradeBody(tradeBodyList);
-		if (error === null) {
-			return { error: null };
+	{
+		const { error } = await db.SaveTradeHead(tradeHeadList);
+		if (error !== null) {
+			return { error };
 		}
 	}
-	return { error };
+	{
+		const { error } = await db.SaveTradeBody(tradeBodyList);
+		if (error !== null) {
+			return { error };
+		}
+	}
+	return { error: null };
 };
 
 const fileToArray = async (file: File) => {
@@ -139,13 +175,3 @@ const fileToArray = async (file: File) => {
 	}
 	return result2D;
 };
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const groupBy = <T, K extends keyof any>(arr: T[], key: (i: T) => K) =>
-	arr.reduce(
-		(groups, item) => {
-			(groups[key(item)] ||= []).push(item);
-			return groups;
-		},
-		{} as Record<K, T[]>
-	);

@@ -7,6 +7,7 @@ export const supabase = createClient<Database>(PUBLIC_SUPABASE_URL, PUBLIC_SUPAB
 export type TradeHead = Database['public']['Tables']['trade_head']['Insert'];
 export type TradeBody = Database['public']['Tables']['trade_body']['Insert'];
 export type Artist = Database['public']['Tables']['artist']['Insert'];
+export type ArtistRow = Database['public']['Tables']['artist']['Row'];
 
 const QueryTradeHeadAndBody = supabase.from('trade_body').select('*, trade_head(*)');
 export type QueryTradeBodyWithTradeHead = QueryData<typeof QueryTradeHeadAndBody>;
@@ -14,9 +15,9 @@ export default {
 	async SaveArtistName(artist: Artist[]) {
 		const { error, data } = await supabase.from('artist').insert(artist).select();
 		if (error !== null) {
-			console.log(error);
+			console.error(error);
 		}
-		return { data };
+		return { data, error };
 	},
 	async SaveTradeBody(body: TradeBody[]) {
 		const { data, error } = await supabase.from('trade_body').insert(body).select();
@@ -55,7 +56,7 @@ export default {
 		if (error) {
 			console.error(error);
 		}
-		return data;
+		return { data };
 	},
 	async GetTradeIdList() {
 		const { data, error } = await supabase.from('trade_head').select('trade_id');
