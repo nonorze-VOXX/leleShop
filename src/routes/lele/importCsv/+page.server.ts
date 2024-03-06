@@ -1,7 +1,7 @@
 import { fail } from '@sveltejs/kit';
-import db from '$lib/db';
+import db, { type TradeBody, type TradeHead } from '$lib/db';
 import { groupBy } from '$lib/function/Utils';
-import { GetNewArtistList, GetStoreData, savePartToDb, tradeIdIndex } from './importFunction';
+import { GetNewArtistList, GetStoreData, fileToArray, tradeIdIndex } from './importFunction';
 
 export const actions = {
 	default: async ({ request }) => {
@@ -50,19 +50,18 @@ export const actions = {
 	}
 };
 
-const fileToArray = async (file: File) => {
-	const result2D: string[][] = [];
-	const text = await file.text();
-	const lines = text.split('\n');
-	for (let i = 0; i < lines.length; i++) {
-		const line = lines[i].split('\r')[0];
-		const words = line.split(',');
-		const result1D: string[] = [];
-		for (let ii = 0; ii < words.length; ii++) {
-			const word = words[ii] ? words[ii] : '';
-			result1D.push(word);
+const savePartToDb = async (tradeBodyList: TradeBody[], tradeHeadList: TradeHead[]) => {
+	{
+		const { error } = await db.SaveTradeHead(tradeHeadList);
+		if (error !== null) {
+			return { error };
 		}
-		result2D.push(result1D);
 	}
-	return result2D;
+	{
+		const { error } = await db.SaveTradeBody(tradeBodyList);
+		if (error !== null) {
+			return { error };
+		}
+	}
+	return { error: null };
 };

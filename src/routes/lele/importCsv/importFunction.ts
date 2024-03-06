@@ -100,18 +100,24 @@ export const GetStoreData = (
 	}
 	return { tradeBodyList, tradeHeadList };
 };
-export const savePartToDb = async (tradeBodyList: TradeBody[], tradeHeadList: TradeHead[]) => {
-	{
-		const { error } = await db.SaveTradeHead(tradeHeadList);
-		if (error !== null) {
-			return { error };
+
+export const fileToArray = async (file: File) => {
+	const result2D: string[][] = [];
+	const text = await file.text();
+	const lines = text.split('\n');
+	for (let i = 0; i < lines.length; i++) {
+		const line = lines[i].split('\r')[0];
+		const words = line.split(',');
+		const result1D: string[] = [];
+		if (words.length === 1 && words[0] === '') {
+			result2D.push(result1D);
+			continue;
 		}
-	}
-	{
-		const { error } = await db.SaveTradeBody(tradeBodyList);
-		if (error !== null) {
-			return { error };
+		for (let ii = 0; ii < words.length; ii++) {
+			const word = words[ii] ? words[ii] : '';
+			result1D.push(word);
 		}
+		result2D.push(result1D);
 	}
-	return { error: null };
+	return result2D;
 };
