@@ -91,7 +91,10 @@
 
 {#if tabType === TabEnum.artist_list}
 	<div class="flex h-fit w-screen flex-wrap gap-4 p-4">
-		<div class="h-fit w-fit rounded-lg border-4 border-blue-700 p-3 text-5xl">
+		<div
+			class="h-fit w-fit rounded-lg border-4 border-lele-line px-2 text-base
+		 text-lele-line"
+		>
 			<a href="/lele/importCsv">import csv</a>
 		</div>
 	</div>

@@ -1,7 +1,6 @@
 import { fail } from '@sveltejs/kit';
-import { supabase } from '$lib/db';
 import db from '$lib/db';
-import { type TradeBody, type TradeHead, type Artist } from '$lib/db';
+import { type TradeBody, type TradeHead } from '$lib/db';
 
 let dataHeader: string[] = [];
 const findIndex = (target: string) => {
@@ -49,19 +48,6 @@ export const actions = {
 			});
 		}
 
-		// const email = formData.get('email') as string;
-		// const password = formData.get('password') as string;
-		// const { error } = await supabase.auth.signInWithPassword({
-		// 	email: email,
-		// 	password: password
-		// });
-		// if (error !== null) {
-		// 	return fail(400, {
-		// 		error: true,
-		// 		message: 'login failed'
-		// 	});
-		// }
-
 		for (let i = 0; i < files.length; i++) {
 			const file = files[i] as File;
 			const fileArr2D = await fileToArray(file);
@@ -71,7 +57,6 @@ export const actions = {
 
 			await storeToDB(groupByOrder, timezoneOffset);
 		}
-		// supabase.auth.signOut();
 		return true;
 	}
 };
@@ -81,23 +66,13 @@ const storeToDB = async (groupByIndex: Record<string, string[][]>, timezoneOffse
 
 	const tradeBodyList: TradeBody[] = [];
 	const tradeHeadList: TradeHead[] = [];
-	const { data, error } = await supabase.from('trade_head').select('trade_id');
-	if (error != null) {
-		console.log('fetch head fail');
-	}
-	const tradeQueryResult = data as unknown as { trade_id: string }[];
-	const storedIdList = tradeQueryResult.map((i) => i.trade_id);
+	const tradeIdList = (await db.GetTradeIdList()).data ?? [];
 
-	const artistResult = await supabase.from('artist').select();
-	if (artistResult.error != null) {
-		console.log('fetch artist name fail');
-	}
-	const artistNameInDb = artistResult.data?.map((i) => i.artist_name);
-	const artistList = artistResult.data as unknown as Artist[];
+	const artistList = (await db.GetArtistName()).data ?? [];
 
 	for (const key in groupByIndex) {
 		if (key === undefined || key === 'undefined') continue;
-		if (storedIdList.includes(key)) {
+		if (tradeIdList.findLastIndex((i) => i.trade_id === key) !== -1) {
 			console.log('DB had it');
 			continue;
 		}
@@ -113,12 +88,11 @@ const storeToDB = async (groupByIndex: Record<string, string[][]>, timezoneOffse
 
 		for (let i = 0; i < element.length; i++) {
 			const artist_name = element[i][artistIndex()];
-			if (!artistNameInDb?.includes(artist_name)) {
-				const { error, data } = await db.SaveArtistName([{ artist_name }]);
-				const artist = data !== null ? data[0] : {};
-				artistList.push(artist);
-				artistNameInDb?.push(artist_name);
-				if (error !== null) console.log(error);
+			if (artistList.findLastIndex((artist) => artist.artist_name === artist_name) === -1) {
+				const { data } = await db.SaveArtistName([{ artist_name }]);
+				if (data !== null) {
+					artistList.push(data[0]);
+				}
 			}
 			const artist_id = artistList.find((artist) => artist.artist_name === artist_name)?.id;
 
