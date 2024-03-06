@@ -20,7 +20,7 @@
 </script>
 
 {#if $page.url.pathname !== '/lele/login'}
-	<div class="flex justify-center border-b-2 border-red-800 bg-gray-400">
+	<div class="flex justify-center border-b-2 border-lele-line">
 		<div class="flex w-full justify-between">
 			<div></div>
 			<div class="flex justify-end">

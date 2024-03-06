@@ -51,27 +51,6 @@
 				on:submit|preventDefault={handleSubmit}
 				class="flex flex-col items-center gap-4 text-lg"
 			>
-				<!-- <div class="w-full flex gap-3 justify-between items-center">
-					<label for="email">Email</label>
-					<input
-						type="email"
-						id="email"
-						name="email"
-						class="grow rounded-lg p-2 bg-gray-50 border border-gray-300"
-						placeholder="example@mail.com"
-						required
-					/>
-				</div>
-				<div class="w-full flex gap-3 justify-between items-center">
-					<label for="password">password</label>
-					<input
-						type="password"
-						id="password"
-						class="grow rounded-lg p-2 bg-gray-50 border border-gray-300"
-						name="password"
-						required
-					/>
-				</div> -->
 				<div>
 					<label for="file">Upload your file</label>
 					<input multiple type="file" id="file" name="fileToUpload" accept=".csv" required />
