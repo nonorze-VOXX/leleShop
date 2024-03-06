@@ -16,7 +16,7 @@ export default {
 		if (error !== null) {
 			console.log(error);
 		}
-		return { error, data };
+		return { data };
 	},
 	async SaveTradeBody(body: TradeBody[]) {
 		const { data, error } = await supabase.from('trade_body').insert(body).select();
@@ -31,6 +31,24 @@ export default {
 			console.log(error);
 		}
 		return { data, error };
+	},
+	async GetArtistName(id: string = '*') {
+		let query = supabase.from('artist').select();
+		if (id !== '*') {
+			query = query.eq('id', id);
+		}
+		const { data, error } = await query;
+		if (error !== null) {
+			console.error(error);
+		}
+		return { data };
+	},
+	async GetTradeIdList() {
+		const { data, error } = await supabase.from('trade_head').select('trade_id');
+		if (error != null) {
+			console.log('fetch head fail');
+		}
+		return { data };
 	},
 	async GetTradeDataCount(
 		id: string,
