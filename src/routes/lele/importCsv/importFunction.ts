@@ -60,13 +60,36 @@ export const GetStoreData = (
 	timezoneOffset: string,
 	dataHeader: string[]
 ) => {
+	const shouldDataHeader = [
+		'收據號碼',
+		'類別',
+		'商品',
+		'數量',
+		'銷售總額',
+		'折扣',
+		'淨銷售額',
+		'狀態',
+		'日期'
+	];
+	const notFoundColumn: string[] = [];
+	shouldDataHeader.forEach((e) => {
+		if (findIndex(dataHeader, e) === -1) {
+			notFoundColumn.push(e);
+		}
+	});
+	if (notFoundColumn.length > 0) {
+		return {
+			tradeBodyList: [],
+			tradeHeadList: [],
+			error: notFoundColumn.join(',') + ', not found'
+		};
+	}
 	const tradeBodyList: TradeBody[] = [];
 	const tradeHeadList: TradeHead[] = [];
 
 	for (const key in groupByIndex) {
 		if (key === undefined || key === 'undefined') continue;
 		if (tradeIdList.findLastIndex((i) => i.trade_id === key) !== -1) {
-			console.log('DB had it');
 			continue;
 		}
 
