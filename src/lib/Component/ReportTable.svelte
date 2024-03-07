@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { QueryTradeBodyWithTradeHead } from '$lib/db';
-	import { FormatDate } from './Utils';
+	import { FormatDate } from '$lib/function/Utils';
 	import LeleTable from './htmlWrapper/LeleTable.svelte';
 	import LeleTbody from './htmlWrapper/LeleTbody.svelte';
 	import LeleTbodyTr from './htmlWrapper/LeleTbodyTr.svelte';
