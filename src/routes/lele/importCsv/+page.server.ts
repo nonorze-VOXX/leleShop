@@ -1,7 +1,13 @@
 import { fail } from '@sveltejs/kit';
 import db, { type TradeBody, type TradeHead } from '$lib/db';
 import { groupBy } from '$lib/function/Utils';
-import { GetNewArtistList, GetStoreData, fileToArray, tradeIdIndex } from './importFunction';
+import {
+	GetNewArtistList,
+	GetStoreData,
+	dateIndex,
+	fileToArray,
+	tradeIdIndex
+} from './importFunction';
 
 export const actions = {
 	default: async ({ request }) => {
@@ -23,8 +29,10 @@ export const actions = {
 			dataHeader = fileArr2D[0];
 
 			const groupByOrder = groupBy(fileArr2D.slice(1), (i) => i[tradeIdIndex(dataHeader)]);
+			const { maxDate, minDate } = await GetDateRange(groupByOrder, dataHeader);
 
-			const tradeIdList = (await db.GetTradeIdList()).data ?? [];
+			const tradeIdList =
+				(await db.GetTradeIdList({ firstDate: minDate, lastDate: maxDate })).data ?? [];
 			let artistList = (await db.GetArtistDataList()).data ?? [];
 			const newArtistList = GetNewArtistList(artistList, groupByOrder, dataHeader);
 			{
@@ -34,6 +42,7 @@ export const actions = {
 				}
 			}
 
+			console.log(tradeIdList);
 			const { tradeBodyList, tradeHeadList } = GetStoreData(
 				tradeIdList,
 				artistList,
@@ -41,6 +50,7 @@ export const actions = {
 				timezoneOffset,
 				dataHeader
 			);
+			console.log(tradeHeadList.length, tradeBodyList.length);
 			const { error } = await savePartToDb(tradeBodyList, tradeHeadList);
 			if (error !== null) {
 				return false;
@@ -64,4 +74,26 @@ const savePartToDb = async (tradeBodyList: TradeBody[], tradeHeadList: TradeHead
 		}
 	}
 	return { error: null };
+};
+const GetDateRange = async (groupByOrder: Record<string, string[][]>, dataHeader: string[]) => {
+	let minDate: Date | null = null;
+	let maxDate: Date | null = null;
+	for (const key in groupByOrder) {
+		const tradeDate = groupByOrder[key][0][dateIndex(dataHeader)];
+
+		const date = new Date(tradeDate);
+		if (minDate === null) {
+			minDate = date;
+		}
+		if (maxDate === null) {
+			maxDate = date;
+		}
+		if (date < minDate) {
+			minDate = date;
+		}
+		if (date > maxDate) {
+			maxDate = date;
+		}
+	}
+	return { minDate, maxDate };
 };
