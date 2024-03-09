@@ -33,7 +33,7 @@ export default {
 		}
 		return { data, error };
 	},
-	async GetArtistName(id: string = '*') {
+	async GetArtistData(id: string = '*') {
 		let query = supabase.from('artist').select();
 		if (id !== '*') {
 			query = query.eq('id', id);

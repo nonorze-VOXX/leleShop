@@ -5,14 +5,18 @@
 	import { deserialize } from '$app/forms';
 	import type { ActionResult } from '@sveltejs/kit';
 	import { invalidateAll } from '$app/navigation';
-	import type { Artist, QueryTradeBodyWithTradeHead } from '$lib/db';
+	import type { Artist, ArtistRow, QueryTradeBodyWithTradeHead } from '$lib/db';
 	import MonthTabReportTable from '$lib/Component/MonthTabReportTable.svelte';
+	import LeleTable from '$lib/Component/htmlWrapper/LeleTable.svelte';
+	import LeleThead from '$lib/Component/htmlWrapper/LeleThead.svelte';
+	import LeleTbody from '$lib/Component/htmlWrapper/LeleTbody.svelte';
+	import LeleTbodyTr from '$lib/Component/htmlWrapper/LeleTbodyTr.svelte';
 
 	export let data: PageData;
 
 	let tableData: string[][];
 	let tableHead: string[] = ['artist name'];
-	let artistData: Artist[] = [];
+	let artistData: ArtistRow[] = [];
 	let tradeDataList: QueryTradeBodyWithTradeHead;
 	enum TabEnum {
 		artist_list,
@@ -21,8 +25,8 @@
 	}
 	let tabType: TabEnum = TabEnum.artist_list;
 	onMount(async () => {
-		artistData = data.data as unknown as Artist[];
-		tableData = data.data?.map((artist) => {
+		artistData = data.artistData ?? [];
+		tableData = data.artistData?.map((artist) => {
 			return [artist.artist_name, artist.report_key];
 		}) as string[][];
 		// tradeDataList = data.tradeDataList as QueryTradeBodyWithTradeHead;
@@ -40,7 +44,7 @@
 		if (artist.id === undefined) {
 			return;
 		}
-		data.append('id', artist.id as string);
+		data.append('id', artist.id.toString());
 		const response = await fetch('?/UpdateReportKey', {
 			method: 'POST',
 			body: data
@@ -89,15 +93,40 @@
 	>
 </div>
 
+<div
+	class="h-fit w-fit rounded-lg border-4 border-lele-line p-2
+		 text-base text-lele-line"
+>
+	<a href="/lele/importCsv">import csv</a>
+</div>
 {#if tabType === TabEnum.artist_list}
-	<div class="flex h-fit w-screen flex-wrap gap-4 p-4">
-		<div
-			class="h-fit w-fit rounded-lg border-4 border-lele-line px-2 text-base
-		 text-lele-line"
-		>
-			<a href="/lele/importCsv">import csv</a>
-		</div>
-	</div>
+	<LeleTable>
+		<LeleThead>
+			<tr>
+				<th scope="col" class="w-auto p-2"> 品牌 </th>
+				<th scope="col" class="w-20 p-2"> 銷售 </th>
+			</tr>
+		</LeleThead>
+		<LeleTbody>
+			{#if artistData}
+				{#each artistData as artists}
+					<LeleTbodyTr>
+						<td class="p-2">
+							{artists.artist_name}
+						</td>
+						<td class="p-2">
+							<a
+								class="rounded-lg bg-lele-line p-2 text-lele-bg"
+								href={'/lele/creator/' + artists.id}
+							>
+								報表
+							</a>
+						</td>
+					</LeleTbodyTr>
+				{/each}
+			{/if}
+		</LeleTbody>
+	</LeleTable>
 {/if}
 {#if tabType === TabEnum.trade}
 	<div class="flex flex-col gap-2">

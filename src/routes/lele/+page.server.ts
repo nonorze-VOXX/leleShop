@@ -11,7 +11,7 @@ const randomNumber = (length: number) => {
 
 export const load = async () => {
 	const artistData = (await db.GetArtistDataList({ ordered: true, ascending: true }))?.data;
-	return { data: artistData };
+	return { artistData };
 };
 
 export const actions = {
