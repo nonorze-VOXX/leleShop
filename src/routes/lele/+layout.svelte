@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { deserialize } from '$app/forms';
-	import { invalidate, invalidateAll } from '$app/navigation';
-	import { page } from '$app/stores';
+	import { invalidateAll } from '$app/navigation';
 	import type { ActionResult } from '@sveltejs/kit';
 
 	async function LogoutSubmit(event: { currentTarget: EventTarget & HTMLFormElement }) {
