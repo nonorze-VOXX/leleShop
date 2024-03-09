@@ -43,7 +43,7 @@
 		data.forEach((element) => {
 			net_total += element.net_sales ?? 0;
 		});
-		commission = net_total >= 2000 ? Math.floor(net_total * 0.1) : 0;
+		commission = net_total >= 0 ? Math.floor(net_total * 0.1) : 0;
 	};
 </script>
 

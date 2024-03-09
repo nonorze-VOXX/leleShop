@@ -4,7 +4,9 @@ import { fail } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ params }) => {
-	const artist_name = await GetArtistName(parseInt(params.id));
+	const artist_data = (await db.GetArtistData(params.id)).data ?? [];
+	const artist_name =
+		artist_data.length !== 0 ? artist_data[0].artist_name : 'not found this artist';
 	return {
 		artist_name,
 		id: params.id
@@ -50,14 +52,4 @@ export const actions = {
 
 		return { tradeDataList: tradeDataList, count };
 	}
-};
-const GetArtistName = async (id: number) => {
-	const { data, error } = await supabase.from('artist').select().eq('id', id).maybeSingle();
-	if (error !== null) {
-		console.error(error);
-	}
-	if (data === null) {
-		return 'not found this artist';
-	}
-	return data.artist_name;
 };
