@@ -24,7 +24,7 @@
 		<div></div>
 		<div class="flex justify-end">
 			<div class="m-2 rounded-xl bg-red-600 px-3 font-semibold text-white">
-				<form action="/lele/login?/logout" on:submit|preventDefault={LogoutSubmit}>
+				<form action="/login?/logout" on:submit|preventDefault={LogoutSubmit}>
 					<button type="submit">Logout</button>
 				</form>
 			</div>
