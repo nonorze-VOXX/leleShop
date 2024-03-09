@@ -2,7 +2,7 @@ import { supabase } from '$lib/db';
 import { fail } from '@sveltejs/kit';
 
 export const actions = {
-	login: async ({ request }) => {
+	login: async ({ request, cookies }) => {
 		const formData = await request.formData();
 
 		const email = formData.get('email') as string;
@@ -16,7 +16,15 @@ export const actions = {
 				error: true,
 				message: 'login failed'
 			});
+		} else {
+			const access_token = (await supabase.auth.getSession()).data.session?.access_token ?? '';
+			// 3 min to expires
+			cookies.set('access_token', access_token, {
+				path: '/lele',
+				expires: new Date(Date.now() + 1000 * 60 * 3)
+			});
 		}
+
 		return true;
 	},
 	logout: async () => {

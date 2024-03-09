@@ -2,7 +2,7 @@
 	import { deserialize } from '$app/forms';
 	import type { ActionResult } from '@sveltejs/kit';
 	import type { PageData } from './$types';
-	import { invalidateAll } from '$app/navigation';
+	import { goto, invalidateAll } from '$app/navigation';
 	export let data: PageData;
 
 	let loginFailed = false;
@@ -15,7 +15,7 @@
 		});
 		const result: ActionResult = deserialize(await response.text());
 		if (result.type === 'success') {
-			invalidateAll();
+			goto('/lele');
 		} else {
 			loginFailed = true;
 		}
