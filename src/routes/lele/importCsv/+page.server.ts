@@ -55,8 +55,8 @@ export const actions = {
 				dataHeader
 			);
 			console.log(tradeHeadList.length, tradeBodyList.length);
-			newTradeBodyList = newTradeBodyList.concat(tradeBodyList);
-			newTradeHeadList = newTradeHeadList.concat(tradeHeadList);
+			// newTradeBodyList = newTradeBodyList.concat(tradeBodyList);
+			// newTradeHeadList = newTradeHeadList.concat(tradeHeadList);
 
 			const { error } = await savePartToDb(tradeBodyList, tradeHeadList);
 			if (error !== null) {
