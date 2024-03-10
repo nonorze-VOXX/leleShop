@@ -34,11 +34,13 @@
 		if (result.type === 'success') {
 			console.log(result.data);
 			submitLog = result.data?.error;
+			console.log(result.data);
 
 			processed = ProcessedStatus.PROCESSED;
 			await invalidateAll();
 		} else if (result.type === 'failure') {
 			processed = ProcessedStatus.LOGIN_FAILED;
+			console.log(result.data?.message);
 		}
 
 		applyAction(result);
