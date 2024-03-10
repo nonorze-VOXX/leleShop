@@ -53,10 +53,10 @@ export const actions = {
 			console.log(tradeHeadList.length, tradeBodyList.length);
 			const { error } = await savePartToDb(tradeBodyList, tradeHeadList);
 			if (error !== null) {
-				return false;
+				return { error };
 			}
 		}
-		return true;
+		return { error: null };
 	}
 };
 
