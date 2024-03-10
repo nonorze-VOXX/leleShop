@@ -54,9 +54,8 @@ export const actions = {
 				timezoneOffset,
 				dataHeader
 			);
-			console.log(tradeHeadList.length, tradeBodyList.length);
-			// newTradeBodyList = newTradeBodyList.concat(tradeBodyList);
-			// newTradeHeadList = newTradeHeadList.concat(tradeHeadList);
+			newTradeBodyList = newTradeBodyList.concat(tradeBodyList);
+			newTradeHeadList = newTradeHeadList.concat(tradeHeadList);
 
 			const { error } = await savePartToDb(tradeBodyList, tradeHeadList);
 			if (error !== null) {
@@ -90,8 +89,8 @@ const GetDateRange = async (
 	let minDate: Date | null = null;
 	let maxDate: Date | null = null;
 	for (const key in groupByOrder) {
+		if (key === undefined || key === 'undefined') continue;
 		const tradeDate = groupByOrder[key][0][dateIndex(dataHeader)];
-
 		const date = GetDateWithTimeZone(tradeDate, timezoneOffset);
 		if (minDate === null) {
 			minDate = date;
