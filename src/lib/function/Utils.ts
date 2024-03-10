@@ -19,6 +19,7 @@ export function FormatNumberToTwoDigi(month: string) {
 export const groupBy = <T, K extends keyof any>(arr: T[], key: (i: T) => K) =>
 	arr.reduce(
 		(groups, item) => {
+			if (item === undefined) return groups;
 			(groups[key(item)] ||= []).push(item);
 			return groups;
 		},
