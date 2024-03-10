@@ -2,6 +2,7 @@ import { fail } from '@sveltejs/kit';
 import db, { type TradeBody, type TradeHead } from '$lib/db';
 import { groupBy } from '$lib/function/Utils';
 import {
+	GetDateWithTimeZone,
 	GetNewArtistList,
 	GetStoreData,
 	dateIndex,
@@ -21,6 +22,9 @@ export const actions = {
 				message: 'You must provide a file to upload'
 			});
 		}
+		let newTradeBodyList: TradeBody[] = [];
+
+		let newTradeHeadList: TradeHead[] = [];
 
 		for (let i = 0; i < files.length; i++) {
 			const file = files[i] as File;
@@ -29,7 +33,7 @@ export const actions = {
 			dataHeader = fileArr2D[0];
 
 			const groupByOrder = groupBy(fileArr2D.slice(1), (i) => i[tradeIdIndex(dataHeader)]);
-			const { maxDate, minDate } = await GetDateRange(groupByOrder, dataHeader);
+			const { maxDate, minDate } = await GetDateRange(groupByOrder, dataHeader, timezoneOffset);
 
 			const tradeIdList =
 				(await db.GetTradeIdList({ firstDate: minDate, lastDate: maxDate })).data ?? [];
@@ -50,13 +54,15 @@ export const actions = {
 				timezoneOffset,
 				dataHeader
 			);
-			console.log(tradeHeadList.length, tradeBodyList.length);
+			newTradeBodyList = newTradeBodyList.concat(tradeBodyList);
+			newTradeHeadList = newTradeHeadList.concat(tradeHeadList);
+
 			const { error } = await savePartToDb(tradeBodyList, tradeHeadList);
 			if (error !== null) {
-				return false;
+				return { error, tradeHeadList, tradeBodyList };
 			}
 		}
-		return true;
+		return { error: null, newTradeHeadList, newTradeBodyList };
 	}
 };
 
@@ -75,13 +81,17 @@ const savePartToDb = async (tradeBodyList: TradeBody[], tradeHeadList: TradeHead
 	}
 	return { error: null };
 };
-const GetDateRange = async (groupByOrder: Record<string, string[][]>, dataHeader: string[]) => {
+const GetDateRange = async (
+	groupByOrder: Record<string, string[][]>,
+	dataHeader: string[],
+	timezoneOffset: string
+) => {
 	let minDate: Date | null = null;
 	let maxDate: Date | null = null;
 	for (const key in groupByOrder) {
+		if (key === undefined || key === 'undefined') continue;
 		const tradeDate = groupByOrder[key][0][dateIndex(dataHeader)];
-
-		const date = new Date(tradeDate);
+		const date = GetDateWithTimeZone(tradeDate, timezoneOffset);
 		if (minDate === null) {
 			minDate = date;
 		}

@@ -17,6 +17,7 @@
 	};
 	let tableData: string[][];
 	let processed: ProcessedStatus = ProcessedStatus.NORMAL;
+	// let submitLog: string = '';
 	async function handleSubmit(event: { currentTarget: EventTarget & HTMLFormElement }) {
 		const data = new FormData(event.currentTarget);
 		data.append('dateOffset', timeZoneOffsetToHHMM(new Date().getTimezoneOffset()));
@@ -31,13 +32,14 @@
 		console.log(result);
 
 		if (result.type === 'success') {
-			// rerun all `load` functions, following the successful update
+			// submitLog = result.data?.error;
 			console.log(result.data);
-			// processed = result.data;
+
 			processed = ProcessedStatus.PROCESSED;
 			await invalidateAll();
 		} else if (result.type === 'failure') {
 			processed = ProcessedStatus.LOGIN_FAILED;
+			console.log(result.data?.message);
 		}
 
 		applyAction(result);
@@ -66,7 +68,7 @@
 			{:else if processed === ProcessedStatus.PROCESSED}
 				<p class="text-7xl">DONE</p>
 			{:else if processed === ProcessedStatus.LOGIN_FAILED}
-				<p class="text-7xl text-red-600">Login failed</p>
+				<p class="text-7xl text-red-600">submitLog</p>
 			{/if}
 		</div>
 	</div>

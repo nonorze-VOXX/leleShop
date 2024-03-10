@@ -94,7 +94,7 @@ export const GetStoreData = (
 		}
 
 		const element = groupByIndex[key];
-		const date = new Date(element[0][dateIndex(dataHeader)].replace(/ /g, 'T') + timezoneOffset);
+		const date = GetDateWithTimeZone(element[0][dateIndex(dataHeader)], timezoneOffset);
 
 		tradeHeadList.push({
 			trade_date: date.toISOString(),
@@ -142,4 +142,10 @@ export const fileToArray = async (file: File) => {
 		result2D.push(result1D);
 	}
 	return result2D;
+};
+
+// dateStr: YYYY-MM-DD HH:MM
+export const GetDateWithTimeZone = (dateStr: string, timezoneOffset: string) => {
+	const date = new Date(dateStr.replace(/ /g, 'T') + timezoneOffset);
+	return date;
 };
