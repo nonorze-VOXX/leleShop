@@ -32,7 +32,6 @@
 		console.log(result);
 
 		if (result.type === 'success') {
-			console.log(result.data);
 			submitLog = result.data?.error;
 			console.log(result.data);
 

@@ -22,6 +22,9 @@ export const actions = {
 				message: 'You must provide a file to upload'
 			});
 		}
+		let newTradeBodyList: TradeBody[] = [];
+
+		let newTradeHeadList: TradeHead[] = [];
 
 		for (let i = 0; i < files.length; i++) {
 			const file = files[i] as File;
@@ -52,12 +55,15 @@ export const actions = {
 				dataHeader
 			);
 			console.log(tradeHeadList.length, tradeBodyList.length);
+			newTradeBodyList = newTradeBodyList.concat(tradeBodyList);
+			newTradeHeadList = newTradeHeadList.concat(tradeHeadList);
+
 			const { error } = await savePartToDb(tradeBodyList, tradeHeadList);
 			if (error !== null) {
 				return { error, tradeHeadList, tradeBodyList };
 			}
 		}
-		return { error: null };
+		return { error: null, newTradeHeadList, newTradeBodyList };
 	}
 };
 
