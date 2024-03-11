@@ -14,16 +14,19 @@ export type Database = {
           artist_name: string | null
           id: number
           report_key: string | null
+          visible: boolean
         }
         Insert: {
           artist_name?: string | null
           id?: never
           report_key?: string | null
+          visible?: boolean
         }
         Update: {
           artist_name?: string | null
           id?: never
           report_key?: string | null
+          visible?: boolean
         }
         Relationships: []
       }
