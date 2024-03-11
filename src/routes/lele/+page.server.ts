@@ -50,5 +50,18 @@ export const actions = {
 		});
 
 		return { tradeDataList: tradeDataList, count };
+	},
+
+	UpdateArtistVisible: async ({ request }) => {
+		const formData = await request.formData();
+		const id = formData.get('id') as string;
+		const visible = formData.get('visible') === 'true' ? true : false;
+		const { data, error } = await supabase.from('artist').update({ visible }).eq('id', id).select();
+
+		if (error) {
+			console.error(error);
+		}
+
+		return { data };
 	}
 };
