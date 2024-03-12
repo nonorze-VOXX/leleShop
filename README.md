@@ -24,6 +24,12 @@ volta install npm
 npm i
 ```
 
+- fill supabase data in .env file
+
+```bash
+cp .env.example .env
+```
+
 ### Start code
 
 ```bash
@@ -31,9 +37,25 @@ npm run dev
 
 # or start the server and open the app in a new browser tab
 npm run dev -- --open
+# or start host
+npm run dev -- --host
 ```
 
-## Building
+### run test
+
+#### test once
+
+```bash
+npm run test
+```
+
+#### test peep
+
+```bash
+npm run keep-test
+```
+
+### Building
 
 To create a production version of your app:
 
