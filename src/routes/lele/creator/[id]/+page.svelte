@@ -53,7 +53,7 @@
 		{#if net_total != -1}
 			<div class="flex rounded-xl bg-lele-line p-2 text-lele-bg">
 				<p class="inline">抽成10%:</p>
-				{#if net_total >= 2000}
+				{#if net_total >= 0}
 					{commission}
 				{:else}
 					{noCommisionText}

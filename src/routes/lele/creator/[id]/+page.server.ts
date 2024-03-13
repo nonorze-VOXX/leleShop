@@ -24,11 +24,11 @@ export const actions = {
 				lastDate: new Date(lastDate)
 			})
 		).data as QueryTradeBodyWithTradeHead;
-		const { count } = await db.GetTradeDataCount('*', {
-			firstDate: new Date(firstDate),
-			lastDate: new Date(lastDate)
-		});
+		// const { count } = await db.GetTradeDataCount(params.id, {
+		// 	firstDate: new Date(firstDate),
+		// 	lastDate: new Date(lastDate)
+		// });
 
-		return { tradeDataList: tradeDataList, count };
+		return { tradeDataList: tradeDataList };
 	}
 };
