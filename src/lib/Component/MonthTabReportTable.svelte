@@ -22,7 +22,7 @@
 	];
 	const date = new Date();
 	let firstDay: Date = new Date(date.getFullYear(), date.getMonth() - 1, 1);
-	let lastDay: Date = new Date(date.getFullYear(), date.getMonth(), 1);
+	// let lastDay: Date = new Date(date.getFullYear(), date.getMonth(), 1);
 	let showedMonth: string = FormatNumberToTwoDigi((firstDay.getMonth() + 1).toString());
 	const dispatch = createEventDispatcher<{
 		changeShowedDataList: { firstDay: Date; lastDay: Date };
@@ -30,15 +30,15 @@
 	const ClickTab = (tabData: string) => {
 		showedMonth = tabData;
 		const date = new Date();
-		firstDay = new Date(date.getFullYear(), parseInt(tabData) - 1, 1);
-		lastDay = new Date(date.getFullYear(), parseInt(tabData), 1);
+		let firstDay = new Date(date.getFullYear(), parseInt(tabData) - 1, 1);
+		let lastDay = new Date(date.getFullYear(), parseInt(tabData), 1);
+		console.log('dispatch');
 		dispatch('changeShowedDataList', {
 			firstDay: firstDay,
 			lastDay: lastDay
 		});
 	};
 
-	ClickTab(showedMonth);
 	$: {
 		showedTradeDataList = tradeDataList;
 	}
