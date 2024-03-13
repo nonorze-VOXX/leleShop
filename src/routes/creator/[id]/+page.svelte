@@ -60,7 +60,20 @@
 			tradeDataList = result.data?.tradeDataList as QueryTradeBodyWithTradeHead;
 			showedLength = tradeDataList.length as number;
 			UpdateCommissionData(tradeDataList);
+			UpdateDownloadData(tradeDataList);
 		}
+	};
+	const UpdateDownloadData = (data: QueryTradeBodyWithTradeHead) => {
+		encodeDataForDownload = '日期,收據號碼,商品,數量,銷售總額,折扣,淨銷售額%0A';
+		data.forEach((element) => {
+			encodeDataForDownload += element.trade_head?.trade_date + ',';
+			encodeDataForDownload += element.trade_head?.trade_id + ',';
+			encodeDataForDownload += element.item_name + ',';
+			encodeDataForDownload += element.quantity + ',';
+			encodeDataForDownload += element.total_sales + ',';
+			encodeDataForDownload += element.discount + ',';
+			encodeDataForDownload += element.net_sales + '%0A';
+		});
 	};
 	const UpdateCommissionData = (data: QueryTradeBodyWithTradeHead) => {
 		net_total = 0;
@@ -69,6 +82,7 @@
 		});
 		commission = net_total >= 0 ? Math.floor(net_total * 0.1) : 0;
 	};
+	let encodeDataForDownload = '';
 </script>
 
 <div class="flex flex-col items-center gap-3">
@@ -101,6 +115,11 @@
 			{/if}
 			<div class="rounded-xl bg-lele-line p-2 text-lele-bg">
 				交易次數：{showedLength}
+			</div>
+			<div class="rounded-xl bg-lele-line p-2 text-lele-bg">
+				<a href={'data:text/plain;charset=utf-8,' + encodeDataForDownload} download="data.csv"
+					>download</a
+				>
 			</div>
 		</div>
 		{#if data}
