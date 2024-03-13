@@ -21,9 +21,16 @@
 	let admit_fail = false;
 	let tradeDataList: QueryTradeBodyWithTradeHead = [];
 	let showedLength = 0;
+
+	let firstDay: Date;
+	let lastDay: Date;
 	onMount(() => {
 		artist_name = data.artist_name as string;
 		artist_id = data.id;
+		let date = new Date();
+		firstDay = new Date(date.getFullYear(), date.getMonth() - 1, 1);
+		lastDay = new Date(date.getFullYear(), date.getMonth(), 1);
+		UpdateTradeData(firstDay, lastDay);
 	});
 	const noCommisionText = '這個月優惠，不抽成喔';
 	const SubmitKey = async (event: { currentTarget: EventTarget & HTMLFormElement }) => {
@@ -127,13 +134,12 @@
 				>
 			</OkButton>
 		</div>
-		{#if data}
-			<MonthTabReportTable
-				bind:tradeDataList
-				on:changeShowedDataList={(e) => {
-					UpdateTradeData(e.detail.firstDay, e.detail.lastDay);
-				}}
-			></MonthTabReportTable>
-		{/if}
+		<MonthTabReportTable
+			bind:tradeDataList
+			on:changeShowedDataList={(e) => {
+				console.log('get dispatch');
+				UpdateTradeData(e.detail.firstDay, e.detail.lastDay);
+			}}
+		></MonthTabReportTable>
 	{/if}
 </div>
