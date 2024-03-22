@@ -33,13 +33,13 @@ export default {
 		}
 		return { data, error };
 	},
-	async GetPaymentStatus({ artist_id, date }: { artist_id?: string; date?: string }) {
+	async GetPaymentStatus({ artist_id, season }: { artist_id?: string; season?: string }) {
 		let query = supabase.from('artist_payment_status').select('*');
 		if (artist_id) {
 			query = query.eq('artist_id', artist_id);
 		}
-		if (date) {
-			query = query.eq('create_time', date);
+		if (season) {
+			query = query.eq('season', season);
 		}
 		const { error, data } = await query;
 		if (error !== null) {

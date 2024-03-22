@@ -33,21 +33,21 @@ export type Database = {
       artist_payment_status: {
         Row: {
           artist_id: number | null
-          create_time: string | null
           id: number
           process_state: Database["public"]["Enums"]["processenum"] | null
+          season: string | null
         }
         Insert: {
           artist_id?: number | null
-          create_time?: string | null
           id?: never
           process_state?: Database["public"]["Enums"]["processenum"] | null
+          season?: string | null
         }
         Update: {
           artist_id?: number | null
-          create_time?: string | null
           id?: never
           process_state?: Database["public"]["Enums"]["processenum"] | null
+          season?: string | null
         }
         Relationships: [
           {
