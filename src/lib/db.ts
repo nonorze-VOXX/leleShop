@@ -10,10 +10,44 @@ export type TradeHead = Database['public']['Tables']['trade_head']['Insert'];
 export type TradeBody = Database['public']['Tables']['trade_body']['Insert'];
 export type Artist = Database['public']['Tables']['artist']['Insert'];
 export type ArtistRow = Database['public']['Tables']['artist']['Row'];
+export type PaymentStatusInsert = Database['public']['Tables']['artist_payment_status']['Insert'];
+export type PaymentStatusRow = Database['public']['Tables']['artist_payment_status']['Row'];
+export type PaymentStatusUpdate = Database['public']['Tables']['artist_payment_status']['Update'];
 
 const QueryTradeHeadAndBody = supabase.from('trade_body').select('*, trade_head(*)');
 export type QueryTradeBodyWithTradeHead = QueryData<typeof QueryTradeHeadAndBody>;
 export default {
+	async ChangePaymentStatus(update: PaymentStatusUpdate) {
+		const { error } = await supabase.from('artist_payment_status').update(update);
+		if (error !== null) {
+			console.error(error);
+		}
+	},
+	async InsertPaymentStatus(paymentStatus: PaymentStatusInsert) {
+		const { error, data } = await supabase
+			.from('artist_payment_status')
+			.insert(paymentStatus)
+			.select();
+		if (error !== null) {
+			console.error(error);
+		}
+		return { data, error };
+	},
+	async GetPaymentStatus({ artist_id, date }: { artist_id?: string; date?: string }) {
+		let query = supabase.from('artist_payment_status').select('*');
+		if (artist_id) {
+			query = query.eq('artist_id', artist_id);
+		}
+		if (date) {
+			query = query.eq('create_time', date);
+		}
+		const { error, data } = await query;
+		if (error !== null) {
+			console.error(error);
+		}
+		console.log(data);
+		return { data, error };
+	},
 	async SaveArtistName(artist: Artist[]) {
 		const { error, data } = await supabase.from('artist').insert(artist).select();
 		if (error !== null) {
