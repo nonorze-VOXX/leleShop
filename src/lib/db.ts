@@ -23,10 +23,10 @@ export default {
 			console.error(error);
 		}
 	},
-	async InsertPaymentStatus(paymentStatus: PaymentStatusInsert) {
+	async InsertPaymentStatus(paymentStatusList: PaymentStatusInsert[]) {
 		const { error, data } = await supabase
 			.from('artist_payment_status')
-			.insert(paymentStatus)
+			.insert(paymentStatusList)
 			.select();
 		if (error !== null) {
 			console.error(error);
@@ -45,7 +45,6 @@ export default {
 		if (error !== null) {
 			console.error(error);
 		}
-		console.log(data);
 		return { data, error };
 	},
 	async SaveArtistName(artist: Artist[]) {

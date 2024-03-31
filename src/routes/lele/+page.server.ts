@@ -1,5 +1,6 @@
-import { supabase, type QueryTradeBodyWithTradeHead } from '$lib/db';
+import { supabase, type QueryTradeBodyWithTradeHead, type PaymentStatusInsert } from '$lib/db';
 import db from '$lib/db';
+import { fail } from '@sveltejs/kit';
 
 const randomNumber = (length: number) => {
 	let number = '';
@@ -15,6 +16,33 @@ export const load = async () => {
 };
 
 export const actions = {
+	UpdatePaymentStatus: async ({ request }) => {
+		const formData = await request.formData();
+		const season = formData.get('season') as string; // YYYY-MM
+		if (parseInt(season.split('-')[1]) % 3 !== 0) {
+			return fail(400, { message: 'season must be multiple of 3' });
+		}
+		const { data, error } = await db.GetPaymentStatus({ season });
+		if (error) {
+			console.error(error);
+		}
+		const artistData = (await db.GetArtistDataList({ ordered: true, ascending: true }))?.data ?? [];
+
+		const noPaymentList: PaymentStatusInsert[] = [];
+		if (artistData?.length !== data?.length) {
+			artistData.forEach((element) => {
+				if (element.id !== data?.find((e) => e.artist_id === element.id)?.artist_id) {
+					noPaymentList.push({ artist_id: element.id, season, process_state: 'todo' });
+				}
+			});
+		}
+		if (noPaymentList.length === 0) {
+			return { data: [] };
+		}
+
+		const newData = await db.InsertPaymentStatus(noPaymentList);
+		return { data: newData };
+	},
 	UpdateReportKey: async ({ request }) => {
 		const formData = await request.formData();
 		const id = formData.get('id') as string;

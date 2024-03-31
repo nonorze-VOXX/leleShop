@@ -11,6 +11,7 @@
 	import LeleThead from '$lib/Component/htmlWrapper/LeleThead.svelte';
 	import LeleTbody from '$lib/Component/htmlWrapper/LeleTbody.svelte';
 	import LeleTbodyTr from '$lib/Component/htmlWrapper/LeleTbodyTr.svelte';
+	import { FormatNumberToTwoDigi } from '$lib/function/Utils';
 
 	export let data: PageData;
 
@@ -33,8 +34,28 @@
 		const date = new Date();
 		let firstDay: Date = new Date(date.getFullYear(), date.getMonth() - 1, 1);
 		let lastDay: Date = new Date(date.getFullYear(), date.getMonth(), 1);
-		UpdateTradeData(firstDay, lastDay);
+		await UpdateTradeData(firstDay, lastDay);
+		await UpdatePaymentStatus();
 	});
+	const UpdatePaymentStatus = async () => {
+		const data = new FormData();
+		const date = new Date();
+
+		data.append(
+			'season',
+			date.getFullYear().toString() + '-' + FormatNumberToTwoDigi((date.getMonth() + 1).toString())
+		);
+		const response = await fetch('?/UpdatePaymentStatus', {
+			method: 'POST',
+			body: data
+		});
+		const result = deserialize(await response.text());
+		if (result.type === 'success') {
+			console.log('new payment inserted' + result.data?.data);
+		} else if (result.type === 'failure') {
+			console.log(result.data);
+		}
+	};
 	const ButtonFunction = async (value: string[]) => {
 		const data = new FormData();
 		const artist = artistData.find((e) => e.artist_name == value[0]);
