@@ -1,4 +1,4 @@
-import { supabase, type QueryTradeBodyWithTradeHead, type PaymentStatusInsert } from '$lib/db';
+import { supabase, type QueryTradeBodyWithTradeHead, type PaymentStatusUpdate } from '$lib/db';
 import db from '$lib/db';
 import { fail } from '@sveltejs/kit';
 
@@ -12,6 +12,16 @@ const randomNumber = (length: number) => {
 
 export const load = async () => {
 	const artistData = (await db.GetArtistDataList({ ordered: true, ascending: true }))?.data;
+	const date = new Date();
+	const season =
+		new Date().getFullYear().toString() +
+		'-' +
+		(Math.floor(new Date().getMonth() / 3) * 3 + 1).toString();
+	await db.PreInsertPaymentStatus(season);
+	const d = new Date(date.getFullYear(), date.getMonth() + 3, 1);
+	const next_season =
+		d.getFullYear().toString() + '-' + (Math.floor(d.getMonth() / 3) * 3 + 1).toString();
+	await db.PreInsertPaymentStatus(next_season);
 	return { artistData };
 };
 
@@ -19,29 +29,18 @@ export const actions = {
 	UpdatePaymentStatus: async ({ request }) => {
 		const formData = await request.formData();
 		const season = formData.get('season') as string; // YYYY-MM
-		if (parseInt(season.split('-')[1]) % 3 !== 0) {
-			return fail(400, { message: 'season must be multiple of 3' });
-		}
-		const { data, error } = await db.GetPaymentStatus({ season });
+		const artist_id = parseInt(formData.get('artist_id') as string);
+		const process_state = formData.get('process_state') as string;
+		if (process_state !== 'todo' && process_state !== 'done' && process_state !== 'doing')
+			return fail(400, { message: 'process_state is invalid' });
+
+		const update: PaymentStatusUpdate = { artist_id, season, process_state };
+
+		const { error } = await db.ChangePaymentStatus(update);
 		if (error) {
 			console.error(error);
+			return fail(400, { error });
 		}
-		const artistData = (await db.GetArtistDataList({ ordered: true, ascending: true }))?.data ?? [];
-
-		const noPaymentList: PaymentStatusInsert[] = [];
-		if (artistData?.length !== data?.length) {
-			artistData.forEach((element) => {
-				if (element.id !== data?.find((e) => e.artist_id === element.id)?.artist_id) {
-					noPaymentList.push({ artist_id: element.id, season, process_state: 'todo' });
-				}
-			});
-		}
-		if (noPaymentList.length === 0) {
-			return { data: [] };
-		}
-
-		const newData = await db.InsertPaymentStatus(noPaymentList);
-		return { data: newData };
 	},
 	UpdateReportKey: async ({ request }) => {
 		const formData = await request.formData();

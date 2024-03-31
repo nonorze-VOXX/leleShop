@@ -22,7 +22,8 @@
 	enum TabEnum {
 		artist_list,
 		trade,
-		report_key
+		report_key,
+		payment
 	}
 	let tabType: TabEnum = TabEnum.artist_list;
 	onMount(async () => {
@@ -35,23 +36,25 @@
 		let firstDay: Date = new Date(date.getFullYear(), date.getMonth() - 1, 1);
 		let lastDay: Date = new Date(date.getFullYear(), date.getMonth(), 1);
 		await UpdateTradeData(firstDay, lastDay);
-		await UpdatePaymentStatus();
 	});
-	const UpdatePaymentStatus = async () => {
+	const UpdatePaymentStatus = async (
+		id: string,
+		season: string,
+		state: 'todo' | 'doing' | 'done'
+	) => {
 		const data = new FormData();
-		const date = new Date();
 
-		data.append(
-			'season',
-			date.getFullYear().toString() + '-' + FormatNumberToTwoDigi((date.getMonth() + 1).toString())
-		);
+		data.append('season', season);
+		data.append('state', state);
+		data.append('id', id);
+
 		const response = await fetch('?/UpdatePaymentStatus', {
 			method: 'POST',
 			body: data
 		});
 		const result = deserialize(await response.text());
 		if (result.type === 'success') {
-			console.log('new payment inserted' + result.data?.data);
+			console.log('succ');
 		} else if (result.type === 'failure') {
 			console.log(result.data);
 		}
@@ -130,6 +133,10 @@
 		class="flex rounded-xl bg-lele-line p-2 font-semibold text-lele-bg"
 		on:click={() => (tabType = TabEnum.report_key)}>Manage Key</button
 	>
+	<button
+		class="flex rounded-xl bg-lele-line p-2 font-semibold text-lele-bg"
+		on:click={() => (tabType = TabEnum.payment)}>payment</button
+	>
 </div>
 
 <div
@@ -206,3 +213,4 @@
 		buttonPart={{ haveButton: true, buttonText: 'update key', ButtonFunction }}
 	></LeleDataTable>
 {/if}
+{#if tabType === TabEnum.payment}{/if}
