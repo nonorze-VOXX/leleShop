@@ -64,5 +64,5 @@
 			</div>
 		{/each}
 	</div>
-	<ReportTable bind:showedTradeDataList></ReportTable>
+	<ReportTable on:onTotalChange bind:showedTradeDataList></ReportTable>
 </div>
