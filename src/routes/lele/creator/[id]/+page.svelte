@@ -21,8 +21,13 @@
 	onMount(() => {
 		artist_name = data.artist_name as string;
 		artist_id = data.id;
+		const date = new Date();
+		const firstDay = new Date(date.getFullYear(), date.getMonth() - 1, 1);
+		const lastDay = new Date(date.getFullYear(), date.getMonth(), 1);
+		UpdateTradeData(firstDay, lastDay);
 	});
 	const noCommisionText = '這個月優惠，不抽成喔';
+	let total: null | number = null;
 	const UpdateTradeData = async (firstDate: Date, lastDate: Date) => {
 		const data = new FormData();
 		data.append('firstDate', firstDate.toISOString());
@@ -51,17 +56,32 @@
 	<div class="flex flex-col justify-center gap-4 text-center text-sm font-semibold">
 		<h1 class="rounded-xl bg-lele-line p-2 text-lele-bg">{artist_name}</h1>
 		{#if net_total != -1}
-			<div class="flex rounded-xl bg-lele-line p-2 text-lele-bg">
+			<div class="flex justify-between rounded-xl bg-lele-line p-2 text-lele-bg">
 				<p class="inline">抽成10%:</p>
-				{#if net_total >= 0}
-					{commission}
-				{:else}
-					{noCommisionText}
-				{/if}
+				<div>
+					{#if net_total >= 0}
+						{commission}
+					{:else}
+						{noCommisionText}
+					{/if}
+				</div>
 			</div>
 		{/if}
-		<div class="rounded-xl bg-lele-line p-2 text-lele-bg">
-			交易次數：{showedLength}
+		<div class="flex justify-between rounded-xl bg-lele-line p-2 text-lele-bg">
+			<p class="inline">交易次數：</p>
+			<div>
+				{showedLength}
+			</div>
+		</div>
+		<div class="flex justify-between rounded-xl bg-lele-line p-2 text-lele-bg">
+			<p class="inline">匯款金額：</p>
+			<div>
+				{#if total != null}
+					{total - commission}
+				{:else}
+					計算中
+				{/if}
+			</div>
 		</div>
 	</div>
 	{#if data}
@@ -69,6 +89,9 @@
 			bind:tradeDataList
 			on:changeShowedDataList={(e) => {
 				UpdateTradeData(e.detail.firstDay, e.detail.lastDay);
+			}}
+			on:onTotalChange={(e) => {
+				total = e.detail.total;
 			}}
 		></MonthTabReportTable>
 	{/if}
