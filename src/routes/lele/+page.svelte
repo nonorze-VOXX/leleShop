@@ -5,7 +5,7 @@
 	import { deserialize } from '$app/forms';
 	import type { ActionResult } from '@sveltejs/kit';
 	import { goto, invalidateAll } from '$app/navigation';
-	import type { Artist, ArtistRow, QueryTradeBodyWithTradeHead } from '$lib/db';
+	import type { Artist, ArtistRow, PaymentStatusRow, QueryTradeBodyWithTradeHead } from '$lib/db';
 	import MonthTabReportTable from '$lib/Component/MonthTabReportTable.svelte';
 	import LeleTable from '$lib/Component/htmlWrapper/LeleTable.svelte';
 	import LeleThead from '$lib/Component/htmlWrapper/LeleThead.svelte';
@@ -26,6 +26,7 @@
 		payment
 	}
 	let tabType: TabEnum = TabEnum.artist_list;
+	let paymentDataList: PaymentStatusRow[] | null = null;
 	onMount(async () => {
 		artistData = data.artistData ?? [];
 		tableData = data.artistData?.map((artist) => {
@@ -35,24 +36,34 @@
 		const date = new Date();
 		let firstDay: Date = new Date(date.getFullYear(), date.getMonth() - 1, 1);
 		let lastDay: Date = new Date(date.getFullYear(), date.getMonth(), 1);
+		paymentDataList = data.paymentStatus;
 		await UpdateTradeData(firstDay, lastDay);
 	});
-	const UpdatePaymentStatus = async (
-		id: string,
-		season: string,
-		state: 'todo' | 'doing' | 'done'
-	) => {
+	const UpdatePaymentStatus = async (paymentData: PaymentStatusRow) => {
 		const data = new FormData();
 
-		data.append('season', season);
-		data.append('state', state);
-		data.append('id', id);
+		if (
+			paymentData.season === null ||
+			paymentData.process_state === null ||
+			paymentData.artist_id === null ||
+			paymentData.id === null
+		) {
+			console.log('data error please connect to developer');
+			return;
+		}
+		const state = paymentData.process_state === 'done' ? 'todo' : 'done';
+
+		data.append('season', paymentData.season);
+		data.append('process_state', state);
+		data.append('artist_id', paymentData.artist_id.toString());
+		data.append('payment_id', paymentData.id.toString());
 
 		const response = await fetch('?/UpdatePaymentStatus', {
 			method: 'POST',
 			body: data
 		});
 		const result = deserialize(await response.text());
+		console.log(result);
 		if (result.type === 'success') {
 			console.log('succ');
 		} else if (result.type === 'failure') {
@@ -213,4 +224,49 @@
 		buttonPart={{ haveButton: true, buttonText: 'update key', ButtonFunction }}
 	></LeleDataTable>
 {/if}
-{#if tabType === TabEnum.payment}{/if}
+{#if tabType === TabEnum.payment}
+	<LeleTable>
+		<LeleThead>
+			<tr>
+				<th scope="col" class="w-auto p-2"> 品牌 </th>
+				<th scope="col" class="w-20 p-2"> 繳交月份 </th>
+				<th scope="col" class="w-20 p-2"> 繳交狀況</th>
+			</tr>
+		</LeleThead>
+		<LeleTbody>
+			{#if paymentDataList}
+				{#each paymentDataList as paymentData}
+					<LeleTbodyTr>
+						<td class="p-2">
+							{paymentData.artist_id}
+						</td>
+						<td class="p-2">
+							<a
+								class="rounded-lg bg-lele-line p-2 text-lele-bg"
+								href={'/lele/creator/' + paymentData.id}
+							>
+								報表
+							</a>
+						</td>
+						<td>
+							<label class="inline-flex cursor-pointer items-center">
+								<input
+									type="checkbox"
+									checked={paymentData.process_state === 'done'}
+									disabled={false && paymentData.process_state === 'todo'}
+									on:change={() => {
+										UpdatePaymentStatus(paymentData);
+									}}
+									class="peer sr-only"
+								/>
+								<div
+									class="peer relative z-10 h-6 w-11 rounded-full bg-gray-200 after:absolute after:start-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-blue-600 peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rtl:peer-checked:after:-translate-x-full dark:border-gray-600 dark:bg-gray-700 dark:peer-focus:ring-blue-800"
+								></div>
+							</label>
+						</td>
+					</LeleTbodyTr>
+				{/each}
+			{/if}
+		</LeleTbody>
+	</LeleTable>
+{/if}

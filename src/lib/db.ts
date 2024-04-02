@@ -24,7 +24,7 @@ const PreInsertPaymentStatus = async (season: string) => {
 	const { data, error } = await GetPaymentStatus({ season });
 	if (error) {
 		console.error(error);
-		return fail(400, { message: 'get payment status fail' });
+		return { newData: [], paymentData: [], error: 'get payment status fail' };
 	}
 	const noPaymentList: PaymentStatusInsert[] = [];
 	if (artistData?.length !== data?.length) {
@@ -35,27 +35,31 @@ const PreInsertPaymentStatus = async (season: string) => {
 		});
 	}
 	if (noPaymentList.length === 0) {
-		return { data: [] };
+		return { error: null, newData: [], paymentData: data };
 	}
-	const newData = await InsertPaymentStatus(noPaymentList);
-	return { data: newData };
+	const result = await InsertPaymentStatus(noPaymentList);
+	if (result.error) {
+		return { error: result.error, newData: [], paymentData: data };
+	}
+	const newData = result.data ?? [];
+	return { error: null, newData: newData, paymentData: data };
 };
-const ChangePaymentStatus = async (update: PaymentStatusUpdate) => {
+const ChangePaymentStatus = async (update: PaymentStatusUpdate, id: number) => {
 	if (!update.artist_id) {
 		return { error: 'artist_id is required' };
 	}
 	if (!update.season) {
 		return { error: 'season is required' };
 	}
-	const { error } = await supabase
+	const { data, error } = await supabase
 		.from('artist_payment_status')
 		.update(update)
-		.eq('artist_id', update.artist_id)
-		.eq('season', update.season);
-
+		.eq('id', id)
+		.select();
 	if (error !== null) {
 		console.error(error);
 	}
+	console.log(data);
 	return { error };
 };
 const GetArtistDataList = async (
@@ -71,13 +75,19 @@ const GetArtistDataList = async (
 	}
 	return { data };
 };
-const GetPaymentStatus = async ({ artist_id, season }: { artist_id?: string; season?: string }) => {
+const GetPaymentStatus = async (
+	{ artist_id, season }: { artist_id?: string; season?: string },
+	ordered: boolean = true
+) => {
 	let query = supabase.from('artist_payment_status').select('*');
 	if (artist_id) {
 		query = query.eq('artist_id', artist_id);
 	}
 	if (season) {
 		query = query.eq('season', season);
+	}
+	if (ordered) {
+		query = query.order('id', { ascending: true });
 	}
 	const { error, data } = await query;
 	if (error !== null) {

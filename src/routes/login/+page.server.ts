@@ -18,7 +18,7 @@ export const actions = {
 			});
 		} else {
 			const access_token = (await supabase.auth.getSession()).data.session?.access_token ?? '';
-			// 3 min to expires
+			// 30 min to expires
 			cookies.set('access_token', access_token, {
 				path: '/lele',
 				expires: new Date(Date.now() + 1000 * 60 * 30)
