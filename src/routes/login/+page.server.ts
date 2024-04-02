@@ -21,7 +21,7 @@ export const actions = {
 			// 3 min to expires
 			cookies.set('access_token', access_token, {
 				path: '/lele',
-				expires: new Date(Date.now() + 1000 * 60)
+				expires: new Date(Date.now() + 1000 * 60 * 30)
 			});
 		}
 
