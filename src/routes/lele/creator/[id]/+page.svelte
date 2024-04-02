@@ -10,6 +10,7 @@
 	} from '$lib/db';
 	import LeleBox from '$lib/Component/LeleBox.svelte';
 	import MonthTabReportTable from '$lib/Component/MonthTabReportTable.svelte';
+	import { goto } from '$app/navigation';
 
 	let artist_name: string = '';
 	let net_total = -1;
@@ -41,6 +42,8 @@
 			tradeDataList = result.data?.tradeDataList as QueryTradeBodyWithTradeHead;
 			showedLength = tradeDataList.length as number;
 			UpdateCommissionData(tradeDataList);
+		} else if (result.type === 'redirect') {
+			goto(result.location);
 		}
 	};
 	const UpdateCommissionData = (data: QueryTradeBodyWithTradeHead) => {

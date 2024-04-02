@@ -15,7 +15,7 @@
 		});
 		const result: ActionResult = deserialize(await response.text());
 		if (result.type === 'success') {
-			goto('/lele');
+			goto('/lele', { replaceState: true });
 		} else {
 			loginFailed = true;
 		}

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { applyAction, deserialize } from '$app/forms';
-	import { invalidateAll } from '$app/navigation';
+	import { goto, invalidateAll } from '$app/navigation';
 	import type { ActionResult } from '@sveltejs/kit';
 	enum ProcessedStatus {
 		NORMAL,
@@ -40,6 +40,8 @@
 		} else if (result.type === 'failure') {
 			processed = ProcessedStatus.LOGIN_FAILED;
 			console.log(result.data?.message);
+		} else if (result.type === 'redirect') {
+			goto(result.location);
 		}
 
 		applyAction(result);

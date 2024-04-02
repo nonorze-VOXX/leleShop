@@ -4,7 +4,7 @@
 	import type { PageData } from './$types';
 	import { deserialize } from '$app/forms';
 	import type { ActionResult } from '@sveltejs/kit';
-	import { invalidateAll } from '$app/navigation';
+	import { goto, invalidateAll } from '$app/navigation';
 	import type { Artist, ArtistRow, QueryTradeBodyWithTradeHead } from '$lib/db';
 	import MonthTabReportTable from '$lib/Component/MonthTabReportTable.svelte';
 	import LeleTable from '$lib/Component/htmlWrapper/LeleTable.svelte';
@@ -59,6 +59,8 @@
 				tableData[artistIndex][1] = result.data?.key;
 			}
 			await invalidateAll();
+		} else if (result.type === 'redirect') {
+			goto(result.location);
 		}
 	};
 	let showedLength = 0;
@@ -74,6 +76,8 @@
 		if (result.type === 'success') {
 			console.log('refresh');
 			await invalidateAll();
+		} else if (result.type === 'redirect') {
+			goto(result.location);
 		}
 	};
 	const UpdateTradeData = async (firstDate: Date, lastDate: Date) => {
