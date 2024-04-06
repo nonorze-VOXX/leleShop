@@ -24,6 +24,12 @@ volta install npm
 npm i
 ```
 
+### table comment
+
+#### artist_payment_status
+
+season is record by format `YYYY-MM`
+
 - fill supabase data in .env file
 
 ```bash

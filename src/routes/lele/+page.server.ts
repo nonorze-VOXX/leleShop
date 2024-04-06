@@ -1,5 +1,7 @@
-import { supabase, type QueryTradeBodyWithTradeHead } from '$lib/db';
+import { supabase, type QueryTradeBodyWithTradeHead, type PaymentStatusUpdate } from '$lib/db';
 import db from '$lib/db';
+import { FormatNumberToTwoDigi, GetNowSeason } from '$lib/function/Utils.js';
+import { fail } from '@sveltejs/kit';
 
 const randomNumber = (length: number) => {
 	let number = '';
@@ -9,12 +11,50 @@ const randomNumber = (length: number) => {
 	return number;
 };
 
+function GetNextSeason() {
+	const date = new Date();
+	const d = new Date(date.getFullYear(), date.getMonth() + 3, 1);
+	return (
+		d.getFullYear().toString() +
+		'-' +
+		FormatNumberToTwoDigi((Math.floor(d.getMonth() / 3) * 3).toString())
+	);
+}
+
 export const load = async () => {
 	const artistData = (await db.GetArtistDataList({ ordered: true, ascending: true }))?.data;
-	return { artistData };
+	const { newData, paymentData, error } = await db.PreInsertPaymentStatus(GetNowSeason());
+	if (error) {
+		console.error(error);
+	}
+	await db.PreInsertPaymentStatus(GetNextSeason());
+	const withNewData = paymentData ?? [];
+	if (newData.length > 0) {
+		withNewData.push(...newData);
+	}
+
+	return { artistData, paymentStatus: withNewData };
 };
 
 export const actions = {
+	UpdatePaymentStatus: async ({ request }) => {
+		const formData = await request.formData();
+		const season = formData.get('season') as string; // YYYY-MM
+		const artist_id = parseInt(formData.get('artist_id') as string);
+		const payment_id = parseInt(formData.get('payment_id') as string);
+		const process_state = formData.get('process_state') as string;
+		if (process_state !== 'todo' && process_state !== 'done' && process_state !== 'doing')
+			return fail(400, { message: 'process_state is invalid' });
+
+		const update: PaymentStatusUpdate = { artist_id, season, process_state };
+
+		const { error } = await db.ChangePaymentStatus(update, payment_id);
+		if (error) {
+			console.error(error);
+			return fail(400, { error });
+		}
+		return {};
+	},
 	UpdateReportKey: async ({ request }) => {
 		const formData = await request.formData();
 		const id = formData.get('id') as string;
