@@ -17,6 +17,8 @@ export type PaymentStatusUpdate = Database['public']['Tables']['artist_payment_s
 
 const QueryTradeHeadAndBody = supabase.from('trade_body').select('*, trade_head(*)');
 export type QueryTradeBodyWithTradeHead = QueryData<typeof QueryTradeHeadAndBody>;
+const QueryArtistWithPaymentStatus = supabase.from('artist').select('*, artist_payment_status(*)');
+export type QueryArtistWithPaymentStatus = QueryData<typeof QueryArtistWithPaymentStatus>;
 
 const PreInsertPaymentStatus = async (season: string) => {
 	const artistData = (await GetArtistDataList({ ordered: true, ascending: true }))?.data ?? [];
