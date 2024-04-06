@@ -1,6 +1,6 @@
 import { supabase, type QueryTradeBodyWithTradeHead, type PaymentStatusUpdate } from '$lib/db';
 import db from '$lib/db';
-import { FormatNumberToTwoDigi } from '$lib/function/Utils.js';
+import { FormatNumberToTwoDigi, GetNowSeason } from '$lib/function/Utils.js';
 import { fail } from '@sveltejs/kit';
 
 const randomNumber = (length: number) => {
@@ -11,13 +11,6 @@ const randomNumber = (length: number) => {
 	return number;
 };
 
-function GetNowSeason() {
-	return (
-		new Date().getFullYear().toString() +
-		'-' +
-		FormatNumberToTwoDigi((Math.floor(new Date().getMonth() / 3) * 3).toString())
-	);
-}
 function GetNextSeason() {
 	const date = new Date();
 	const d = new Date(date.getFullYear(), date.getMonth() + 3, 1);
