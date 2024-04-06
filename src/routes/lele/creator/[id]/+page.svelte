@@ -1,20 +1,12 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import type { PageData } from './$types';
-	import type { ActionResult } from '@sveltejs/kit';
 	import { deserialize } from '$app/forms';
-	import type {
-		TradeBody,
-		QueryTradeBodyWithTradeHead as QueryTradeBodyWithTradeHead,
-		TradeHead
-	} from '$lib/db';
-	import LeleBox from '$lib/Component/LeleBox.svelte';
+	import type { QueryTradeBodyWithTradeHead as QueryTradeBodyWithTradeHead } from '$lib/db';
 	import MonthTabReportTable from '$lib/Component/MonthTabReportTable.svelte';
 	import { goto } from '$app/navigation';
 
 	let artist_name: string = '';
-	let net_total = -1;
-	let commission = 0;
 	let artist_id: string = '';
 	export let data: PageData;
 	let tradeDataList: QueryTradeBodyWithTradeHead = [];
@@ -27,8 +19,7 @@
 		const lastDay = new Date(date.getFullYear(), date.getMonth(), 1);
 		UpdateTradeData(firstDay, lastDay);
 	});
-	const noCommisionText = '這個月優惠，不抽成喔';
-	let total: null | number = null;
+	let net_total: null | number = null;
 	const UpdateTradeData = async (firstDate: Date, lastDate: Date) => {
 		const data = new FormData();
 		data.append('firstDate', firstDate.toISOString());
@@ -41,17 +32,9 @@
 		if (result.type === 'success') {
 			tradeDataList = result.data?.tradeDataList as QueryTradeBodyWithTradeHead;
 			showedLength = tradeDataList.length as number;
-			UpdateCommissionData(tradeDataList);
 		} else if (result.type === 'redirect') {
 			goto(result.location);
 		}
-	};
-	const UpdateCommissionData = (data: QueryTradeBodyWithTradeHead) => {
-		net_total = 0;
-		data.forEach((element) => {
-			net_total += element.net_sales ?? 0;
-		});
-		commission = net_total >= 0 ? Math.floor(net_total * 0.1) : 0;
 	};
 </script>
 
@@ -62,10 +45,10 @@
 			<div class="flex justify-between rounded-xl bg-lele-line p-2 text-lele-bg">
 				<p class="inline">抽成10%:</p>
 				<div>
-					{#if net_total >= 0}
-						{commission}
+					{#if net_total !== null}
+						{Math.floor(net_total * 0.1)}
 					{:else}
-						{noCommisionText}
+						計算中
 					{/if}
 				</div>
 			</div>
@@ -79,8 +62,8 @@
 		<div class="flex justify-between rounded-xl bg-lele-line p-2 text-lele-bg">
 			<p class="inline">匯款金額：</p>
 			<div>
-				{#if total != null}
-					{total - commission}
+				{#if net_total != null}
+					{Math.floor(net_total * 0.9)}
 				{:else}
 					計算中
 				{/if}
@@ -94,7 +77,7 @@
 				UpdateTradeData(e.detail.firstDay, e.detail.lastDay);
 			}}
 			on:onTotalChange={(e) => {
-				total = e.detail.total;
+				net_total = e.detail.net_total;
 			}}
 		></MonthTabReportTable>
 	{/if}

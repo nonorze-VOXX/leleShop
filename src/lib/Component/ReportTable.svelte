@@ -18,7 +18,12 @@
 		UpdateTotalData(showedTradeDataList);
 	}
 	const dispatch = createEventDispatcher<{
-		onTotalChange: { total: number };
+		onTotalChange: {
+			total: number;
+			net_total: number;
+			discount_total: number;
+			total_quantity: number;
+		};
 	}>();
 	const UpdateTotalData = (data: QueryTradeBodyWithTradeHead) => {
 		total = 0;
@@ -31,7 +36,7 @@
 			discount_total += element.discount ?? 0;
 			total_quantity += element.quantity ?? 0;
 		});
-		dispatch('onTotalChange', { total: total });
+		dispatch('onTotalChange', { total: total, net_total, discount_total, total_quantity });
 		// commission = net_total >= 2000 ? Math.floor(net_total * 0.1) : 0;
 	};
 </script>
