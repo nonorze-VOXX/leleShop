@@ -20,99 +20,82 @@ export type QueryTradeBodyWithTradeHead = QueryData<typeof QueryTradeHeadAndBody
 const QueryArtistWithPaymentStatus = supabase.from('artist').select('*, artist_payment_status(*)');
 export type QueryArtistWithPaymentStatus = QueryData<typeof QueryArtistWithPaymentStatus>;
 
-const PreInsertPaymentStatus = async (season: string) => {
-	const artistData = (await GetArtistDataList({ ordered: true, ascending: true }))?.data ?? [];
-
-	const { data, error } = await GetPaymentStatus({ season });
-	if (error) {
-		console.error(error);
-		return { newData: [], paymentData: [], error: 'get payment status fail' };
-	}
-	const noPaymentList: PaymentStatusInsert[] = [];
-	if (artistData?.length !== data?.length) {
-		artistData.forEach((element) => {
-			if (element.id !== data?.find((e) => e.artist_id === element.id)?.artist_id) {
-				noPaymentList.push({ artist_id: element.id, season, process_state: 'todo' });
-			}
-		});
-	}
-	if (noPaymentList.length === 0) {
-		return { error: null, newData: [], paymentData: data };
-	}
-	const result = await InsertPaymentStatus(noPaymentList);
-	if (result.error) {
-		return { error: result.error, newData: [], paymentData: data };
-	}
-	const newData = result.data ?? [];
-	return { error: null, newData: newData, paymentData: data };
-};
-const ChangePaymentStatus = async (update: PaymentStatusUpdate, id: number) => {
-	if (!update.artist_id) {
-		return { error: 'artist_id is required' };
-	}
-	if (!update.season) {
-		return { error: 'season is required' };
-	}
-	const { data, error } = await supabase
-		.from('artist_payment_status')
-		.update(update)
-		.eq('id', id)
-		.select();
-	if (error !== null) {
-		console.error(error);
-	}
-	console.log(data);
-	return { error };
-};
-const GetArtistDataList = async (
-	option: { ordered: boolean; ascending: boolean } = { ordered: false, ascending: false }
-) => {
-	let query = supabase.from('artist').select();
-	if (option.ordered) {
-		query = query.order('id', { ascending: option.ascending });
-	}
-	const { data, error } = await query;
-	if (error) {
-		console.error(error);
-	}
-	return { data };
-};
-const GetPaymentStatus = async (
-	{ artist_id, season }: { artist_id?: string; season?: string },
-	ordered: boolean = true
-) => {
-	let query = supabase.from('artist_payment_status').select('*');
-	if (artist_id) {
-		query = query.eq('artist_id', artist_id);
-	}
-	if (season) {
-		query = query.eq('season', season);
-	}
-	if (ordered) {
-		query = query.order('id', { ascending: true });
-	}
-	const { error, data } = await query;
-	if (error !== null) {
-		console.error(error);
-	}
-	return { data, error };
-};
-const InsertPaymentStatus = async (paymentStatusList: PaymentStatusInsert[]) => {
-	const { error, data } = await supabase
-		.from('artist_payment_status')
-		.insert(paymentStatusList)
-		.select();
-	if (error !== null) {
-		console.error(error);
-	}
-	return { data, error };
-};
-
 export default {
-	ChangePaymentStatus,
-	InsertPaymentStatus,
-	GetPaymentStatus,
-	PreInsertPaymentStatus,
+	async ChangePaymentStatus(update: PaymentStatusUpdate, id: number) {
+		if (!update.artist_id) {
+			return { error: 'artist_id is required' };
+		}
+		if (!update.season) {
+			return { error: 'season is required' };
+		}
+		const { data, error } = await supabase
+			.from('artist_payment_status')
+			.update(update)
+			.eq('id', id)
+			.select();
+		if (error !== null) {
+			console.error(error);
+		}
+		console.log(data);
+		return { error };
+	},
+	async InsertPaymentStatus(paymentStatusList: PaymentStatusInsert[]) {
+		const { error, data } = await supabase
+			.from('artist_payment_status')
+			.insert(paymentStatusList)
+			.select();
+		if (error !== null) {
+			console.error(error);
+		}
+		return { data, error };
+	},
+	async GetPaymentStatus(
+		{ artist_id, season }: { artist_id?: string; season?: string },
+		ordered: boolean = true
+	) {
+		let query = supabase.from('artist_payment_status').select('*');
+		if (artist_id) {
+			query = query.eq('artist_id', artist_id);
+		}
+		if (season) {
+			query = query.eq('season', season);
+		}
+		if (ordered) {
+			query = query.order('id', { ascending: true });
+		}
+		const { error, data } = await query;
+		if (error !== null) {
+			console.error(error);
+		}
+		return { data, error };
+	},
+	async PreInsertPaymentStatus(season: string) {
+		const artistData =
+			(await this.GetArtistDataList({ ordered: true, ascending: true }))?.data ?? [];
+
+		const { data, error } = await this.GetPaymentStatus({ season });
+		if (error) {
+			console.error(error);
+			return { newData: [], paymentData: [], error: 'get payment status fail' };
+		}
+		const noPaymentList: PaymentStatusInsert[] = [];
+		if (artistData?.length !== data?.length) {
+			artistData.forEach((element) => {
+				if (element.id !== data?.find((e) => e.artist_id === element.id)?.artist_id) {
+					noPaymentList.push({ artist_id: element.id, season, process_state: 'todo' });
+				}
+			});
+		}
+		if (noPaymentList.length === 0) {
+			return { error: null, newData: [], paymentData: data };
+		}
+		const result = await this.InsertPaymentStatus(noPaymentList);
+		if (result.error) {
+			return { error: result.error, newData: [], paymentData: data };
+		}
+		const newData = result.data ?? [];
+		return { error: null, newData: newData, paymentData: data };
+	},
 	async SaveArtistName(artist: Artist[]) {
 		const { error, data } = await supabase.from('artist').insert(artist).select();
 		if (error !== null) {
@@ -146,7 +129,19 @@ export default {
 		return { data };
 	},
 
-	GetArtistDataList,
+	async GetArtistDataList(
+		option: { ordered: boolean; ascending: boolean } = { ordered: false, ascending: false }
+	) {
+		let query = supabase.from('artist').select();
+		if (option.ordered) {
+			query = query.order('id', { ascending: option.ascending });
+		}
+		const { data, error } = await query;
+		if (error) {
+			console.error(error);
+		}
+		return { data };
+	},
 	async GetTradeIdListCount(
 		date: { firstDate: Date | null; lastDate: Date | null } = { firstDate: null, lastDate: null }
 	) {
