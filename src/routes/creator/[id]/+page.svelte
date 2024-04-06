@@ -126,7 +126,9 @@
 				{artist_name}
 			</h1>
 			{#if net_total != -1}
-				<div class="flex rounded-xl border-4 border-lele-line bg-lele-bg p-2 text-lele-line">
+				<div
+					class="flex justify-center rounded-xl border-4 border-lele-line bg-lele-bg p-2 text-lele-line"
+				>
 					<p class="inline">抽成10%:</p>
 					{#if net_total >= 0}
 						{commission}
@@ -135,24 +137,8 @@
 					{/if}
 				</div>
 			{/if}
-			<div class="rounded-xl border-4 border-lele-line bg-lele-bg p-2 text-lele-line">
+			<div class=" rounded-xl border-4 border-lele-line bg-lele-bg p-2 text-center text-lele-line">
 				交易次數：{showedLength}
-			</div>
-			<div class="flex gap-2">
-				<div>
-					{data.paymentStatus?.season}的繳費狀態：{data.paymentStatus?.process_state}
-				</div>
-				{#if data.paymentStatus?.process_state === 'todo'}
-					<OkButton>
-						<button
-							class="px-2"
-							on:click={async () => {
-								await UpdatePaymentState();
-							}}>確認繳交</button
-						>
-					</OkButton>
-					{submitLog}
-				{/if}
 			</div>
 
 			<OkButton>
@@ -162,6 +148,24 @@
 					class="inline-block w-full py-2">download</a
 				>
 			</OkButton>
+		</div>
+		<div
+			class="flex gap-2 rounded-xl border-4 border-lele-line bg-lele-bg p-2 text-center text-sm font-semibold text-lele-line"
+		>
+			<div>
+				{data.paymentStatus?.season}的繳費狀態：{data.paymentStatus?.process_state}
+			</div>
+			{#if data.paymentStatus?.process_state === 'todo'}
+				<OkButton>
+					<button
+						class="px-2"
+						on:click={async () => {
+							await UpdatePaymentState();
+						}}>確認繳交</button
+					>
+				</OkButton>
+				{submitLog}
+			{/if}
 		</div>
 		<MonthTabReportTable
 			bind:tradeDataList
