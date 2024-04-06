@@ -122,11 +122,13 @@
 		</form>
 	{:else}
 		<div class="flex flex-col justify-center gap-4 text-center text-sm font-semibold">
-			<h1 class="rounded-xl border-4 border-lele-line bg-lele-bg p-2 text-lele-line">
+			<h1 class="rounded-xl border-4 border-lele-line bg-lele-bg p-2 text-center text-lele-line">
 				{artist_name}
 			</h1>
 			{#if net_total != -1}
-				<div class="flex rounded-xl border-4 border-lele-line bg-lele-bg p-2 text-lele-line">
+				<div
+					class="flex justify-center rounded-xl border-4 border-lele-line bg-lele-bg p-2 text-lele-line"
+				>
 					<p class="inline">抽成10%:</p>
 					{#if net_total >= 0}
 						{commission}
@@ -135,7 +137,7 @@
 					{/if}
 				</div>
 			{/if}
-			<div class="rounded-xl border-4 border-lele-line bg-lele-bg p-2 text-lele-line">
+			<div class=" rounded-xl border-4 border-lele-line bg-lele-bg p-2 text-center text-lele-line">
 				交易次數：{showedLength}
 			</div>
 			<div class="flex gap-2">
