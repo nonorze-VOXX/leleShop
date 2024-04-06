@@ -29,8 +29,8 @@
 	<LeleThead>
 		<tr>
 			<th scope="col" class="w-auto p-2"> 品牌 </th>
-			<th scope="col" class="w-20 p-2"> 繳費狀態 </th>
-			<th scope="col" class="w-20 p-2"> 銷售 </th>
+			<th scope="col" class="w-12 p-2 text-center"> 繳費 </th>
+			<th scope="col" class="w-16 p-2 text-center"> 銷售 </th>
 		</tr>
 	</LeleThead>
 	<LeleTbody>
@@ -40,17 +40,22 @@
 					<td class="p-2">
 						{artists.artist_name}
 					</td>
-					<td class="p-2">
-						{#if artists.artist_payment_status.at(0)?.process_state === 'done'}
-							<div>✅</div>
-						{:else if artists.artist_payment_status.at(0)?.process_state === 'doing'}
-							<div>🔺</div>
-						{:else}
-							<div>❌</div>
-						{/if}
+					<td class="text-center">
+						<div class="text-lg">
+							{#if artists.artist_payment_status.at(0)?.process_state === 'done'}
+								✅
+							{:else if artists.artist_payment_status.at(0)?.process_state === 'doing'}
+								🔺
+							{:else}
+								❌
+							{/if}
+						</div>
 					</td>
-					<td class="p-2">
-						<a class="rounded-lg bg-lele-line p-2 text-lele-bg" href={'/creator/' + artists.id}>
+					<td class="flex">
+						<a
+							class="grow rounded-lg bg-lele-line p-2 text-center text-lele-bg"
+							href={'/creator/' + artists.id}
+						>
 							報表
 						</a>
 					</td>
