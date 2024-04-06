@@ -29,7 +29,7 @@
 	<LeleThead>
 		<tr>
 			<th scope="col" class="w-auto p-2"> 品牌 </th>
-			<th scope="col" class="w-28 p-2 text-lg"> 繳費狀態 </th>
+			<th scope="col" class="w-20 p-2"> 繳費狀態 </th>
 			<th scope="col" class="w-20 p-2"> 銷售 </th>
 		</tr>
 	</LeleThead>
