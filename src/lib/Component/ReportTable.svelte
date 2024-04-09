@@ -48,9 +48,9 @@
 			<th scope="col" class="w-24 p-2"> 收據號碼 </th>
 			<th scope="col" class="w-40 p-2"> 商品 </th>
 			<th scope="col" class="w-16 p-2"> 數量 </th>
-			<th scope="col" class="w-16 p-2"> 銷售總額 </th>
+			<th scope="col" class="w-20 min-w-20 p-2"> 銷售總額 </th>
 			<th scope="col" class="w-16 p-2"> 折扣 </th>
-			<th scope="col" class="w-16 p-2"> 淨銷售額 </th>
+			<th scope="col" class="w-20 min-w-20 p-2"> 淨銷售額 </th>
 		</tr>
 	</LeleThead>
 	<LeleTbody>

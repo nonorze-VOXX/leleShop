@@ -2,6 +2,7 @@ import { supabase, type QueryTradeBodyWithTradeHead, type PaymentStatusUpdate } 
 import db from '$lib/db';
 import { FormatNumberToTwoDigi, GetNowSeason } from '$lib/function/Utils.js';
 import { fail } from '@sveltejs/kit';
+import { PreInsertPaymentStatus } from './leleFunction.server';
 
 const randomNumber = (length: number) => {
 	let number = '';
@@ -23,11 +24,11 @@ function GetNextSeason() {
 
 export const load = async () => {
 	const artistData = (await db.GetArtistDataList({ ordered: true, ascending: true }))?.data;
-	const { newData, paymentData, error } = await db.PreInsertPaymentStatus(GetNowSeason());
+	const { newData, paymentData, error } = await PreInsertPaymentStatus(GetNowSeason());
 	if (error) {
 		console.error(error);
 	}
-	await db.PreInsertPaymentStatus(GetNextSeason());
+	await PreInsertPaymentStatus(GetNextSeason());
 	const withNewData = paymentData ?? [];
 	if (newData.length > 0) {
 		withNewData.push(...newData);
