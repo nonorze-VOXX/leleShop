@@ -7,7 +7,7 @@
 	import LeleBox from '$lib/Component/LeleBox.svelte';
 	import MonthTabReportTable from '$lib/Component/MonthTabReportTable.svelte';
 	import OkButton from '$lib/UrlBox.svelte';
-	import { GetNowSeason } from '$lib/function/Utils';
+	import { GetYearMonth } from '$lib/function/Utils';
 
 	let artist_name: string = '';
 	let net_total = -1;
@@ -81,20 +81,6 @@
 			encodeDataForDownload += element.net_sales + '%0A';
 		});
 	};
-	const UpdatePaymentState = async () => {
-		const data = new FormData();
-		data.append('season', GetNowSeason());
-		const response = await fetch('?/UpdatePaymentState', {
-			method: 'POST',
-			body: data
-		});
-		const result = deserialize(await response.text());
-		if (result.type === 'success') {
-			submitLog = '更新成功';
-		} else if (result.type === 'failure') {
-			submitLog = '更新失敗';
-		}
-	};
 	const UpdateCommissionData = (data: QueryTradeBodyWithTradeHead) => {
 		net_total = 0;
 		data.forEach((element) => {
@@ -153,19 +139,8 @@
 			class="flex gap-2 rounded-xl border-4 border-lele-line bg-lele-bg p-2 text-center text-sm font-semibold text-lele-line"
 		>
 			<div>
-				{data.paymentStatus?.season}的繳費狀態：{data.paymentStatus?.process_state}
+				{data.paymentStatus?.year_month}的繳費狀態：{data.paymentStatus?.process_state}
 			</div>
-			{#if data.paymentStatus?.process_state === 'todo'}
-				<OkButton>
-					<button
-						class="px-2"
-						on:click={async () => {
-							await UpdatePaymentState();
-						}}>確認繳交</button
-					>
-				</OkButton>
-				{submitLog}
-			{/if}
 		</div>
 		<MonthTabReportTable
 			bind:tradeDataList

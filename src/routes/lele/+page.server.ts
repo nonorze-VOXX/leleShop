@@ -1,6 +1,6 @@
 import { supabase, type QueryTradeBodyWithTradeHead, type PaymentStatusUpdate } from '$lib/db';
 import db from '$lib/db';
-import { FormatNumberToTwoDigi, GetNowSeason } from '$lib/function/Utils.js';
+import { GetYearMonth } from '$lib/function/Utils.js';
 import { fail } from '@sveltejs/kit';
 import { PreInsertPaymentStatus } from './leleFunction.server';
 
@@ -13,16 +13,12 @@ const randomNumber = (length: number) => {
 };
 
 function GetNextMonth(offset: number = 1) {
-	const date = new Date();
-	const d = new Date(date.getFullYear(), date.getMonth() + offset, 1);
-	return (
-		d.getFullYear().toString() + '-' + FormatNumberToTwoDigi(Math.floor(d.getMonth()).toString())
-	);
+	return GetYearMonth(offset);
 }
 
 export const load = async () => {
 	const artistData = (await db.GetArtistDataList({ ordered: true, ascending: true }))?.data;
-	const { newData, paymentData, error } = await PreInsertPaymentStatus(GetNowSeason());
+	const { newData, paymentData, error } = await PreInsertPaymentStatus(GetYearMonth());
 	if (error) {
 		console.error(error);
 	}

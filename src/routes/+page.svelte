@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import type { PageData } from './$types';
-	import type { Artist, QueryArtistWithPaymentStatus } from '$lib/db';
+	import type { Artist, PaymentStatusRow, QueryArtistWithPaymentStatus } from '$lib/db';
 	import { goto } from '$app/navigation';
 	import LeleThead from '$lib/Component/htmlWrapper/LeleThead.svelte';
 	import LeleTbody from '$lib/Component/htmlWrapper/LeleTbody.svelte';
@@ -12,12 +12,7 @@
 		id: number;
 		artist_name: string | null;
 		visible: boolean;
-		artist_payment_status: {
-			artist_id: number | null;
-			id: number;
-			process_state: 'todo' | 'doing' | 'done' | null;
-			season: string | null;
-		}[];
+		artist_payment_status: PaymentStatusRow[];
 	}[];
 
 	onMount(() => {

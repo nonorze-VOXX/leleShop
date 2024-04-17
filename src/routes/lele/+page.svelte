@@ -43,7 +43,7 @@
 		const data = new FormData();
 
 		if (
-			paymentData.season === null ||
+			paymentData.year_month === null ||
 			paymentData.process_state === null ||
 			paymentData.artist_id === null ||
 			paymentData.id === null
@@ -53,7 +53,7 @@
 		}
 		const state = paymentData.process_state === 'done' ? 'todo' : 'done';
 
-		data.append('season', paymentData.season);
+		data.append('season', paymentData.year_month);
 		data.append('process_state', state);
 		data.append('artist_id', paymentData.artist_id.toString());
 		data.append('payment_id', paymentData.id.toString());
