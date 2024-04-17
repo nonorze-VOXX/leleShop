@@ -35,7 +35,6 @@ export default {
 		if (error !== null) {
 			console.error(error);
 		}
-		console.log(data);
 		return { error };
 	},
 	async InsertPaymentStatus(paymentStatusList: PaymentStatusInsert[]) {
@@ -194,7 +193,6 @@ export default {
 					.lte('trade_head.trade_date', date.lastDate.toISOString());
 			}
 			const { data, error } = await query.range(i, i + 1000);
-			// console.log(data);
 			if (error) {
 				console.log(error);
 			}

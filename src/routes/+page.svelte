@@ -23,7 +23,7 @@
 <LeleTable>
 	<LeleThead>
 		<tr>
-			<th scope="col" class="w-auto p-2"> 品牌 </th>
+			<th scope="col" class="w-40 p-2"> 品牌 </th>
 			<th scope="col" class="w-20 p-2 text-center"> 繳費 </th>
 			<th scope="col" class="w-16 p-2 text-center"> 銷售 </th>
 		</tr>

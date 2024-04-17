@@ -1,6 +1,6 @@
 import { supabase, type QueryTradeBodyWithTradeHead, type PaymentStatusUpdate } from '$lib/db';
 import db from '$lib/db';
-import { GetYearMonth } from '$lib/function/Utils.js';
+import { GetSeason, GetYearMonth } from '$lib/function/Utils.js';
 import { fail } from '@sveltejs/kit';
 import { PreInsertPaymentStatus } from './leleFunction.server';
 
@@ -18,19 +18,29 @@ function GetNextMonth(offset: number = 1) {
 
 export const load = async () => {
 	const artistData = (await db.GetArtistDataList({ ordered: true, ascending: true }))?.data;
-	const { newData, paymentData, error } = await PreInsertPaymentStatus(GetYearMonth());
-	if (error) {
-		console.error(error);
-	}
+	await PreInsertPaymentStatus(GetYearMonth());
 	await PreInsertPaymentStatus(GetNextMonth());
 	await PreInsertPaymentStatus(GetNextMonth(2));
 	await PreInsertPaymentStatus(GetNextMonth(3));
-	const withNewData = paymentData ?? [];
-	if (newData.length > 0) {
-		withNewData.push(...newData);
+	let query = supabase.from('artist').select('id, artist_name, visible,artist_payment_status(*) ');
+	query = query
+		.in('artist_payment_status.year_month', [GetSeason(0), GetSeason(1), GetSeason(2)])
+		.order('id', { ascending: true });
+	const { data, error } = await query;
+	if (error) {
+		console.error(error);
 	}
-
-	return { artistData, paymentStatus: withNewData };
+	if (!data) {
+		return { artistData: [], paymentStatus: [] };
+	}
+	data.forEach((element) => {
+		element.artist_payment_status.sort((a, b) => {
+			if (a.year_month < b.year_month) return -1;
+			else if (a.year_month > b.year_month) return 1;
+			return 0;
+		});
+	});
+	return { artistData, paymentStatus: data };
 };
 
 export const actions = {

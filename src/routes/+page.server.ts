@@ -9,7 +9,6 @@ export const load = async () => {
 		.in('artist_payment_status.year_month', [GetSeason(0), GetSeason(1), GetSeason(2)])
 		.order('id', { ascending: true });
 	const { data, error } = await query;
-	console.log(data);
 	if (error) {
 		console.log(error);
 	}

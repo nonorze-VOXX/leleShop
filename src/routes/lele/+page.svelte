@@ -26,7 +26,14 @@
 		payment
 	}
 	let tabType: TabEnum = TabEnum.artist_list;
-	let paymentDataList: PaymentStatusRow[] | null = null;
+	let paymentDataList:
+		| {
+				id: number;
+				artist_name: string | null;
+				visible: boolean;
+				artist_payment_status: PaymentStatusRow[];
+		  }[]
+		| null = null;
 	onMount(async () => {
 		artistData = data.artistData ?? [];
 		tableData = data.artistData?.map((artist) => {
@@ -36,6 +43,8 @@
 		const date = new Date();
 		let firstDay: Date = new Date(date.getFullYear(), date.getMonth() - 1, 1);
 		let lastDay: Date = new Date(date.getFullYear(), date.getMonth(), 1);
+
+		console.log(data.paymentStatus);
 		paymentDataList = data.paymentStatus;
 		await UpdateTradeData(firstDay, lastDay);
 	});
@@ -52,6 +61,7 @@
 			return;
 		}
 		const state = paymentData.process_state === 'done' ? 'todo' : 'done';
+		console.log(paymentData.year_month);
 
 		data.append('season', paymentData.year_month);
 		data.append('process_state', state);
@@ -231,41 +241,39 @@
 		<LeleThead>
 			<tr>
 				<th scope="col" class="w-auto p-2"> 品牌 </th>
-				<th scope="col" class="w-20 p-2"> 繳交月份 </th>
-				<th scope="col" class="w-20 p-2"> 繳交狀況</th>
+				<th scope="col" class="w-40 p-2"> 繳交狀況</th>
 			</tr>
 		</LeleThead>
 		<LeleTbody>
 			{#if paymentDataList}
-				{#each paymentDataList as paymentData}
+				{#each paymentDataList as p}
 					<LeleTbodyTr>
 						<td class="p-2">
-							{paymentData.artist_id}
-						</td>
-						<td class="p-2">
-							<a
-								class="rounded-lg bg-lele-line p-2 text-lele-bg"
-								href={'/lele/creator/' + paymentData.id}
-							>
-								報表
-							</a>
+							{p.artist_name}
 						</td>
 						<td>
-							<label class="inline-flex cursor-pointer items-center">
-								<input
-									type="checkbox"
-									checked={paymentData.process_state === 'done'}
-									disabled={paymentData.process_state === 'todo'}
-									on:change={() => {
-										UpdatePaymentStatus(paymentData);
-									}}
-									class="peer sr-only"
-								/>
-								<div
-									class:opacity-50={paymentData.process_state === 'todo'}
-									class="peer relative z-10 h-6 w-11 rounded-full bg-gray-200 after:absolute after:start-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-blue-600 peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none peer-focus:ring-0 peer-focus:ring-blue-300 rtl:peer-checked:after:-translate-x-full dark:border-gray-600 dark:bg-gray-700 dark:peer-focus:ring-blue-800"
-								></div>
-							</label>
+							<div class="flex flex-col justify-around gap-2 py-2">
+								{#each p.artist_payment_status as pay}
+									<div class="flex justify-start gap-2 align-baseline">
+										<div class="">
+											{pay.year_month}
+										</div>
+										<label class="inline-flex cursor-pointer items-center">
+											<input
+												type="checkbox"
+												checked={pay.process_state === 'done'}
+												on:change={() => {
+													UpdatePaymentStatus(pay);
+												}}
+												class="peer sr-only"
+											/>
+											<div
+												class="peer relative z-10 h-6 w-11 rounded-full bg-gray-200 after:absolute after:start-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-blue-600 peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none peer-focus:ring-0 peer-focus:ring-blue-300 rtl:peer-checked:after:-translate-x-full dark:border-gray-600 dark:bg-gray-700 dark:peer-focus:ring-blue-800"
+											></div>
+										</label>
+									</div>
+								{/each}
+							</div>
 						</td>
 					</LeleTbodyTr>
 				{/each}
