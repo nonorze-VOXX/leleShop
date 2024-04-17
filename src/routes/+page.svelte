@@ -24,7 +24,7 @@
 	<LeleThead>
 		<tr>
 			<th scope="col" class="w-auto p-2"> 品牌 </th>
-			<th scope="col" class="w-12 p-2 text-center"> 繳費 </th>
+			<th scope="col" class="w-20 p-2 text-center"> 繳費 </th>
 			<th scope="col" class="w-16 p-2 text-center"> 銷售 </th>
 		</tr>
 	</LeleThead>
@@ -37,13 +37,15 @@
 					</td>
 					<td class="text-center">
 						<div class="text-lg">
-							{#if artists.artist_payment_status.at(0)?.process_state === 'done'}
-								✅
-							{:else if artists.artist_payment_status.at(0)?.process_state === 'doing'}
-								🔺
-							{:else}
-								❌
-							{/if}
+							{#each artists.artist_payment_status as paymentStatus}
+								{#if paymentStatus.process_state === 'done'}
+									✅
+								{:else if paymentStatus.process_state === 'doing'}
+									🔺
+								{:else}
+									❌
+								{/if}
+							{/each}
 						</div>
 					</td>
 					<td class="flex">
