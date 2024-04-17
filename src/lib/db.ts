@@ -24,7 +24,7 @@ export default {
 		if (!update.artist_id) {
 			return { error: 'artist_id is required' };
 		}
-		if (!update.season) {
+		if (!update.year_month) {
 			return { error: 'season is required' };
 		}
 		const { data, error } = await supabase
@@ -49,15 +49,15 @@ export default {
 		return { data, error };
 	},
 	async GetPaymentStatus(
-		{ artist_id, season }: { artist_id?: string; season?: string },
+		{ artist_id, year_month: year_month }: { artist_id?: string; year_month?: string },
 		ordered: boolean = true
 	) {
 		let query = supabase.from('artist_payment_status').select('*');
 		if (artist_id) {
 			query = query.eq('artist_id', artist_id);
 		}
-		if (season) {
-			query = query.eq('season', season);
+		if (year_month) {
+			query = query.eq('year_month', year_month);
 		}
 		if (ordered) {
 			query = query.order('id', { ascending: true });

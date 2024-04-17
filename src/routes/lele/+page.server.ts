@@ -12,13 +12,11 @@ const randomNumber = (length: number) => {
 	return number;
 };
 
-function GetNextSeason() {
+function GetNextMonth(offset: number = 1) {
 	const date = new Date();
-	const d = new Date(date.getFullYear(), date.getMonth() + 3, 1);
+	const d = new Date(date.getFullYear(), date.getMonth() + offset, 1);
 	return (
-		d.getFullYear().toString() +
-		'-' +
-		FormatNumberToTwoDigi((Math.floor(d.getMonth() / 3) * 3).toString())
+		d.getFullYear().toString() + '-' + FormatNumberToTwoDigi(Math.floor(d.getMonth()).toString())
 	);
 }
 
@@ -28,7 +26,9 @@ export const load = async () => {
 	if (error) {
 		console.error(error);
 	}
-	await PreInsertPaymentStatus(GetNextSeason());
+	await PreInsertPaymentStatus(GetNextMonth());
+	await PreInsertPaymentStatus(GetNextMonth(2));
+	await PreInsertPaymentStatus(GetNextMonth(3));
 	const withNewData = paymentData ?? [];
 	if (newData.length > 0) {
 		withNewData.push(...newData);
@@ -47,7 +47,7 @@ export const actions = {
 		if (process_state !== 'todo' && process_state !== 'done' && process_state !== 'doing')
 			return fail(400, { message: 'process_state is invalid' });
 
-		const update: PaymentStatusUpdate = { artist_id, season, process_state };
+		const update: PaymentStatusUpdate = { artist_id, year_month: season, process_state };
 
 		const { error } = await db.ChangePaymentStatus(update, payment_id);
 		if (error) {

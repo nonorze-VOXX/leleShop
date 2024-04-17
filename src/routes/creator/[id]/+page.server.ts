@@ -9,7 +9,10 @@ export const load: PageServerLoad = async ({ params }) => {
 	const artist_name =
 		artist_data.length !== 0 ? artist_data[0].artist_name : 'not found this artist';
 	const nowSeason = GetNowSeason();
-	const { error, data } = await db.GetPaymentStatus({ artist_id: params.id, season: nowSeason });
+	const { error, data } = await db.GetPaymentStatus({
+		artist_id: params.id,
+		year_month: nowSeason
+	});
 	if (error) {
 		console.log(error);
 	}
