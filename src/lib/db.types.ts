@@ -35,19 +35,19 @@ export type Database = {
           artist_id: number | null
           id: number
           process_state: Database["public"]["Enums"]["processenum"] | null
-          season: string | null
+          year_month: string | null
         }
         Insert: {
           artist_id?: number | null
           id?: never
           process_state?: Database["public"]["Enums"]["processenum"] | null
-          season?: string | null
+          year_month?: string | null
         }
         Update: {
           artist_id?: number | null
           id?: never
           process_state?: Database["public"]["Enums"]["processenum"] | null
-          season?: string | null
+          year_month?: string | null
         }
         Relationships: [
           {
@@ -246,3 +246,4 @@ export type Enums<
   : PublicEnumNameOrOptions extends keyof PublicSchema["Enums"]
     ? PublicSchema["Enums"][PublicEnumNameOrOptions]
     : never
+
