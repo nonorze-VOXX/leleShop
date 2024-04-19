@@ -11,7 +11,7 @@ export async function PreInsertPaymentStatus(month: string) {
 		console.error(error);
 		return { newData: [], paymentData: [], error: 'get payment status fail' };
 	}
-	const artistData = (await db.GetArtistDataList({ ordered: true, ascending: true }))?.data ?? [];
+	const artistData = (await db.GetArtistDataList())?.data ?? [];
 	const noPaymentList: PaymentStatusInsert[] = [];
 	if (artistData?.length !== data?.length) {
 		artistData.forEach((element) => {

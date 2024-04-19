@@ -102,7 +102,7 @@ export default {
 	},
 
 	async GetArtistDataList(
-		option: { ordered: boolean; ascending: boolean } = { ordered: false, ascending: false }
+		option: { ordered: boolean; ascending: boolean } = { ordered: true, ascending: true }
 	) {
 		let query = supabase.from('artist').select();
 		if (option.ordered) {
@@ -202,11 +202,21 @@ export default {
 		}
 		return { data: result };
 	},
-	async GetArtistDataWithPaymentStatus(
-		id: string = '*',
-		visible: boolean | null = true,
-		year_month_list: string[] = [GetSeason(0), GetSeason(1), GetSeason(2)]
-	) {
+	async GetArtistDataWithPaymentStatus(option?: {
+		id?: string;
+		visible?: boolean | null;
+		year_month_list?: string[];
+	}) {
+		option = option ?? {
+			id: '*',
+			visible: true,
+			year_month_list: [GetSeason(0), GetSeason(1), GetSeason(2)]
+		};
+		let { id, visible, year_month_list } = option;
+		id = id ?? '*';
+		visible = visible ?? true;
+		year_month_list = year_month_list ?? [GetSeason(0), GetSeason(1), GetSeason(2)];
+
 		let query = supabase.from('artist').select('id, artist_name, visible,artist_payment_status(*)');
 		if (id !== '*') {
 			query = query.eq('id', id);
@@ -226,8 +236,8 @@ export default {
 			element.artist_payment_status.sort(payment_compare_year_month);
 		});
 		if (error) {
-			console.log(error);
+			console.error(error);
 		}
-		return { data };
+		return { data, error };
 	}
 };
