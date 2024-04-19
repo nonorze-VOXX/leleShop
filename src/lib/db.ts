@@ -8,7 +8,9 @@ import { GetSeason, payment_compare_year_month } from './function/Utils';
 export const supabase = createClient<Database>(PRIVATE_SUPABASE_URL, PRIVATE_SUPABASE_KEY);
 
 export type TradeHead = Database['public']['Tables']['trade_head']['Insert'];
+export type TradeHeadRow = Database['public']['Tables']['trade_head']['Row'];
 export type TradeBody = Database['public']['Tables']['trade_body']['Insert'];
+export type TradeBodyRow = Database['public']['Tables']['trade_body']['Row'];
 export type Artist = Database['public']['Tables']['artist']['Insert'];
 export type ArtistRow = Database['public']['Tables']['artist']['Row'];
 export type PaymentStatusInsert = Database['public']['Tables']['artist_payment_status']['Insert'];

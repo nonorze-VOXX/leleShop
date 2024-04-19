@@ -1,4 +1,5 @@
 import type { Artist, ArtistRow, TradeBody, TradeHead } from '$lib/db';
+import { fail } from '@sveltejs/kit';
 
 export const findIndex = (dataHeader: string[], target: string) => {
 	return dataHeader.findLastIndex((e) => e === target);
@@ -68,7 +69,7 @@ export const GetStoreData = (
 		'銷售總額',
 		'折扣',
 		'淨銷售額',
-		'狀態',
+		// '狀態',
 		'日期'
 	];
 	const notFoundColumn: string[] = [];
@@ -95,11 +96,15 @@ export const GetStoreData = (
 
 		const element = groupByIndex[key];
 		const date = GetDateWithTimeZone(element[0][dateIndex(dataHeader)], timezoneOffset);
+		let state = '關閉';
+		if (stateIndex(dataHeader) !== -1) {
+			state = element[0][stateIndex(dataHeader)];
+		}
 
 		tradeHeadList.push({
 			trade_date: date.toISOString(),
 			trade_id: element[0][tradeIdIndex(dataHeader)],
-			state: element[0][stateIndex(dataHeader)]
+			state: state
 		});
 
 		for (let i = 0; i < element.length; i++) {
@@ -108,6 +113,8 @@ export const GetStoreData = (
 				console.error('artist not found', artist_name);
 			}
 			const artist_id = artistList.find((artist) => artist.artist_name === artist_name)?.id;
+			if (artist_id === undefined)
+				return { error: 'artist not found', tradeBodyList: [], tradeHeadList: [] };
 
 			tradeBodyList.push({
 				item_name: element[i][itemNameIndex(dataHeader)],
@@ -116,7 +123,7 @@ export const GetStoreData = (
 				total_sales: parseFloat(element[i][totalIndex(dataHeader)]),
 				discount: parseFloat(element[i][discountIndex(dataHeader)]),
 				net_sales: parseFloat(element[i][netIndex(dataHeader)]),
-				artist_id: parseInt(artist_id as unknown as string)
+				artist_id: artist_id
 			});
 		}
 	}
@@ -132,20 +139,25 @@ export const fileToArray = async (file: File) => {
 		const words = line.split(',');
 		const result1D: string[] = [];
 		if (words.length === 1 && words[0] === '') {
-			result2D.push(result1D);
 			continue;
 		}
 		for (let ii = 0; ii < words.length; ii++) {
 			const word = words[ii] ? words[ii] : '';
 			result1D.push(word);
 		}
-		result2D.push(result1D);
+		if (result1D.length > 0) {
+			result2D.push(result1D);
+		}
 	}
 	return result2D;
 };
 
 // dateStr: YYYY-MM-DD HH:MM
 export const GetDateWithTimeZone = (dateStr: string, timezoneOffset: string) => {
+	if (dateStr.split('+').length == 2) {
+		const date = new Date(dateStr);
+		return date;
+	}
 	const date = new Date(dateStr.replace(/ /g, 'T') + timezoneOffset);
 	return date;
 };

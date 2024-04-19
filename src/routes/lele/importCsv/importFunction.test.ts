@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { GetNewArtistList, GetStoreData, fileToArray } from './importFunction';
+import { GetDateWithTimeZone, GetNewArtistList, GetStoreData, fileToArray } from './importFunction';
 import type { ArtistRow } from '$lib/db';
 
 describe('importFunction', () => {
@@ -162,5 +162,13 @@ describe('importFunction', () => {
 			dataHeader
 		);
 		expect(error).toStrictEqual('銷售總額,折扣,淨銷售額,狀態,日期, not found');
+	});
+	it('GetDateWithTimeZone', () => {
+		expect(GetDateWithTimeZone('2024-01-01 21:37', '+08:00').toISOString()).eq(
+			'2024-01-01T13:37:00.000Z'
+		);
+		expect(GetDateWithTimeZone('2024-03-10T09:43:00+00:00', '+08:00').toISOString()).eq(
+			'2024-03-10T09:43:00.000Z'
+		);
 	});
 });

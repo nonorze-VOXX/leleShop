@@ -1,5 +1,5 @@
 import { fail } from '@sveltejs/kit';
-import db, { type TradeBody, type TradeHead } from '$lib/db';
+import db, { type TradeBody, type TradeBodyRow, type TradeHead, type TradeHeadRow } from '$lib/db';
 import { groupBy } from '$lib/function/Utils';
 import {
 	GetDateWithTimeZone,
@@ -22,9 +22,6 @@ export const actions = {
 				message: 'You must provide a file to upload'
 			});
 		}
-		let newTradeBodyList: TradeBody[] = [];
-
-		let newTradeHeadList: TradeHead[] = [];
 
 		for (let i = 0; i < files.length; i++) {
 			const file = files[i] as File;
@@ -46,40 +43,58 @@ export const actions = {
 				}
 			}
 
-			console.log(tradeIdList);
-			const { tradeBodyList, tradeHeadList } = GetStoreData(
+			const { tradeBodyList, tradeHeadList, error } = GetStoreData(
 				tradeIdList,
 				artistList,
 				groupByOrder,
 				timezoneOffset,
 				dataHeader
 			);
-			newTradeBodyList = newTradeBodyList.concat(tradeBodyList);
-			newTradeHeadList = newTradeHeadList.concat(tradeHeadList);
+			if (error) {
+				return fail(400, {
+					error: true,
+					message: error
+				});
+			}
 
-			const { error } = await savePartToDb(tradeBodyList, tradeHeadList);
-			if (error !== null) {
-				return { error, tradeHeadList, tradeBodyList };
+			const {
+				error: saveError,
+				newTradeBody,
+				newTradeHead
+			} = await savePartToDb(tradeBodyList, tradeHeadList);
+			if (saveError) {
+				return fail(400, {
+					error: true,
+					message: saveError
+				});
+			} else {
+				return { newTradeBody, newTradeHead };
 			}
 		}
-		return { error: null, newTradeHeadList, newTradeBodyList };
+		return { newTradeBody: [], newTradeHead: [] };
 	}
 };
 
 const savePartToDb = async (tradeBodyList: TradeBody[], tradeHeadList: TradeHead[]) => {
+	console.log('tradeBodyList', tradeBodyList);
+	console.log('tradeHeadList', tradeHeadList);
+	let newTradeHead: TradeHeadRow[] = [];
+	let newTradeBody: TradeBodyRow[] = [];
 	{
-		const { error } = await db.SaveTradeHead(tradeHeadList);
+		const { error, data } = await db.SaveTradeHead(tradeHeadList);
 		if (error !== null) {
-			return { error };
+			return { error, newTradeHead, newTradeBody };
 		}
+		newTradeHead = data ?? [];
 	}
 	{
-		const { error } = await db.SaveTradeBody(tradeBodyList);
+		const { error, data } = await db.SaveTradeBody(tradeBodyList);
 		if (error !== null) {
-			return { error };
+			return { error, newTradeHead, newTradeBody };
 		}
+		newTradeBody = data ?? [];
 	}
-	return { error: null };
+	return { error: null, newTradeHead, newTradeBody };
 };
 const GetDateRange = async (
 	groupByOrder: Record<string, string[][]>,
