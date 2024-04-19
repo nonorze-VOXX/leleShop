@@ -37,15 +37,19 @@
 					</td>
 					<td class="text-center">
 						<div class="text-lg">
-							{#each artists.artist_payment_status as paymentStatus}
-								{#if paymentStatus.process_state === 'done'}
-									✅
-								{:else if paymentStatus.process_state === 'doing'}
-									🔺
-								{:else}
-									❌
-								{/if}
-							{/each}
+							{#if artists.artist_payment_status.length !== 3}
+								data missing
+							{:else}
+								{#each artists.artist_payment_status as paymentStatus}
+									{#if paymentStatus.process_state === 'done'}
+										✅
+									{:else if paymentStatus.process_state === 'doing'}
+										🔺
+									{:else}
+										❌
+									{/if}
+								{/each}
+							{/if}
 						</div>
 					</td>
 					<td class="flex">
