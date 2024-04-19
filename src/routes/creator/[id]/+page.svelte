@@ -51,7 +51,6 @@
 			admit_fail = true;
 		}
 	};
-	let submitLog = '';
 
 	const UpdateTradeData = async (firstDate: Date, lastDate: Date) => {
 		const data = new FormData();
@@ -134,13 +133,6 @@
 					class="inline-block w-full py-2">download</a
 				>
 			</OkButton>
-		</div>
-		<div
-			class="flex gap-2 rounded-xl border-4 border-lele-line bg-lele-bg p-2 text-center text-sm font-semibold text-lele-line"
-		>
-			<div>
-				{data.paymentStatus?.year_month}的繳費狀態：{data.paymentStatus?.process_state}
-			</div>
 		</div>
 		<MonthTabReportTable
 			bind:tradeDataList

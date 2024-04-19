@@ -2,25 +2,14 @@ import { supabase, type QueryTradeBodyWithTradeHead } from '$lib/db';
 import db from '$lib/db';
 import { fail } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
-import { GetYearMonth } from '$lib/function/Utils';
 
 export const load: PageServerLoad = async ({ params }) => {
 	const artist_data = (await db.GetArtistData(params.id)).data ?? [];
 	const artist_name =
 		artist_data.length !== 0 ? artist_data[0].artist_name : 'not found this artist';
-	const nowSeason = GetYearMonth();
-	const { error, data } = await db.GetPaymentStatus({
-		artist_id: params.id,
-		year_month: nowSeason
-	});
-	if (error) {
-		console.log(error);
-	}
-	const paymentStatus = data ? data[0] : null;
 	return {
 		artist_name,
-		id: params.id,
-		paymentStatus
+		id: params.id
 	};
 };
 
