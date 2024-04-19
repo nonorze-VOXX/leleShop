@@ -11,11 +11,16 @@ export const FormatDate = (dateStr: string | null | undefined) => {
 		.toString()
 		.replace(/-/g, '/');
 };
-export function GetNowSeason() {
+export function GetSeason(offset: number = 0) {
+	const date = new Date();
+	const d = new Date(date.getFullYear(), Math.floor(date.getMonth() / 3) * 3 + offset, 1);
+	return d.getFullYear().toString() + '-' + FormatNumberToTwoDigi(d.getMonth().toString());
+}
+export function GetYearMonth(offset: number = 0) {
+	const date = new Date();
+	const d = new Date(date.getFullYear(), date.getMonth() + offset, 1);
 	return (
-		new Date().getFullYear().toString() +
-		'-' +
-		FormatNumberToTwoDigi((Math.floor(new Date().getMonth() / 3) * 3).toString())
+		d.getFullYear().toString() + '-' + FormatNumberToTwoDigi(Math.floor(d.getMonth()).toString())
 	);
 }
 

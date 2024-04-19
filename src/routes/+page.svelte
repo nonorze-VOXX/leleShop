@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import type { PageData } from './$types';
-	import type { Artist, QueryArtistWithPaymentStatus } from '$lib/db';
+	import type { Artist, PaymentStatusRow, QueryArtistWithPaymentStatus } from '$lib/db';
 	import { goto } from '$app/navigation';
 	import LeleThead from '$lib/Component/htmlWrapper/LeleThead.svelte';
 	import LeleTbody from '$lib/Component/htmlWrapper/LeleTbody.svelte';
@@ -12,12 +12,7 @@
 		id: number;
 		artist_name: string | null;
 		visible: boolean;
-		artist_payment_status: {
-			artist_id: number | null;
-			id: number;
-			process_state: 'todo' | 'doing' | 'done' | null;
-			season: string | null;
-		}[];
+		artist_payment_status: PaymentStatusRow[];
 	}[];
 
 	onMount(() => {
@@ -28,8 +23,8 @@
 <LeleTable>
 	<LeleThead>
 		<tr>
-			<th scope="col" class="w-auto p-2"> 品牌 </th>
-			<th scope="col" class="w-12 p-2 text-center"> 繳費 </th>
+			<th scope="col" class="w-40 p-2"> 品牌 </th>
+			<th scope="col" class="w-20 p-2 text-center"> 繳費 </th>
 			<th scope="col" class="w-16 p-2 text-center"> 銷售 </th>
 		</tr>
 	</LeleThead>
@@ -42,12 +37,18 @@
 					</td>
 					<td class="text-center">
 						<div class="text-lg">
-							{#if artists.artist_payment_status.at(0)?.process_state === 'done'}
-								✅
-							{:else if artists.artist_payment_status.at(0)?.process_state === 'doing'}
-								🔺
+							{#if artists.artist_payment_status.length !== 3}
+								data missing
 							{:else}
-								❌
+								{#each artists.artist_payment_status as paymentStatus}
+									{#if paymentStatus.process_state === 'done'}
+										✅
+									{:else if paymentStatus.process_state === 'doing'}
+										🔺
+									{:else}
+										❌
+									{/if}
+								{/each}
 							{/if}
 						</div>
 					</td>

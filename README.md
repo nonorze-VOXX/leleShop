@@ -28,7 +28,7 @@ npm i
 
 #### artist_payment_status
 
-season is record by format `YYYY-MM`
+year_month is record by format `YYYY-MM`
 
 - fill supabase data in .env file
 

@@ -2,7 +2,6 @@ import { createClient, type QueryData } from '@supabase/supabase-js';
 // import { PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_KEY } from '$env/static/public';
 import { type Database } from './db.types';
 import { PRIVATE_SUPABASE_KEY, PRIVATE_SUPABASE_URL } from '$env/static/private';
-import { fail } from '@sveltejs/kit';
 
 // export const supabase = createClient<Database>(PRIVATE_SUPABASE_URL, PRIVATE_SUPABASE_KEY);
 export const supabase = createClient<Database>(PRIVATE_SUPABASE_URL, PRIVATE_SUPABASE_KEY);
@@ -25,7 +24,7 @@ export default {
 		if (!update.artist_id) {
 			return { error: 'artist_id is required' };
 		}
-		if (!update.season) {
+		if (!update.year_month) {
 			return { error: 'season is required' };
 		}
 		const { data, error } = await supabase
@@ -36,7 +35,6 @@ export default {
 		if (error !== null) {
 			console.error(error);
 		}
-		console.log(data);
 		return { error };
 	},
 	async InsertPaymentStatus(paymentStatusList: PaymentStatusInsert[]) {
@@ -50,15 +48,15 @@ export default {
 		return { data, error };
 	},
 	async GetPaymentStatus(
-		{ artist_id, season }: { artist_id?: string; season?: string },
+		{ artist_id, year_month: year_month }: { artist_id?: string; year_month?: string },
 		ordered: boolean = true
 	) {
 		let query = supabase.from('artist_payment_status').select('*');
 		if (artist_id) {
 			query = query.eq('artist_id', artist_id);
 		}
-		if (season) {
-			query = query.eq('season', season);
+		if (year_month) {
+			query = query.eq('year_month', year_month);
 		}
 		if (ordered) {
 			query = query.order('id', { ascending: true });
@@ -68,33 +66,6 @@ export default {
 			console.error(error);
 		}
 		return { data, error };
-	},
-	async PreInsertPaymentStatus(season: string) {
-		const artistData =
-			(await this.GetArtistDataList({ ordered: true, ascending: true }))?.data ?? [];
-
-		const { data, error } = await this.GetPaymentStatus({ season });
-		if (error) {
-			console.error(error);
-			return { newData: [], paymentData: [], error: 'get payment status fail' };
-		}
-		const noPaymentList: PaymentStatusInsert[] = [];
-		if (artistData?.length !== data?.length) {
-			artistData.forEach((element) => {
-				if (element.id !== data?.find((e) => e.artist_id === element.id)?.artist_id) {
-					noPaymentList.push({ artist_id: element.id, season, process_state: 'todo' });
-				}
-			});
-		}
-		if (noPaymentList.length === 0) {
-			return { error: null, newData: [], paymentData: data };
-		}
-		const result = await this.InsertPaymentStatus(noPaymentList);
-		if (result.error) {
-			return { error: result.error, newData: [], paymentData: data };
-		}
-		const newData = result.data ?? [];
-		return { error: null, newData: newData, paymentData: data };
 	},
 	async SaveArtistName(artist: Artist[]) {
 		const { error, data } = await supabase.from('artist').insert(artist).select();
@@ -222,7 +193,6 @@ export default {
 					.lte('trade_head.trade_date', date.lastDate.toISOString());
 			}
 			const { data, error } = await query.range(i, i + 1000);
-			// console.log(data);
 			if (error) {
 				console.log(error);
 			}

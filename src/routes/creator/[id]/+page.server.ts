@@ -2,41 +2,18 @@ import { supabase, type QueryTradeBodyWithTradeHead } from '$lib/db';
 import db from '$lib/db';
 import { fail } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
-import { GetNowSeason } from '$lib/function/Utils';
 
 export const load: PageServerLoad = async ({ params }) => {
 	const artist_data = (await db.GetArtistData(params.id)).data ?? [];
 	const artist_name =
 		artist_data.length !== 0 ? artist_data[0].artist_name : 'not found this artist';
-	const nowSeason = GetNowSeason();
-	const { error, data } = await db.GetPaymentStatus({ artist_id: params.id, season: nowSeason });
-	if (error) {
-		console.log(error);
-	}
-	const paymentStatus = data ? data[0] : null;
 	return {
 		artist_name,
-		id: params.id,
-		paymentStatus
+		id: params.id
 	};
 };
 
 export const actions = {
-	UpdatePaymentState: async ({ request, params }) => {
-		const formData = await request.formData();
-		const season = formData.get('season') as string;
-		const { error, data } = await supabase
-			.from('artist_payment_status')
-			.update({ process_state: 'doing' })
-			.eq('season', season)
-			.eq('artist_id', params.id)
-			.select();
-		if (error) {
-			console.error(error);
-			return fail(400, { error });
-		}
-		return { data };
-	},
 	GetTradeData: async ({ request }) => {
 		const formData = await request.formData();
 		const key = formData.get('password') as string;
