@@ -13,7 +13,7 @@
 		artist_name: string | null;
 		visible: boolean;
 		artist_payment_status: PaymentStatusRow[];
-	}[];
+	}[] = [];
 
 	onMount(() => {
 		artistData = data.data ?? [];
@@ -29,39 +29,37 @@
 		</tr>
 	</LeleThead>
 	<LeleTbody>
-		{#if artistData}
-			{#each artistData as artists}
-				<LeleTbodyTr>
-					<td class="p-2">
-						{artists.artist_name}
-					</td>
-					<td class="text-center">
-						<div class="text-lg">
-							{#if artists.artist_payment_status.length !== 3}
-								data missing
-							{:else}
-								{#each artists.artist_payment_status as paymentStatus}
-									{#if paymentStatus.process_state === 'done'}
-										✅
-									{:else if paymentStatus.process_state === 'doing'}
-										🔺
-									{:else}
-										❌
-									{/if}
-								{/each}
-							{/if}
-						</div>
-					</td>
-					<td class="flex">
-						<a
-							class="grow rounded-lg bg-lele-line p-2 text-center text-lele-bg"
-							href={'/creator/' + artists.id}
-						>
-							報表
-						</a>
-					</td>
-				</LeleTbodyTr>
-			{/each}
-		{/if}
+		{#each artistData as artists}
+			<LeleTbodyTr>
+				<td class="p-2">
+					{artists.artist_name}
+				</td>
+				<td class="text-center">
+					<div class="text-lg">
+						{#if artists.artist_payment_status.length !== 3}
+							data missing
+						{:else}
+							{#each artists.artist_payment_status as paymentStatus}
+								{#if paymentStatus.process_state === 'done'}
+									✅
+								{:else if paymentStatus.process_state === 'doing'}
+									🔺
+								{:else}
+									❌
+								{/if}
+							{/each}
+						{/if}
+					</div>
+				</td>
+				<td class="flex">
+					<a
+						class="grow rounded-lg bg-lele-line p-2 text-center text-lele-bg"
+						href={'/creator/' + artists.id}
+					>
+						報表
+					</a>
+				</td>
+			</LeleTbodyTr>
+		{/each}
 	</LeleTbody>
 </LeleTable>

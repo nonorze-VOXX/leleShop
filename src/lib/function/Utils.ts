@@ -1,3 +1,5 @@
+import type { PaymentStatusRow } from '$lib/db';
+
 export const FormatDate = (dateStr: string | null | undefined) => {
 	if (dateStr === null || dateStr === undefined) return '';
 	const date = new Date(dateStr);
@@ -39,3 +41,8 @@ export const groupBy = <T, K extends keyof any>(arr: T[], key: (i: T) => K) =>
 		},
 		{} as Record<K, T[]>
 	);
+export const payment_compare_year_month = (a: PaymentStatusRow, b: PaymentStatusRow) => {
+	if (a.year_month < b.year_month) return -1;
+	else if (a.year_month > b.year_month) return 1;
+	return 0;
+};

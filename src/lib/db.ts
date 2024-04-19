@@ -2,6 +2,7 @@ import { createClient, type QueryData } from '@supabase/supabase-js';
 // import { PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_KEY } from '$env/static/public';
 import { type Database } from './db.types';
 import { PRIVATE_SUPABASE_KEY, PRIVATE_SUPABASE_URL } from '$env/static/private';
+import { GetSeason, payment_compare_year_month } from './function/Utils';
 
 // export const supabase = createClient<Database>(PRIVATE_SUPABASE_URL, PRIVATE_SUPABASE_KEY);
 export const supabase = createClient<Database>(PRIVATE_SUPABASE_URL, PRIVATE_SUPABASE_KEY);
@@ -27,7 +28,7 @@ export default {
 		if (!update.year_month) {
 			return { error: 'season is required' };
 		}
-		const { data, error } = await supabase
+		const { error } = await supabase
 			.from('artist_payment_status')
 			.update(update)
 			.eq('id', id)
@@ -200,5 +201,33 @@ export default {
 			result = result.concat(data as QueryTradeBodyWithTradeHead);
 		}
 		return { data: result };
+	},
+	async GetArtistDataWithPaymentStatus(
+		id: string = '*',
+		visible: boolean | null = true,
+		year_month_list: string[] = [GetSeason(0), GetSeason(1), GetSeason(2)]
+	) {
+		let query = supabase.from('artist').select('id, artist_name, visible,artist_payment_status(*)');
+		if (id !== '*') {
+			query = query.eq('id', id);
+		}
+
+		if (visible !== null) {
+			query = query.eq('visible', visible);
+		}
+		if (year_month_list.length > 0) {
+			query = query.in('artist_payment_status.year_month', year_month_list);
+		}
+
+		query = query.order('id', { ascending: true });
+		const { data, error } = await query;
+		const artistData = data ?? [];
+		artistData.forEach((element) => {
+			element.artist_payment_status.sort(payment_compare_year_month);
+		});
+		if (error) {
+			console.log(error);
+		}
+		return { data };
 	}
 };
