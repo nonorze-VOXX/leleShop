@@ -11,19 +11,19 @@ export type Database = {
     Tables: {
       artist: {
         Row: {
-          artist_name: string | null
+          artist_name: string
           id: number
           report_key: string | null
           visible: boolean
         }
         Insert: {
-          artist_name?: string | null
+          artist_name: string
           id?: never
           report_key?: string | null
           visible?: boolean
         }
         Update: {
-          artist_name?: string | null
+          artist_name?: string
           id?: never
           report_key?: string | null
           visible?: boolean

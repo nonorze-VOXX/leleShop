@@ -10,7 +10,7 @@
 	export let data: PageData;
 	let artistData: {
 		id: number;
-		artist_name: string | null;
+		artist_name: string;
 		visible: boolean;
 		artist_payment_status: PaymentStatusRow[];
 	}[] = [];
