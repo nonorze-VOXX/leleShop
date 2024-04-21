@@ -2,6 +2,8 @@
 	import { applyAction, deserialize } from '$app/forms';
 	import { goto, invalidateAll } from '$app/navigation';
 	import type { ActionResult } from '@sveltejs/kit';
+	import LeleTable from '$lib/Component/htmlWrapper/LeleTable.svelte';
+	import type { TradeBodyRow, TradeHeadRow } from '$lib/db';
 	enum ProcessedStatus {
 		NORMAL,
 		PROCESSING,
@@ -15,9 +17,11 @@
 		const minute = abs % 60;
 		return sign + (hour < 10 ? '0' : '') + hour + ':' + (minute < 10 ? '0' : '') + minute;
 	};
-	let tableData: string[][];
+
+	let newTradeHeadList: TradeHeadRow[] = [];
+	let newTradeBodyList: TradeBodyRow[] = [];
 	let processed: ProcessedStatus = ProcessedStatus.NORMAL;
-	// let submitLog: string = '';
+	let submitLog: string = '';
 	async function handleSubmit(event: { currentTarget: EventTarget & HTMLFormElement }) {
 		const data = new FormData(event.currentTarget);
 		data.append('dateOffset', timeZoneOffsetToHHMM(new Date().getTimezoneOffset()));
@@ -33,12 +37,13 @@
 
 		if (result.type === 'success') {
 			// submitLog = result.data?.error;
-			console.log(result.data);
-
+			newTradeBodyList = result.data?.newTradeBody;
+			newTradeHeadList = result.data?.newTradeHead;
 			processed = ProcessedStatus.PROCESSED;
 			await invalidateAll();
 		} else if (result.type === 'failure') {
 			processed = ProcessedStatus.LOGIN_FAILED;
+			submitLog = result.data?.message;
 			console.log(result.data?.message);
 		} else if (result.type === 'redirect') {
 			goto(result.location);
@@ -48,8 +53,8 @@
 	}
 </script>
 
-<div class="flex h-screen flex-col justify-center">
-	<div class="flex justify-center">
+<div class="flex min-h-screen flex-col justify-center">
+	<div class="flex flex-col items-center">
 		<div class="flex flex-col items-center rounded-xl bg-white p-5">
 			<form
 				on:submit|preventDefault={handleSubmit}
@@ -70,8 +75,26 @@
 			{:else if processed === ProcessedStatus.PROCESSED}
 				<p class="text-7xl">DONE</p>
 			{:else if processed === ProcessedStatus.LOGIN_FAILED}
-				<p class="text-7xl text-red-600">submitLog</p>
+				<p class="text-7xl text-red-600">{submitLog}</p>
 			{/if}
+		</div>
+		<div class="flex flex-col">
+			<div class="text-center">共{newTradeHeadList.length}筆新交易</div>
+			<div class="text-center">賣出{newTradeBodyList.length}次商品</div>
+			{#each newTradeHeadList as head}
+				<div class="flex justify-start gap-4 text-lg">
+					<div>交易序號：{head.trade_id}</div>
+					<div>日期：{head.trade_date?.split('T')[0]}</div>
+					<div>狀態：{head.state}</div>
+				</div>
+				{#each newTradeBodyList as body}
+					{#if body.trade_id === head.trade_id}
+						<div class="flex px-4">
+							<div>品名：{body.item_name}</div>
+						</div>
+					{/if}
+				{/each}
+			{/each}
 		</div>
 	</div>
 </div>

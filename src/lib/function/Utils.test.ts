@@ -1,5 +1,6 @@
 import { expect, test } from 'vitest';
-import { FormatDate, groupBy } from './Utils';
+import { FormatDate, groupBy, payment_compare_year_month } from './Utils';
+import type { PaymentStatusRow } from '$lib/db';
 
 test.each([
 	{ dateStr: '2024-01-01 19:00', answer: '2024/01/01' },
@@ -42,4 +43,25 @@ test.each([
 	) as string[][];
 	const result = groupBy(processedInput, (i) => i[index]);
 	expect(result).toStrictEqual(output);
+});
+
+test.each([
+	{ year_month1: '2025-06', year_month2: '2024-06', answer: 1 },
+	{ year_month1: '2024-06', year_month2: '2024-06', answer: 0 },
+	{ year_month1: '2024-07', year_month2: '2024-06', answer: 1 },
+	{ year_month1: '2024-05', year_month2: '2024-06', answer: -1 }
+])('test payment compare year month', ({ year_month1, year_month2, answer }) => {
+	const data1: PaymentStatusRow = {
+		artist_id: null,
+		id: 0,
+		process_state: 'todo',
+		year_month: year_month1
+	};
+	const data2: PaymentStatusRow = {
+		artist_id: null,
+		id: 0,
+		process_state: 'todo',
+		year_month: year_month2
+	};
+	expect(payment_compare_year_month(data1, data2)).toBe(answer);
 });
