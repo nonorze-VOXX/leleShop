@@ -18,6 +18,13 @@ describe('importFunction', () => {
 				['1', '2', '3', '4'],
 				['1', '2', '3']
 			]
+		},
+		{
+			context: '1,,3,4\n1,2,3',
+			answer: [
+				['1', '', '3', '4'],
+				['1', '2', '3']
+			]
 		}
 	])('fileToArray($context)', async ({ context, answer }) => {
 		const file = new File([context], 'filename');
