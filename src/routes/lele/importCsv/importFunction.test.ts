@@ -11,7 +11,7 @@ describe('importFunction', () => {
 				['1', '2', '3', '4']
 			]
 		},
-		{ context: '\n1,2,3,4', answer: [[], ['1', '2', '3', '4']] },
+		{ context: '\n1,2,3,4', answer: [['1', '2', '3', '4']] },
 		{
 			context: '1,2,3,4\n1,2,3',
 			answer: [
@@ -161,7 +161,7 @@ describe('importFunction', () => {
 			timezoneOffset,
 			dataHeader
 		);
-		expect(error).toStrictEqual('銷售總額,折扣,淨銷售額,狀態,日期, not found');
+		expect(error).toStrictEqual('銷售總額,折扣,淨銷售額,日期, not found');
 	});
 	it('GetDateWithTimeZone', () => {
 		expect(GetDateWithTimeZone('2024-01-01 21:37', '+08:00').toISOString()).eq(
