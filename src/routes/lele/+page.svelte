@@ -1,4 +1,6 @@
 <script lang="ts">
+	import ArtistListPart from './ArtistListPart.svelte';
+
 	import LeleDataTable from '$lib/Component/LeleDataTable.svelte';
 	import { onMount } from 'svelte';
 	import type { PageData } from './$types';
@@ -169,50 +171,7 @@
 	<a href="/lele/importCsv">import csv</a>
 </div>
 {#if tabType === TabEnum.artist_list}
-	<LeleTable>
-		<LeleThead>
-			<tr>
-				<th scope="col" class="w-auto p-2"> 品牌 </th>
-				<th scope="col" class="w-20 p-2"> 銷售 </th>
-				<th scope="col" class="w-20 p-2"> 可見 </th>
-			</tr>
-		</LeleThead>
-		<LeleTbody>
-			{#if artistData}
-				{#each artistData as artists}
-					<LeleTbodyTr>
-						<td class="p-2">
-							{artists.artist_name}
-						</td>
-						<td class="p-2">
-							<a
-								class="rounded-lg bg-lele-line p-2 text-lele-bg"
-								href={'/lele/creator/' + artists.id}
-							>
-								報表
-							</a>
-						</td>
-						<td>
-							<label class="inline-flex cursor-pointer items-center">
-								<input
-									type="checkbox"
-									bind:checked={artists.visible}
-									on:change={() => {
-										console.log(artists.visible);
-										UpdateVisiable(artists);
-									}}
-									class="peer sr-only"
-								/>
-								<div
-									class="peer relative z-10 h-6 w-11 rounded-full bg-gray-200 after:absolute after:start-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-blue-600 peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rtl:peer-checked:after:-translate-x-full dark:border-gray-600 dark:bg-gray-700 dark:peer-focus:ring-blue-800"
-								></div>
-							</label>
-						</td>
-					</LeleTbodyTr>
-				{/each}
-			{/if}
-		</LeleTbody>
-	</LeleTable>
+	<ArtistListPart bind:data></ArtistListPart>
 {/if}
 {#if tabType === TabEnum.trade}
 	<div class="flex flex-col gap-2">
