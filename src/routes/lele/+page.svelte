@@ -14,6 +14,7 @@
 	import LeleTbody from '$lib/Component/htmlWrapper/LeleTbody.svelte';
 	import LeleTbodyTr from '$lib/Component/htmlWrapper/LeleTbodyTr.svelte';
 	import { FormatNumberToTwoDigi } from '$lib/function/Utils';
+	import Layout from '../+layout.svelte';
 
 	export let data: PageData;
 
@@ -113,22 +114,6 @@
 		}
 	};
 	let showedLength = 0;
-	const UpdateVisiable = async (artistData: ArtistRow) => {
-		const data = new FormData();
-		data.append('id', artistData.id.toString());
-		data.append('visible', artistData.visible.toString());
-		const response = await fetch('?/UpdateArtistVisible', {
-			method: 'POST',
-			body: data
-		});
-		const result = deserialize(await response.text());
-		if (result.type === 'success') {
-			console.log('refresh');
-			await invalidateAll();
-		} else if (result.type === 'redirect') {
-			goto(result.location);
-		}
-	};
 	const UpdateTradeData = async (firstDate: Date, lastDate: Date) => {
 		const data = new FormData();
 		data.append('firstDate', firstDate.toISOString());
@@ -171,7 +156,7 @@
 	<a href="/lele/importCsv">import csv</a>
 </div>
 {#if tabType === TabEnum.artist_list}
-	<ArtistListPart bind:data></ArtistListPart>
+	<ArtistListPart bind:tableData bind:artistData bind:tradeDataList></ArtistListPart>
 {/if}
 {#if tabType === TabEnum.trade}
 	<div class="flex flex-col gap-2">
