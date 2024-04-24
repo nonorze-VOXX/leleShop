@@ -1,4 +1,6 @@
 <script lang="ts">
+	import DownloadButton from './DownloadButton.svelte';
+
 	import { onMount } from 'svelte';
 	import type { PageData } from './$types';
 	import type { ActionResult } from '@sveltejs/kit';
@@ -51,6 +53,7 @@
 			admit_fail = true;
 		}
 	};
+	let queryTradeBodyWithTradeHead: QueryTradeBodyWithTradeHead;
 
 	const UpdateTradeData = async (firstDate: Date, lastDate: Date) => {
 		const data = new FormData();
@@ -65,22 +68,8 @@
 			tradeDataList = result.data?.tradeDataList as QueryTradeBodyWithTradeHead;
 			showedLength = tradeDataList.length as number;
 			UpdateCommissionData(tradeDataList);
-			UpdateDownloadData(tradeDataList);
+			queryTradeBodyWithTradeHead = tradeDataList;
 		}
-	};
-	const UpdateDownloadData = (data: QueryTradeBodyWithTradeHead) => {
-		encodeDataForDownload = '日期,收據號碼,商品,數量,銷售總額,折扣,類別,狀態,淨銷售額%0A';
-		data.forEach((element) => {
-			encodeDataForDownload += element.trade_head?.trade_date + ',';
-			encodeDataForDownload += element.trade_head?.trade_id + ',';
-			encodeDataForDownload += element.item_name + ',';
-			encodeDataForDownload += element.quantity + ',';
-			encodeDataForDownload += element.total_sales + ',';
-			encodeDataForDownload += element.discount + ',';
-			encodeDataForDownload += artist_name + ',';
-			encodeDataForDownload += '關閉' + ',';
-			encodeDataForDownload += element.net_sales + '%0A';
-		});
 	};
 	const UpdateCommissionData = (data: QueryTradeBodyWithTradeHead) => {
 		net_total = 0;
@@ -89,7 +78,6 @@
 		});
 		commission = net_total >= 0 ? Math.floor(net_total * 0.1) : 0;
 	};
-	let encodeDataForDownload = '';
 </script>
 
 <div class="flex flex-col items-center gap-3">
@@ -128,13 +116,7 @@
 				交易次數：{showedLength}
 			</div>
 
-			<OkButton>
-				<a
-					href={'data:text/plain;charset=utf-8,' + encodeDataForDownload}
-					download="data.csv"
-					class="inline-block w-full py-2">download</a
-				>
-			</OkButton>
+			<DownloadButton bind:artist_name bind:queryTradeBodyWithTradeHead></DownloadButton>
 		</div>
 		<MonthTabReportTable
 			bind:tradeDataList

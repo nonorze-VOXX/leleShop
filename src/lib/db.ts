@@ -1,11 +1,11 @@
 import { createClient, type QueryData } from '@supabase/supabase-js';
-// import { PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_KEY } from '$env/static/public';
+import { PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_KEY } from '$env/static/public';
 import { type Database } from './db.types';
-import { PRIVATE_SUPABASE_KEY, PRIVATE_SUPABASE_URL } from '$env/static/private';
+// import { PRIVATE_SUPABASE_KEY, PRIVATE_SUPABASE_URL } from '$env/static/private';
 import { GetSeason, payment_compare_year_month } from './function/Utils';
 
 // export const supabase = createClient<Database>(PRIVATE_SUPABASE_URL, PRIVATE_SUPABASE_KEY);
-export const supabase = createClient<Database>(PRIVATE_SUPABASE_URL, PRIVATE_SUPABASE_KEY);
+export const supabase = createClient<Database>(PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_KEY);
 
 export type TradeHead = Database['public']['Tables']['trade_head']['Insert'];
 export type TradeHeadRow = Database['public']['Tables']['trade_head']['Row'];
