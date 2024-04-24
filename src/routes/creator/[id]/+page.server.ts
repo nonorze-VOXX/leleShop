@@ -14,12 +14,10 @@ export const load: PageServerLoad = async ({ params }) => {
 };
 
 export const actions = {
-	GetTradeData: async ({ request }) => {
+	VerifyPassword: async ({ request }) => {
 		const formData = await request.formData();
 		const key = formData.get('password') as string;
 		const id = formData.get('id') as string;
-		const firstDate = new Date(formData.get('firstDate') as string);
-		const lastDate = new Date(formData.get('lastDate') as string);
 		const { data, error } = await supabase
 			.from('artist')
 			.select('report_key')
@@ -31,8 +29,7 @@ export const actions = {
 		if (!keyList?.includes(key)) {
 			return fail(400, { admit: true, tradeData: [] });
 		}
-		const tradeData = await db.GetTradeData(id, { firstDate, lastDate });
-		return { admit: true, tradeData: tradeData.data };
+		return {};
 	},
 	UpdateTradeData: async ({ request, params }) => {
 		const formData = await request.formData();
