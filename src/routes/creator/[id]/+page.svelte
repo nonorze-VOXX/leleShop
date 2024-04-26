@@ -7,6 +7,7 @@
 	import type { QueryTradeBodyWithTradeHead } from '$lib/db';
 	import MonthTabReportTable from '$lib/Component/MonthTabReportTable.svelte';
 	import db from '$lib/db';
+	import { page } from '$app/stores';
 
 	let artist_name: string = '';
 	let net_total = -1;
@@ -19,9 +20,11 @@
 
 	let firstDay: Date;
 	let lastDay: Date;
-	onMount(() => {
-		artist_name = data.artist_name as string;
-		artist_id = data.id;
+	onMount(async () => {
+		const params = $page.params.id;
+		const artist_data = (await db.GetArtistData(params)).data ?? [];
+		artist_name = artist_data.length !== 0 ? artist_data[0].artist_name : 'not found this artist';
+		artist_id = params;
 		let date = new Date();
 		firstDay = new Date(date.getFullYear(), date.getMonth() - 1, 1);
 		lastDay = new Date(date.getFullYear(), date.getMonth(), 1);
