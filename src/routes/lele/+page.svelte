@@ -10,6 +10,7 @@
 	import type { ArtistRow, PaymentStatusRow, QueryTradeBodyWithTradeHead } from '$lib/db';
 	import MonthTabReportTable from '$lib/Component/MonthTabReportTable.svelte';
 	import PaymentTable from './PaymentTable.svelte';
+	import db from '$lib/db';
 
 	export let data: PageData;
 
@@ -75,18 +76,20 @@
 	};
 	let showedLength = 0;
 	const UpdateTradeData = async (firstDate: Date, lastDate: Date) => {
-		const data = new FormData();
-		data.append('firstDate', firstDate.toISOString());
-		data.append('lastDate', lastDate.toISOString());
-		const response = await fetch('?/UpdateTradeData', {
-			method: 'POST',
-			body: data
+		const tradeData = (
+			await db.GetTradeData('*', {
+				firstDate: new Date(firstDate),
+				lastDate: new Date(lastDate)
+			})
+		).data;
+
+		const { count } = await db.GetTradeDataCount('*', {
+			firstDate: firstDate,
+			lastDate: lastDate
 		});
-		const result = deserialize(await response.text());
-		if (result.type === 'success') {
-			tradeDataList = result.data?.tradeDataList as QueryTradeBodyWithTradeHead;
-			showedLength = result.data?.count as number;
-		}
+
+		tradeDataList = tradeData;
+		showedLength = count ?? -1;
 	};
 </script>
 

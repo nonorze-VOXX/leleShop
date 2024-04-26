@@ -3,18 +3,8 @@ import db from '$lib/db';
 import { GetYearMonth } from '$lib/function/Utils.js';
 import { fail } from '@sveltejs/kit';
 import { PreInsertPaymentStatus } from './leleFunction.server';
-
-const randomNumber = (length: number) => {
-	let number = '';
-	for (let i = 0; i < length; i++) {
-		number += Math.floor(Math.random() * 10).toString();
-	}
-	return number;
-};
-
-function GetNextMonth(offset: number = 1) {
-	return GetYearMonth(offset);
-}
+import { randomNumber } from '$lib/function/Utils';
+import { GetNextMonth } from '$lib/function/Utils';
 
 export const load = async () => {
 	const artistData = (await db.GetArtistDataList())?.data;
@@ -63,24 +53,6 @@ export const actions = {
 
 		const key = data?.report_key;
 		return { key };
-	},
-	UpdateTradeData: async ({ request }) => {
-		const formData = await request.formData();
-		const firstDate = formData.get('firstDate') as string;
-		const lastDate = formData.get('lastDate') as string;
-
-		const tradeDataList: QueryTradeBodyWithTradeHead = (
-			await db.GetTradeData('*', {
-				firstDate: new Date(firstDate),
-				lastDate: new Date(lastDate)
-			})
-		).data as QueryTradeBodyWithTradeHead;
-		const { count } = await db.GetTradeDataCount('*', {
-			firstDate: new Date(firstDate),
-			lastDate: new Date(lastDate)
-		});
-
-		return { tradeDataList: tradeDataList, count };
 	},
 
 	UpdateArtistVisible: async ({ request }) => {

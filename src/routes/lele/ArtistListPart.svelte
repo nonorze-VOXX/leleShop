@@ -1,5 +1,5 @@
 <script lang="ts">
-	import Toggle from './Toggle.svelte';
+	import Toggle from '$lib/Component/Toggle.svelte';
 	import { deserialize } from '$app/forms';
 	import { goto, invalidateAll } from '$app/navigation';
 	import type { ArtistRow, QueryTradeBodyWithTradeHead } from '$lib/db';

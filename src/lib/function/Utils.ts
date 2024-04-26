@@ -46,3 +46,13 @@ export const payment_compare_year_month = (a: PaymentStatusRow, b: PaymentStatus
 	else if (a.year_month > b.year_month) return 1;
 	return 0;
 };
+export const randomNumber = (length: number) => {
+	let number = '';
+	for (let i = 0; i < length; i++) {
+		number += Math.floor(Math.random() * 10).toString();
+	}
+	return number;
+};
+export function GetNextMonth(offset: number = 1) {
+	return GetYearMonth(offset);
+}
