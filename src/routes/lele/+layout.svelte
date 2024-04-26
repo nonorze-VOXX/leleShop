@@ -1,19 +1,26 @@
 <script lang="ts">
-	import { deserialize } from '$app/forms';
-	import { invalidateAll } from '$app/navigation';
-	import type { ActionResult } from '@sveltejs/kit';
+	import { supabase } from '$lib/db';
+	import { onMount } from 'svelte';
+	import { browser } from '$app/environment';
+	import { goto } from '$app/navigation';
 
-	async function LogoutSubmit(event: { currentTarget: EventTarget & HTMLFormElement }) {
-		const data = new FormData(event.currentTarget);
-		const response = await fetch(event.currentTarget.action, {
-			method: 'POST',
-			body: data
-		});
-		const result: ActionResult = deserialize(await response.text());
-		if (result.type === 'success') {
-			invalidateAll();
+	export let redirect: string = '/login';
+
+	onMount(async () => {
+		const access_token = (await supabase.auth.getSession()).data.session?.access_token;
+		if (access_token === undefined || access_token === '') {
+			console.log('access token ', access_token);
+			goto(redirect, { replaceState: true });
+		}
+	});
+
+	async function LogoutSubmit() {
+		const { error } = await supabase.auth.signOut();
+		if (error) {
+			console.error(error);
 		} else {
-			console.log(result);
+			console.log('succ');
+			goto('/');
 		}
 	}
 </script>
