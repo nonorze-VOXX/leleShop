@@ -6,6 +6,7 @@
 	import { deserialize } from '$app/forms';
 	import type { QueryTradeBodyWithTradeHead } from '$lib/db';
 	import MonthTabReportTable from '$lib/Component/MonthTabReportTable.svelte';
+	import db from '$lib/db';
 
 	let artist_name: string = '';
 	let net_total = -1;
@@ -30,20 +31,14 @@
 	let queryTradeBodyWithTradeHead: QueryTradeBodyWithTradeHead;
 
 	const UpdateTradeData = async (firstDate: Date, lastDate: Date) => {
-		const data = new FormData();
-		data.append('firstDate', firstDate.toISOString());
-		data.append('lastDate', lastDate.toISOString());
-		const response = await fetch('?/UpdateTradeData', {
-			method: 'POST',
-			body: data
+		const { data } = await db.GetTradeData(artist_id, {
+			firstDate,
+			lastDate
 		});
-		const result = deserialize(await response.text());
-		if (result.type === 'success') {
-			tradeDataList = result.data?.tradeDataList as QueryTradeBodyWithTradeHead;
-			showedLength = tradeDataList.length as number;
-			UpdateCommissionData(tradeDataList);
-			queryTradeBodyWithTradeHead = tradeDataList;
-		}
+		tradeDataList = data;
+		showedLength = tradeDataList.length as number;
+		UpdateCommissionData(tradeDataList);
+		queryTradeBodyWithTradeHead = tradeDataList;
 	};
 	const UpdateCommissionData = (data: QueryTradeBodyWithTradeHead) => {
 		net_total = 0;

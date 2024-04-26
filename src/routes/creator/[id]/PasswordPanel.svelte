@@ -2,7 +2,7 @@
 	import type { PageData } from './$types';
 	import type { ActionResult } from '@sveltejs/kit';
 	import { deserialize } from '$app/forms';
-	import type { QueryTradeBodyWithTradeHead } from '$lib/db';
+	import { supabase, type QueryTradeBodyWithTradeHead } from '$lib/db';
 	import LeleBox from '$lib/Component/LeleBox.svelte';
 	import { createEventDispatcher } from 'svelte';
 
@@ -14,22 +14,19 @@
 		success: { firstDate: Date; lastDate: Date };
 	}>();
 	const SubmitKey = async (event: { currentTarget: EventTarget & HTMLFormElement }) => {
-		const data = new FormData(event.currentTarget);
-		data.append('id', artist_id);
+		const { data, error } = await supabase
+			.from('artist')
+			.select('report_key')
+			.eq('id', artist_id)
+			.eq('report_key', event.currentTarget.password.value);
+		if (error || data.length === 0) {
+			admit_fail = true;
+			return;
+		}
 		const date = new Date();
 		let firstDate: Date = new Date(date.getFullYear(), date.getMonth() - 1, 1);
 		let lastDate: Date = new Date(date.getFullYear(), date.getMonth(), 1);
-
-		const response = await fetch(event.currentTarget.action, {
-			method: 'POST',
-			body: data
-		});
-		const result: ActionResult = deserialize(await response.text());
-		if (result.type === 'success') {
-			dispatch('success', { firstDate, lastDate });
-		} else {
-			admit_fail = true;
-		}
+		dispatch('success', { firstDate, lastDate });
 	};
 </script>
 

@@ -1,13 +1,6 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
-	import type { PageData } from './$types';
-	import type { ActionResult } from '@sveltejs/kit';
-	import { deserialize } from '$app/forms';
 	import type { QueryTradeBodyWithTradeHead } from '$lib/db';
-	import LeleBox from '$lib/Component/LeleBox.svelte';
-	import MonthTabReportTable from '$lib/Component/MonthTabReportTable.svelte';
 	import OkButton from '$lib/UrlBox.svelte';
-	import { GetYearMonth } from '$lib/function/Utils';
 
 	export let artist_name: string;
 	export let queryTradeBodyWithTradeHead: QueryTradeBodyWithTradeHead;
