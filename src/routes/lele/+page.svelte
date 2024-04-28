@@ -25,14 +25,6 @@
 		payment
 	}
 	let tabType: TabEnum = TabEnum.artist_list;
-	let paymentDataList:
-		| {
-				id: number;
-				artist_name: string | null;
-				visible: boolean;
-				artist_payment_status: PaymentStatusRow[];
-		  }[]
-		| null = null;
 	onMount(async () => {
 		artistData = data.artistData ?? [];
 		tableData = data.artistData?.map((artist) => {
@@ -42,8 +34,6 @@
 		let firstDay: Date = new Date(date.getFullYear(), date.getMonth() - 1, 1);
 		let lastDay: Date = new Date(date.getFullYear(), date.getMonth(), 1);
 
-		console.log(data.paymentStatus);
-		paymentDataList = data.paymentStatus;
 		await UpdateTradeData(firstDay, lastDay);
 	});
 	const ButtonFunction = async (value: string[]) => {
@@ -55,6 +45,7 @@
 		if (artist.id === undefined) {
 			return;
 		}
+
 		data.append('id', artist.id.toString());
 		const response = await fetch('?/UpdateReportKey', {
 			method: 'POST',
@@ -144,7 +135,5 @@
 	></LeleDataTable>
 {/if}
 {#if tabType === TabEnum.payment}
-	{#if paymentDataList}
-		<PaymentTable bind:paymentDataList></PaymentTable>
-	{/if}
+	<PaymentTable></PaymentTable>
 {/if}

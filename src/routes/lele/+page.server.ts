@@ -1,20 +1,12 @@
-import { supabase, type QueryTradeBodyWithTradeHead, type PaymentStatusUpdate } from '$lib/db';
+import { supabase, type PaymentStatusUpdate } from '$lib/db';
 import db from '$lib/db';
-import { GetYearMonth } from '$lib/function/Utils.js';
 import { fail } from '@sveltejs/kit';
-import { PreInsertPaymentStatus } from './leleFunction.server';
 import { randomNumber } from '$lib/function/Utils';
-import { GetNextMonth } from '$lib/function/Utils';
 
 export const load = async () => {
 	const artistData = (await db.GetArtistDataList())?.data;
-	await PreInsertPaymentStatus(GetYearMonth());
-	await PreInsertPaymentStatus(GetNextMonth());
-	await PreInsertPaymentStatus(GetNextMonth(2));
-	await PreInsertPaymentStatus(GetNextMonth(3));
 
-	const { data, error } = await db.GetArtistDataWithPaymentStatus({ visible: null });
-	return { artistData, paymentStatus: data, error };
+	return { artistData };
 };
 
 export const actions = {

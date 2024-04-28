@@ -6,13 +6,26 @@
 	import LeleThead from '$lib/Component/htmlWrapper/LeleThead.svelte';
 	import LeleTbody from '$lib/Component/htmlWrapper/LeleTbody.svelte';
 	import LeleTbodyTr from '$lib/Component/htmlWrapper/LeleTbodyTr.svelte';
+	import { onMount } from 'svelte';
+	import db from '$lib/db';
+	import { PreInsertPaymentStatus } from './leleFunction';
+	import { GetNextMonth, GetYearMonth } from '$lib/function/Utils';
 
-	export let paymentDataList: {
+	let paymentDataList: {
 		id: number;
 		artist_name: string | null;
 		visible: boolean;
 		artist_payment_status: PaymentStatusRow[];
 	}[] = [];
+
+	onMount(async () => {
+		const result = await db.GetArtistDataWithPaymentStatus({ visible: null });
+		await PreInsertPaymentStatus(GetYearMonth());
+		await PreInsertPaymentStatus(GetNextMonth());
+		await PreInsertPaymentStatus(GetNextMonth(2));
+		await PreInsertPaymentStatus(GetNextMonth(3));
+		paymentDataList = result.data ?? [];
+	});
 
 	const UpdatePaymentStatus = async (paymentData: PaymentStatusRow) => {
 		const data = new FormData();
