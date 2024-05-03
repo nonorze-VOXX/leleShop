@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { deserialize } from '$app/forms';
 	import { goto } from '$app/navigation';
-	import type { PaymentStatusRow } from '$lib/db';
+	import type { PaymentStatusRow, PaymentStatusUpdate } from '$lib/db';
 	import LeleTable from '$lib/Component/htmlWrapper/LeleTable.svelte';
 	import LeleThead from '$lib/Component/htmlWrapper/LeleThead.svelte';
 	import LeleTbody from '$lib/Component/htmlWrapper/LeleTbody.svelte';
@@ -28,8 +28,6 @@
 	});
 
 	const UpdatePaymentStatus = async (paymentData: PaymentStatusRow) => {
-		const data = new FormData();
-
 		if (
 			paymentData.year_month === null ||
 			paymentData.process_state === null ||
@@ -40,25 +38,28 @@
 			return;
 		}
 		const state = paymentData.process_state === 'done' ? 'todo' : 'done';
-		console.log(paymentData.year_month);
+		console.log('paymentData.process_state =', paymentData.process_state);
+		const season = paymentData.year_month;
+		const process_state = state;
+		const artist_id = paymentData.artist_id;
+		const payment_id = paymentData.id;
+		const update: PaymentStatusUpdate = { artist_id, year_month: season, process_state };
 
-		data.append('season', paymentData.year_month);
-		data.append('process_state', state);
-		data.append('artist_id', paymentData.artist_id.toString());
-		data.append('payment_id', paymentData.id.toString());
-
-		const response = await fetch('?/UpdatePaymentStatus', {
-			method: 'POST',
-			body: data
-		});
-		const result = deserialize(await response.text());
-		console.log(result);
-		if (result.type === 'success') {
-			console.log('succ');
-		} else if (result.type === 'failure') {
-			console.log(result.data);
-		} else if (result.type === 'redirect') {
-			goto(result.location);
+		const { error } = await db.ChangePaymentStatus(update, payment_id);
+		if (error) {
+			console.error(error);
+		} else {
+			paymentData.process_state = state;
+			console.log(
+				'artist id: ',
+				artist_id,
+				'season:',
+				season,
+				'state:',
+				state,
+				'payment_id:',
+				payment_id
+			);
 		}
 	};
 </script>

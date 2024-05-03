@@ -110,7 +110,7 @@
 	<a href="/lele/importCsv">import csv</a>
 </div>
 {#if tabType === TabEnum.artist_list}
-	<ArtistListPart bind:tableData bind:artistData bind:tradeDataList></ArtistListPart>
+	<ArtistListPart bind:artistData></ArtistListPart>
 {/if}
 {#if tabType === TabEnum.trade}
 	<div class="flex flex-col gap-2">

@@ -8,10 +8,7 @@
 	import LeleTbody from '$lib/Component/htmlWrapper/LeleTbody.svelte';
 	import LeleTbodyTr from '$lib/Component/htmlWrapper/LeleTbodyTr.svelte';
 
-	export const tableData: string[][] = [];
 	export let artistData: ArtistRow[] = [];
-	export const tradeDataList: QueryTradeBodyWithTradeHead = [];
-	export const showedLength = 0;
 	const UpdateVisiable = async (artistData: ArtistRow) => {
 		const data = new FormData();
 		data.append('id', artistData.id.toString());
