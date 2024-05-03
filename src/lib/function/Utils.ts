@@ -20,7 +20,7 @@ export function GetSeason(offset: number = 0) {
 }
 export function GetYearMonth(offset: number = 0) {
 	const date = new Date();
-	const d = new Date(date.getFullYear(), date.getMonth() + offset, 1);
+	const d = new Date(date.getFullYear(), date.getMonth() + offset + 1, 1);
 	return (
 		d.getFullYear().toString() + '-' + FormatNumberToTwoDigi(Math.floor(d.getMonth()).toString())
 	);
@@ -53,6 +53,3 @@ export const randomNumber = (length: number) => {
 	}
 	return number;
 };
-export function GetNextMonth(offset: number = 1) {
-	return GetYearMonth(offset);
-}

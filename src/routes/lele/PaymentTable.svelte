@@ -9,7 +9,7 @@
 	import { onMount } from 'svelte';
 	import db from '$lib/db';
 	import { PreInsertPaymentStatus } from './leleFunction';
-	import { GetNextMonth, GetYearMonth } from '$lib/function/Utils';
+	import { GetYearMonth } from '$lib/function/Utils';
 
 	let paymentDataList: {
 		id: number;
@@ -21,9 +21,9 @@
 	onMount(async () => {
 		const result = await db.GetArtistDataWithPaymentStatus({ visible: null });
 		await PreInsertPaymentStatus(GetYearMonth());
-		await PreInsertPaymentStatus(GetNextMonth());
-		await PreInsertPaymentStatus(GetNextMonth(2));
-		await PreInsertPaymentStatus(GetNextMonth(3));
+		await PreInsertPaymentStatus(GetYearMonth(1));
+		await PreInsertPaymentStatus(GetYearMonth(2));
+		await PreInsertPaymentStatus(GetYearMonth(3));
 		paymentDataList = result.data ?? [];
 	});
 
