@@ -13,8 +13,6 @@
 	import db, { supabase } from '$lib/db';
 	import { randomNumber } from '$lib/function/Utils';
 
-	export let data: PageData;
-
 	let tableData: string[][];
 	let tableHead: string[] = ['artist name'];
 	let artistData: ArtistRow[] = [];
@@ -27,8 +25,8 @@
 	}
 	let tabType: TabEnum = TabEnum.artist_list;
 	onMount(async () => {
-		artistData = data.artistData ?? [];
-		tableData = data.artistData?.map((artist) => {
+		artistData = (await db.GetArtistDataList())?.data ?? [];
+		tableData = artistData?.map((artist) => {
 			return [artist.artist_name, artist.report_key];
 		}) as string[][];
 		const date = new Date();
