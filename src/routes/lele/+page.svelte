@@ -10,7 +10,8 @@
 	import type { ArtistRow, PaymentStatusRow, QueryTradeBodyWithTradeHead } from '$lib/db';
 	import MonthTabReportTable from '$lib/Component/MonthTabReportTable.svelte';
 	import PaymentTable from './PaymentTable.svelte';
-	import db from '$lib/db';
+	import db, { supabase } from '$lib/db';
+	import { randomNumber } from '$lib/function/Utils';
 
 	export let data: PageData;
 
@@ -37,7 +38,6 @@
 		await UpdateTradeData(firstDay, lastDay);
 	});
 	const ButtonFunction = async (value: string[]) => {
-		const data = new FormData();
 		const artist = artistData.find((e) => e.artist_name == value[0]);
 		if (artist === undefined) {
 			return;
@@ -45,24 +45,29 @@
 		if (artist.id === undefined) {
 			return;
 		}
+		const id = artist.id;
+		const random = randomNumber(5);
+		const { data, error } = await supabase
+			.from('artist')
+			.update({ report_key: random })
+			.eq('id', id)
+			.select()
+			.single();
 
-		data.append('id', artist.id.toString());
-		const response = await fetch('?/UpdateReportKey', {
-			method: 'POST',
-			body: data
-		});
-		const result: ActionResult = deserialize(await response.text());
-		if (result.type === 'success') {
-			console.log('refresh');
-			let artistIndex = tableData.findIndex((e) => e[0] === artist.artist_name);
-			console.log(artistIndex);
+		if (error) {
+			console.error(error);
+			goto('/');
+			return;
+		}
 
-			if (artistIndex !== undefined) {
-				tableData[artistIndex][1] = result.data?.key;
+		const key = data?.report_key;
+		let artistIndex = tableData.findIndex((e) => e[0] === artist.artist_name);
+		if (artistIndex !== undefined) {
+			if (key) tableData[artistIndex][1] = key;
+			else {
+				tableData[artistIndex][1] = 'error';
+				console.error('error');
 			}
-			await invalidateAll();
-		} else if (result.type === 'redirect') {
-			goto(result.location);
 		}
 	};
 	let showedLength = 0;
