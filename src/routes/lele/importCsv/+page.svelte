@@ -1,9 +1,16 @@
 <script lang="ts">
-	import { applyAction, deserialize } from '$app/forms';
-	import { goto, invalidateAll } from '$app/navigation';
-	import type { ActionResult } from '@sveltejs/kit';
-	import LeleTable from '$lib/Component/htmlWrapper/LeleTable.svelte';
+	import { invalidateAll } from '$app/navigation';
 	import type { TradeBodyRow, TradeHeadRow } from '$lib/db';
+	import {
+		GetDateRange,
+		GetNewArtistList,
+		GetStoreData,
+		fileToArray,
+		savePartToDb,
+		tradeIdIndex
+	} from './importFunction';
+	import { groupBy } from '$lib/function/Utils';
+	import db from '$lib/db';
 	enum ProcessedStatus {
 		NORMAL,
 		PROCESSING,
@@ -24,33 +31,74 @@
 	let submitLog: string = '';
 	async function handleSubmit(event: { currentTarget: EventTarget & HTMLFormElement }) {
 		const data = new FormData(event.currentTarget);
-		data.append('dateOffset', timeZoneOffsetToHHMM(new Date().getTimezoneOffset()));
-
 		processed = ProcessedStatus.PROCESSING;
-		const response = await fetch(event.currentTarget.action, {
-			method: 'POST',
-			body: data
-		});
+		const { error, newTradeBody, newTradeHead } = await f(
+			data,
+			timeZoneOffsetToHHMM(new Date().getTimezoneOffset())
+		);
 
-		const result: ActionResult = deserialize(await response.text());
-		console.log(result);
-
-		if (result.type === 'success') {
+		if (!error) {
 			// submitLog = result.data?.error;
-			newTradeBodyList = result.data?.newTradeBody;
-			newTradeHeadList = result.data?.newTradeHead;
+			newTradeBodyList = newTradeBody ?? [];
+			newTradeHeadList = newTradeHead ?? [];
 			processed = ProcessedStatus.PROCESSED;
 			await invalidateAll();
-		} else if (result.type === 'failure') {
+		} else {
 			processed = ProcessedStatus.LOGIN_FAILED;
-			submitLog = result.data?.message;
-			console.log(result.data?.message);
-		} else if (result.type === 'redirect') {
-			goto(result.location);
+			submitLog = error.toString();
+			console.error(error);
+		}
+	}
+	const f = async (formData: FormData, timezoneOffset: string) => {
+		const files = formData.getAll('fileToUpload');
+		if (files.length === 0) {
+			return { error: 'You must provide a file to upload' };
 		}
 
-		applyAction(result);
-	}
+		for (let i = 0; i < files.length; i++) {
+			const file = files[i] as File;
+			const fileArr2D = await fileToArray(file);
+			let dataHeader: string[] = [];
+			dataHeader = fileArr2D[0];
+
+			const groupByOrder = groupBy(fileArr2D.slice(1), (i) => i[tradeIdIndex(dataHeader)]);
+			const { maxDate, minDate } = await GetDateRange(groupByOrder, dataHeader, timezoneOffset);
+
+			const tradeIdList =
+				(await db.GetTradeIdList({ firstDate: minDate, lastDate: maxDate })).data ?? [];
+			let artistList = (await db.GetArtistDataList()).data ?? [];
+			const newArtistList = GetNewArtistList(artistList, groupByOrder, dataHeader);
+			{
+				if (newArtistList.length > 0) {
+					const { data } = await db.SaveArtistName(newArtistList);
+					artistList = artistList.concat(data ?? []);
+				}
+			}
+
+			const { tradeBodyList, tradeHeadList, error } = GetStoreData(
+				tradeIdList,
+				artistList,
+				groupByOrder,
+				timezoneOffset,
+				dataHeader
+			);
+			if (error) {
+				return { error: error };
+			}
+
+			const {
+				error: saveError,
+				newTradeBody,
+				newTradeHead
+			} = await savePartToDb(tradeBodyList, tradeHeadList);
+			if (saveError) {
+				return { error: saveError };
+			} else {
+				return { error: null, newTradeBody, newTradeHead };
+			}
+		}
+		return { error: null, newTradeBody: [], newTradeHead: [] };
+	};
 </script>
 
 <div class="flex min-h-screen flex-col justify-center">
