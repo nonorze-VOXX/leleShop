@@ -88,8 +88,8 @@
 									<input
 										type="checkbox"
 										checked={pay.process_state === 'done'}
-										on:change={() => {
-											UpdatePaymentStatus(pay);
+										on:change={async () => {
+											await UpdatePaymentStatus(pay);
 										}}
 										class="peer sr-only"
 									/>
