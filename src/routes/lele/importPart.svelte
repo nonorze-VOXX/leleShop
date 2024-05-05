@@ -14,7 +14,7 @@
 	enum ProcessedStatus {
 		NORMAL,
 		PROCESSING,
-		LOGIN_FAILED,
+		ERROR,
 		PROCESSED
 	}
 	const timeZoneOffsetToHHMM = (timeZoneOffset: number) => {
@@ -44,7 +44,7 @@
 			processed = ProcessedStatus.PROCESSED;
 			await invalidateAll();
 		} else {
-			processed = ProcessedStatus.LOGIN_FAILED;
+			processed = ProcessedStatus.ERROR;
 			submitLog = error.toString();
 			console.error(error);
 		}
@@ -60,6 +60,9 @@
 			const fileArr2D = await fileToArray(file);
 			let dataHeader: string[] = [];
 			dataHeader = fileArr2D[0];
+			if (!dataHeader) {
+				continue;
+			}
 
 			const groupByOrder = groupBy(fileArr2D.slice(1), (i) => i[tradeIdIndex(dataHeader)]);
 			const { maxDate, minDate } = await GetDateRange(groupByOrder, dataHeader, timezoneOffset);
@@ -101,35 +104,29 @@
 	};
 </script>
 
-<div class="flex min-h-screen flex-col justify-center">
-	<div class="flex flex-col items-center">
-		<div class="flex flex-col items-center rounded-xl bg-white p-5">
-			<form
-				on:submit|preventDefault={handleSubmit}
-				class="flex flex-col items-center gap-4 text-lg"
-			>
-				<div>
-					<label for="file">Upload your file</label>
-					<input multiple type="file" id="file" name="fileToUpload" accept=".csv" required />
-				</div>
-
-				<button class="w-fit rounded-full bg-green-600 px-3 font-bold text-white" type="submit"
-					>Submit</button
-				>
-			</form>
-
-			{#if processed === ProcessedStatus.PROCESSING}
-				<p class="text-7xl">Processing...</p>
-			{:else if processed === ProcessedStatus.PROCESSED}
-				<p class="text-7xl">DONE</p>
-			{:else if processed === ProcessedStatus.LOGIN_FAILED}
-				<p class="text-7xl text-red-600">{submitLog}</p>
-			{/if}
+<div class="flex flex-col items-center rounded-xl border-4 border-lele-line bg-lele-bg p-5">
+	<form on:submit|preventDefault={handleSubmit} class="flex flex-col items-center gap-4 text-lg">
+		<div>
+			<!-- <label for="file">Upload your file</label> -->
+			<input multiple type="file" id="file" name="fileToUpload" accept=".csv" required />
 		</div>
-		<div class="flex flex-col">
-			<div class="text-center">共{newTradeHeadList.length}筆新交易</div>
-			<div class="text-center">賣出{newTradeBodyList.length}次商品</div>
-			<!-- {#each newTradeHeadList as head}
+
+		<button class="w-fit rounded-full bg-green-600 px-3 font-bold text-white" type="submit"
+			>Submit</button
+		>
+	</form>
+
+	{#if processed === ProcessedStatus.PROCESSING}
+		<p class="text-7xl">Processing...</p>
+	{:else if processed === ProcessedStatus.PROCESSED}
+		<p class="text-7xl">DONE</p>
+	{:else if processed === ProcessedStatus.ERROR}
+		<p class="text-7xl text-red-600">{submitLog}</p>
+	{/if}
+	<div class="flex flex-col">
+		<div class="text-center">共{newTradeHeadList.length}筆新交易</div>
+		<div class="text-center">賣出{newTradeBodyList.length}次商品</div>
+		<!-- {#each newTradeHeadList as head}
 				<div class="flex justify-start gap-4 text-lg">
 					<div>交易序號：{head.trade_id}</div>
 					<div>日期：{head.trade_date?.split('T')[0]}</div>
@@ -143,6 +140,5 @@
 					{/if}
 				{/each}
 			{/each} -->
-		</div>
 	</div>
 </div>
