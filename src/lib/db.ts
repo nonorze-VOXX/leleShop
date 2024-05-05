@@ -202,6 +202,18 @@ export default {
 
 			result = result.concat(data as QueryTradeBodyWithTradeHead);
 		}
+		// sort by trade_date
+		result.sort((a, b) => {
+			if (a.trade_head && b.trade_head) {
+				if (a.trade_head.trade_date < b.trade_head.trade_date) {
+					return -1;
+				}
+				if (a.trade_head.trade_date > b.trade_head.trade_date) {
+					return 1;
+				}
+			}
+			return 0;
+		});
 		return { data: result };
 	},
 	async GetArtistDataWithPaymentStatus(option?: {

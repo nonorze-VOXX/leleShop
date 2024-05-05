@@ -13,7 +13,6 @@
 	let net_total = -1;
 	let commission = 0;
 	let artist_id: string = '';
-	export let data: PageData;
 	let admit = false;
 	let tradeDataList: QueryTradeBodyWithTradeHead = [];
 	let showedLength = 0;
