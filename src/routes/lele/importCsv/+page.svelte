@@ -129,7 +129,7 @@
 		<div class="flex flex-col">
 			<div class="text-center">共{newTradeHeadList.length}筆新交易</div>
 			<div class="text-center">賣出{newTradeBodyList.length}次商品</div>
-			{#each newTradeHeadList as head}
+			<!-- {#each newTradeHeadList as head}
 				<div class="flex justify-start gap-4 text-lg">
 					<div>交易序號：{head.trade_id}</div>
 					<div>日期：{head.trade_date?.split('T')[0]}</div>
@@ -142,7 +142,7 @@
 						</div>
 					{/if}
 				{/each}
-			{/each}
+			{/each} -->
 		</div>
 	</div>
 </div>

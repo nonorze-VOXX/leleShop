@@ -4,7 +4,7 @@
 	import MonthTabReportTable from '$lib/Component/MonthTabReportTable.svelte';
 	import db from '$lib/db';
 
-	let tradeDataList: QueryTradeBodyWithTradeHead;
+	let tradeDataList: QueryTradeBodyWithTradeHead | undefined;
 	onMount(async () => {
 		const date = new Date();
 		let firstDay: Date = new Date(date.getFullYear(), date.getMonth() - 1, 1);
@@ -37,10 +37,12 @@
 			交易次數：{showedLength}
 		</div>
 	</div>
-	<MonthTabReportTable
-		bind:tradeDataList
-		on:changeShowedDataList={(e) => {
-			UpdateTradeData(e.detail.firstDay, e.detail.lastDay);
-		}}
-	></MonthTabReportTable>
+	{#if tradeDataList}
+		<MonthTabReportTable
+			bind:tradeDataList
+			on:changeShowedDataList={(e) => {
+				UpdateTradeData(e.detail.firstDay, e.detail.lastDay);
+			}}
+		></MonthTabReportTable>
+	{/if}
 </div>
