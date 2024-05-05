@@ -7,13 +7,15 @@
 	import type { ArtistRow } from '$lib/db';
 	import PaymentTable from './PaymentTable.svelte';
 	import db from '$lib/db';
+	import ImportPart from './importPart.svelte';
 
 	let artistData: ArtistRow[] = [];
 	enum TabEnum {
 		artist_list,
 		trade,
 		report_key,
-		payment
+		payment,
+		import
 	}
 	let tabType: TabEnum = TabEnum.artist_list;
 	onMount(async () => {
@@ -38,14 +40,12 @@
 		class="flex rounded-xl bg-lele-line p-2 font-semibold text-lele-bg"
 		on:click={() => (tabType = TabEnum.payment)}>payment</button
 	>
+	<button
+		class="flex rounded-xl bg-lele-line p-2 font-semibold text-lele-bg"
+		on:click={() => (tabType = TabEnum.import)}>import</button
+	>
 </div>
 
-<div
-	class="h-fit w-fit rounded-lg border-4 border-lele-line p-2
-		 text-base text-lele-line"
->
-	<a href="/lele/importCsv">import csv</a>
-</div>
 {#if tabType === TabEnum.artist_list}
 	<ArtistListPart bind:artistData></ArtistListPart>
 {/if}
@@ -57,4 +57,7 @@
 {/if}
 {#if tabType === TabEnum.payment}
 	<PaymentTable></PaymentTable>
+{/if}
+{#if tabType === TabEnum.import}
+	<ImportPart></ImportPart>
 {/if}
