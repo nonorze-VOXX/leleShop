@@ -3,32 +3,32 @@ name: test
 on:
   workflow_dispatch:
   pull_request:
-    branches:
-      - main
+    # branches:
+    #   - main
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: supabase/setup-cli@v1
-        with:
-          version: latest
-      - run: supabase init
-      - run: supabase db start
-      - name: Verify generated types match Postgres schema
-        run: |
-          supabase gen types typescript --local > schema.gen.ts
-          if ! git diff --ignore-space-at-eol --exit-code --quiet schema.gen.ts; then
-            echo "Detected uncommitted changes after build. See status below:"
-            git diff
-            exit 1
-          fi
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 20
 
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+      - run: echo 'SUPABASE_ANON_KEY="example-key"' > supabase/functions/.env
+      - run: supabase db start
+      - name: Verify generated types match Postgres schema
+        run: |
+          supabase gen types typescript --local --schema public > src/lib/db.types.ts
+          if ! git diff --ignore-space-at-eol --exit-code --quiet src/lib/db.types.ts; then
+            echo "Detected uncommitted changes after build. See status below:"
+            git diff
+            exit 1
+          fi
+      - run: echo -e 'PUBLIC_SUPABASE_URL="http://127.0.0.1:54321"\nPUBLIC_SUPABASE_KEY="example-key"' > .env
       - run: npm ci
-
       - run: npm test
