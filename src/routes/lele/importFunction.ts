@@ -97,6 +97,7 @@ export const GetStoreData = (
 	}
 	const tradeBodyList: TradeBody[] = [];
 	const tradeHeadList: TradeHead[] = [];
+	const susTradeIdList: string[] = [];
 
 	for (const key in groupByIndex) {
 		if (key === undefined || key === 'undefined') continue;
@@ -112,6 +113,7 @@ export const GetStoreData = (
 		}
 		if (state !== '關閉') {
 			// todo: return not close trade
+			susTradeIdList.push(key);
 			continue;
 		}
 		tradeHeadList.push({
@@ -139,7 +141,7 @@ export const GetStoreData = (
 			});
 		}
 	}
-	return { tradeBodyList, tradeHeadList };
+	return { tradeBodyList, tradeHeadList, susTradeIdList };
 };
 
 export const fileToArray = async (file: File) => {
