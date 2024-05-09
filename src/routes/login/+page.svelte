@@ -1,10 +1,6 @@
 <script lang="ts">
-	import { deserialize } from '$app/forms';
-	import type { ActionResult } from '@sveltejs/kit';
-	import type { PageData } from './$types';
-	import { goto, invalidateAll } from '$app/navigation';
+	import { goto } from '$app/navigation';
 	import { supabase } from '$lib/db';
-	export let data: PageData;
 
 	let loginFailed = false;
 	async function LoginSubmit(event: { currentTarget: EventTarget & HTMLFormElement }) {

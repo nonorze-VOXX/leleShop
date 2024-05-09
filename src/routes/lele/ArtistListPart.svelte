@@ -1,8 +1,6 @@
 <script lang="ts">
 	import Toggle from '$lib/Component/Toggle.svelte';
-	import { deserialize } from '$app/forms';
-	import { goto, invalidateAll } from '$app/navigation';
-	import { supabase, type ArtistRow, type QueryTradeBodyWithTradeHead } from '$lib/db';
+	import { supabase, type ArtistRow } from '$lib/db';
 	import LeleTable from '$lib/Component/htmlWrapper/LeleTable.svelte';
 	import LeleThead from '$lib/Component/htmlWrapper/LeleThead.svelte';
 	import LeleTbody from '$lib/Component/htmlWrapper/LeleTbody.svelte';
@@ -13,7 +11,7 @@
 		const id = artistData.id;
 		const visible = artistData.visible;
 
-		const { data, error } = await supabase.from('artist').update({ visible }).eq('id', id).select();
+		const { error } = await supabase.from('artist').update({ visible }).eq('id', id).select();
 		if (error) {
 			console.error(error);
 		}

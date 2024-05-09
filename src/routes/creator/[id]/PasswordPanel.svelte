@@ -1,8 +1,5 @@
 <script lang="ts">
-	import type { PageData } from './$types';
-	import type { ActionResult } from '@sveltejs/kit';
-	import { deserialize } from '$app/forms';
-	import { supabase, type QueryTradeBodyWithTradeHead } from '$lib/db';
+	import { supabase } from '$lib/db';
 	import LeleBox from '$lib/Component/LeleBox.svelte';
 	import { createEventDispatcher } from 'svelte';
 

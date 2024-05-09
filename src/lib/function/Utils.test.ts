@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest';
-import { GetYearMonth, FormatDate, groupBy, payment_compare_year_month } from './Utils';
+import { FormatDate, groupBy, payment_compare_year_month } from './Utils';
 import type { PaymentStatusRow } from '$lib/db';
 
 test.each([

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { QueryTradeBodyWithTradeHead, TradeHead } from '$lib/db';
+	import type { QueryTradeBodyWithTradeHead } from '$lib/db';
 	import { FormatNumberToTwoDigi } from '$lib/function/Utils';
 	import ReportTable from './ReportTable.svelte';
 	import { createEventDispatcher } from 'svelte';
