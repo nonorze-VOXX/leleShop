@@ -85,7 +85,6 @@ describe('importFunction', () => {
 				],
 				tradeHeadList: [
 					{
-						state: '關閉',
 						trade_date: '2024-01-01T13:37:00.000Z',
 						trade_id: 'trade_id'
 					}

@@ -100,11 +100,13 @@ export const GetStoreData = (
 		if (stateIndex(dataHeader) !== -1) {
 			state = element[0][stateIndex(dataHeader)];
 		}
-
+		if (state !== '關閉') {
+			// todo: return not close trade
+			continue;
+		}
 		tradeHeadList.push({
 			trade_date: date.toISOString(),
-			trade_id: element[0][tradeIdIndex(dataHeader)],
-			state: state
+			trade_id: element[0][tradeIdIndex(dataHeader)]
 		});
 
 		for (let i = 0; i < element.length; i++) {

@@ -151,13 +151,10 @@ export default {
 		id: string,
 		date: { firstDate: Date | null; lastDate: Date | null } = { firstDate: null, lastDate: null }
 	) {
-		let query = supabase
-			.from('trade_body')
-			.select('*, trade_head!inner(trade_id, trade_date, state)', {
-				count: 'exact',
-				head: true
-			})
-			.eq('trade_head.state', '關閉');
+		let query = supabase.from('trade_body').select('*, trade_head!inner(trade_id, trade_date)', {
+			count: 'exact',
+			head: true
+		});
 		if (id !== '*' && id !== '') {
 			query = query.eq('artist_id', id);
 		}
@@ -182,10 +179,7 @@ export default {
 		let result: QueryTradeBodyWithTradeHead = [];
 
 		for (let i = 0; i < count; i += 1000) {
-			let query = supabase
-				.from('trade_body')
-				.select('*, trade_head!inner(trade_id, trade_date, state)')
-				.eq('trade_head.state', '關閉');
+			let query = supabase.from('trade_body').select('*, trade_head!inner(trade_id, trade_date)');
 
 			if (id !== '*' && id !== '') {
 				query = query.eq('artist_id', id);
