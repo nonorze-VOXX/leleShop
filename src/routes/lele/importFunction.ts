@@ -54,13 +54,7 @@ export const GetNewArtistList = (
 	return newArtistList;
 };
 
-export const GetStoreData = (
-	tradeIdList: { trade_id: string }[],
-	artistList: ArtistRow[],
-	groupByIndex: Record<string, string[][]>,
-	timezoneOffset: string,
-	dataHeader: string[]
-) => {
+const CheckDataHeader = (dataHeader: string[]) => {
 	const shouldDataHeader = [
 		'收據號碼',
 		'類別',
@@ -80,9 +74,25 @@ export const GetStoreData = (
 	});
 	if (notFoundColumn.length > 0) {
 		return {
+			error: notFoundColumn.join(',') + ', not found'
+		};
+	}
+	return { error: null };
+};
+
+export const GetStoreData = (
+	tradeIdList: { trade_id: string }[],
+	artistList: ArtistRow[],
+	groupByIndex: Record<string, string[][]>,
+	timezoneOffset: string,
+	dataHeader: string[]
+) => {
+	const { error } = CheckDataHeader(dataHeader);
+	if (error) {
+		return {
 			tradeBodyList: [],
 			tradeHeadList: [],
-			error: notFoundColumn.join(',') + ', not found'
+			error
 		};
 	}
 	const tradeBodyList: TradeBody[] = [];
