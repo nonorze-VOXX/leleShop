@@ -1,13 +1,11 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import type { PageData } from './$types';
-	import type { Artist, PaymentStatusRow, QueryArtistWithPaymentStatus } from '$lib/db';
-	import { goto } from '$app/navigation';
+	import type { PaymentStatusRow } from '$lib/db';
 	import LeleThead from '$lib/Component/htmlWrapper/LeleThead.svelte';
 	import LeleTbody from '$lib/Component/htmlWrapper/LeleTbody.svelte';
 	import LeleTable from '$lib/Component/htmlWrapper/LeleTable.svelte';
 	import LeleTbodyTr from '$lib/Component/htmlWrapper/LeleTbodyTr.svelte';
-	export let data: PageData;
+	import db from '$lib/db';
 	let artistData: {
 		id: number;
 		artist_name: string;
@@ -15,8 +13,12 @@
 		artist_payment_status: PaymentStatusRow[];
 	}[] = [];
 
-	onMount(() => {
-		artistData = data.data ?? [];
+	onMount(async () => {
+		const { data, error } = await db.GetArtistDataWithPaymentStatus();
+		if (error) {
+			console.error(error);
+		}
+		artistData = data ?? [];
 	});
 </script>
 

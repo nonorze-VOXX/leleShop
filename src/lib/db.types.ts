@@ -134,17 +134,17 @@ export type Database = {
       trade_head: {
         Row: {
           state: string | null
-          trade_date: string | null
+          trade_date: string
           trade_id: string
         }
         Insert: {
           state?: string | null
-          trade_date?: string | null
+          trade_date: string
           trade_id: string
         }
         Update: {
           state?: string | null
-          trade_date?: string | null
+          trade_date?: string
           trade_id?: string
         }
         Relationships: []

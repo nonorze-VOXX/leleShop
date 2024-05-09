@@ -1,19 +1,19 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import type { PageData } from './$types';
-	import { deserialize } from '$app/forms';
 	import type { QueryTradeBodyWithTradeHead as QueryTradeBodyWithTradeHead } from '$lib/db';
 	import MonthTabReportTable from '$lib/Component/MonthTabReportTable.svelte';
-	import { goto } from '$app/navigation';
+	import db from '$lib/db';
+	import { page } from '$app/stores';
 
 	let artist_name: string = '';
 	let artist_id: string = '';
-	export let data: PageData;
 	let tradeDataList: QueryTradeBodyWithTradeHead = [];
 	let showedLength = 0;
-	onMount(() => {
-		artist_name = data.artist_name as string;
-		artist_id = data.id;
+	onMount(async () => {
+		const params = $page.params.id;
+		const artist_data = (await db.GetArtistData(params)).data ?? [];
+		artist_name = artist_data.length !== 0 ? artist_data[0].artist_name : 'not found this artist';
+		artist_id = params;
 		const date = new Date();
 		const firstDay = new Date(date.getFullYear(), date.getMonth() - 1, 1);
 		const lastDay = new Date(date.getFullYear(), date.getMonth(), 1);
@@ -21,20 +21,14 @@
 	});
 	let net_total: null | number = null;
 	const UpdateTradeData = async (firstDate: Date, lastDate: Date) => {
-		const data = new FormData();
-		data.append('firstDate', firstDate.toISOString());
-		data.append('lastDate', lastDate.toISOString());
-		const response = await fetch('?/UpdateTradeData', {
-			method: 'POST',
-			body: data
-		});
-		const result = deserialize(await response.text());
-		if (result.type === 'success') {
-			tradeDataList = result.data?.tradeDataList as QueryTradeBodyWithTradeHead;
-			showedLength = tradeDataList.length as number;
-		} else if (result.type === 'redirect') {
-			goto(result.location);
-		}
+		const result: QueryTradeBodyWithTradeHead = (
+			await db.GetTradeData(artist_id, {
+				firstDate: firstDate,
+				lastDate: lastDate
+			})
+		).data as QueryTradeBodyWithTradeHead;
+		tradeDataList = result as QueryTradeBodyWithTradeHead;
+		showedLength = tradeDataList.length as number;
 	};
 </script>
 
@@ -70,7 +64,7 @@
 			</div>
 		</div>
 	</div>
-	{#if data}
+	{#if tradeDataList}
 		<MonthTabReportTable
 			bind:tradeDataList
 			on:changeShowedDataList={(e) => {
