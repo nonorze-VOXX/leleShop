@@ -53,3 +53,7 @@ export const randomNumber = (length: number) => {
 	}
 	return number;
 };
+
+export const add = (a: number, b: number) => a + b;
+
+export const arr_sum = (arr: number[]) => arr.reduce(add, 0);
