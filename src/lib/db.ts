@@ -16,6 +16,7 @@ export type ArtistRow = Database['public']['Tables']['artist']['Row'];
 export type PaymentStatusInsert = Database['public']['Tables']['artist_payment_status']['Insert'];
 export type PaymentStatusRow = Database['public']['Tables']['artist_payment_status']['Row'];
 export type PaymentStatusUpdate = Database['public']['Tables']['artist_payment_status']['Update'];
+export type ArtistWithTradeRow = Database['public']['Views']['artist_trade']['Row'];
 
 const QueryTradeHeadAndBody = supabase.from('trade_body').select('*, trade_head(*)');
 export type QueryTradeBodyWithTradeHead = QueryData<typeof QueryTradeHeadAndBody>;
@@ -23,6 +24,44 @@ const QueryArtistWithPaymentStatus = supabase.from('artist').select('*, artist_p
 export type QueryArtistWithPaymentStatus = QueryData<typeof QueryArtistWithPaymentStatus>;
 
 export default {
+	async GetTotalDataForAdmin(
+		id: string = '*',
+		date: { firstDate: Date | null; lastDate: Date | null } = { firstDate: null, lastDate: null }
+	) {},
+	async GetOriginalData(
+		id: string = '*',
+		date: { firstDate: Date | null; lastDate: Date | null } = { firstDate: null, lastDate: null }
+	) {
+		let query = supabase.from('artist_trade').select('*');
+		if (id !== '*') {
+			query = query.eq('artist_id', id);
+		}
+		let cq = supabase.from('artist_trade').select('*', { count: 'exact', head: true });
+		if (date.firstDate !== null && date.lastDate !== null) {
+			query = query
+				.gte('trade_date', date.firstDate.toISOString())
+				.lte('trade_date', date.lastDate.toISOString());
+			cq = cq
+				.gte('trade_date', date.firstDate.toISOString())
+				.lte('trade_date', date.lastDate.toISOString());
+		}
+
+		const { count } = await cq;
+		if (count === null) {
+			console.error('count is null');
+			return { error: 'count is null', data: null };
+		}
+		const result: ArtistWithTradeRow[] = [];
+
+		for (let i = 0; i < count; i += 1000) {
+			const { data, error } = await query.range(i, i + 1000);
+			if (error) {
+				console.error(error);
+			}
+			result.push(...(data ?? []));
+		}
+		return { data: result, error: null };
+	},
 	async ChangePaymentStatus(update: PaymentStatusUpdate, id: number) {
 		if (!update.artist_id) {
 			return { error: 'artist_id is required' };
