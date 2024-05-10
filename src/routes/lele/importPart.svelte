@@ -27,12 +27,13 @@
 
 	let newTradeHeadList: TradeHeadRow[] = [];
 	let newTradeBodyList: TradeBodyRow[] = [];
+	let susTrade: string[] = [];
 	let processed: ProcessedStatus = ProcessedStatus.NORMAL;
 	let submitLog: string = '';
 	async function handleSubmit(event: { currentTarget: EventTarget & HTMLFormElement }) {
 		const data = new FormData(event.currentTarget);
 		processed = ProcessedStatus.PROCESSING;
-		const { error, newTradeBody, newTradeHead } = await f(
+		const { error, newTradeBody, newTradeHead, susTradeIdLists } = await f(
 			data,
 			timeZoneOffsetToHHMM(new Date().getTimezoneOffset())
 		);
@@ -41,6 +42,7 @@
 			// submitLog = result.data?.error;
 			newTradeBodyList = newTradeBody ?? [];
 			newTradeHeadList = newTradeHead ?? [];
+			susTrade = susTradeIdLists ?? [];
 			processed = ProcessedStatus.PROCESSED;
 			await invalidateAll();
 		} else {
@@ -54,6 +56,7 @@
 		if (files.length === 0) {
 			return { error: 'You must provide a file to upload' };
 		}
+		let susTradeIdLists: string[] = [];
 
 		for (let i = 0; i < files.length; i++) {
 			const file = files[i] as File;
@@ -78,7 +81,7 @@
 				}
 			}
 
-			const { tradeBodyList, tradeHeadList, error } = GetStoreData(
+			const { tradeBodyList, tradeHeadList, susTradeIdList, error } = GetStoreData(
 				tradeIdList,
 				artistList,
 				groupByOrder,
@@ -88,7 +91,7 @@
 			if (error) {
 				return { error: error };
 			}
-
+			susTradeIdLists = susTradeIdLists.concat(susTradeIdList ?? []);
 			const {
 				error: saveError,
 				newTradeBody,
@@ -97,10 +100,10 @@
 			if (saveError) {
 				return { error: saveError };
 			} else {
-				return { error: null, newTradeBody, newTradeHead };
+				return { error: null, newTradeBody, newTradeHead, susTradeIdLists };
 			}
 		}
-		return { error: null, newTradeBody: [], newTradeHead: [] };
+		return { error: null, newTradeBody: [], newTradeHead: [], susTradeIdLists };
 	};
 </script>
 
@@ -126,19 +129,14 @@
 	<div class="flex flex-col">
 		<div class="text-center">共{newTradeHeadList.length}筆新交易</div>
 		<div class="text-center">賣出{newTradeBodyList.length}次商品</div>
-		<!-- {#each newTradeHeadList as head}
+
+		{#if susTrade.length > 0}
+			<div class="text-center">以下交易序號不是關閉狀態</div>
+			{#each susTrade as tradeId}
 				<div class="flex justify-start gap-4 text-lg">
-					<div>交易序號：{head.trade_id}</div>
-					<div>日期：{head.trade_date?.split('T')[0]}</div>
-					<div>狀態：{head.state}</div>
+					<div>交易序號：{tradeId}</div>
 				</div>
-				{#each newTradeBodyList as body}
-					{#if body.trade_id === head.trade_id}
-						<div class="flex px-4">
-							<div>品名：{body.item_name}</div>
-						</div>
-					{/if}
-				{/each}
-			{/each} -->
+			{/each}
+		{/if}
 	</div>
 </div>

@@ -1,6 +1,4 @@
 <script lang="ts">
-	import { deserialize } from '$app/forms';
-	import { goto } from '$app/navigation';
 	import type { PaymentStatusRow, PaymentStatusUpdate } from '$lib/db';
 	import LeleTable from '$lib/Component/htmlWrapper/LeleTable.svelte';
 	import LeleThead from '$lib/Component/htmlWrapper/LeleThead.svelte';

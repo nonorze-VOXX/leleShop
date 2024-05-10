@@ -2,8 +2,6 @@
 	import PasswordPanel from './PasswordPanel.svelte';
 	import DownloadButton from './DownloadButton.svelte';
 	import { onMount } from 'svelte';
-	import type { PageData } from './$types';
-	import { deserialize } from '$app/forms';
 	import type { QueryTradeBodyWithTradeHead } from '$lib/db';
 	import MonthTabReportTable from '$lib/Component/MonthTabReportTable.svelte';
 	import db from '$lib/db';

@@ -1,7 +1,7 @@
 <script lang="ts">
-	import { goto, invalidateAll } from '$app/navigation';
-	import type { ArtistRow, PaymentStatusRow, QueryTradeBodyWithTradeHead } from '$lib/db';
-	import db, { supabase } from '$lib/db';
+	import { goto } from '$app/navigation';
+	import type { ArtistRow } from '$lib/db';
+	import { supabase } from '$lib/db';
 	import { randomNumber } from '$lib/function/Utils';
 	import { LeleTbody, LeleTable, LeleTbodyTr, LeleThead } from '$lib/Component/htmlWrapper';
 

@@ -54,13 +54,7 @@ export const GetNewArtistList = (
 	return newArtistList;
 };
 
-export const GetStoreData = (
-	tradeIdList: { trade_id: string }[],
-	artistList: ArtistRow[],
-	groupByIndex: Record<string, string[][]>,
-	timezoneOffset: string,
-	dataHeader: string[]
-) => {
+const CheckDataHeader = (dataHeader: string[]) => {
 	const shouldDataHeader = [
 		'收據號碼',
 		'類別',
@@ -80,13 +74,30 @@ export const GetStoreData = (
 	});
 	if (notFoundColumn.length > 0) {
 		return {
+			error: notFoundColumn.join(',') + ', not found'
+		};
+	}
+	return { error: null };
+};
+
+export const GetStoreData = (
+	tradeIdList: { trade_id: string }[],
+	artistList: ArtistRow[],
+	groupByIndex: Record<string, string[][]>,
+	timezoneOffset: string,
+	dataHeader: string[]
+) => {
+	const { error } = CheckDataHeader(dataHeader);
+	if (error) {
+		return {
 			tradeBodyList: [],
 			tradeHeadList: [],
-			error: notFoundColumn.join(',') + ', not found'
+			error
 		};
 	}
 	const tradeBodyList: TradeBody[] = [];
 	const tradeHeadList: TradeHead[] = [];
+	const susTradeIdList: string[] = [];
 
 	for (const key in groupByIndex) {
 		if (key === undefined || key === 'undefined') continue;
@@ -100,11 +111,14 @@ export const GetStoreData = (
 		if (stateIndex(dataHeader) !== -1) {
 			state = element[0][stateIndex(dataHeader)];
 		}
-
+		if (state !== '關閉') {
+			// todo: return not close trade
+			susTradeIdList.push(key);
+			continue;
+		}
 		tradeHeadList.push({
 			trade_date: date.toISOString(),
-			trade_id: element[0][tradeIdIndex(dataHeader)],
-			state: state
+			trade_id: element[0][tradeIdIndex(dataHeader)]
 		});
 
 		for (let i = 0; i < element.length; i++) {
@@ -127,7 +141,7 @@ export const GetStoreData = (
 			});
 		}
 	}
-	return { tradeBodyList, tradeHeadList };
+	return { tradeBodyList, tradeHeadList, susTradeIdList };
 };
 
 export const fileToArray = async (file: File) => {
