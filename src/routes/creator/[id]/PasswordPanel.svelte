@@ -2,6 +2,7 @@
 	import { supabase } from '$lib/db';
 	import LeleBox from '$lib/Component/LeleBox.svelte';
 	import { createEventDispatcher } from 'svelte';
+	import { NextMonthFirstDate, ThisMonthFirstDate } from '$lib/function/Utils';
 
 	export let artist_name: string;
 	export let artist_id: string;
@@ -21,8 +22,8 @@
 			return;
 		}
 		const date = new Date();
-		let firstDate: Date = new Date(date.getFullYear(), date.getMonth() - 1, 1);
-		let lastDate: Date = new Date(date.getFullYear(), date.getMonth(), 1);
+		let firstDate: Date = ThisMonthFirstDate();
+		let lastDate: Date = NextMonthFirstDate();
 		dispatch('success', { firstDate, lastDate });
 	};
 </script>
