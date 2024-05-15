@@ -60,9 +60,9 @@ export const arr_sum = (arr: number[]) => arr.reduce(add, 0);
 
 export const ThisMonthFirstDate = () => {
 	const date = new Date();
-	return new Date(date.getFullYear(), date.getMonth() - 1, 1);
+	return new Date(date.getFullYear(), date.getMonth() + 1, 1);
 };
 export const NextMonthFirstDate = () => {
 	const date = new Date();
-	return new Date(date.getFullYear(), date.getMonth() - 1, 1);
+	return new Date(date.getFullYear(), date.getMonth() + 2, 1);
 };

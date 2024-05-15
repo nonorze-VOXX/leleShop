@@ -21,7 +21,7 @@
 		'12'
 	];
 	const date = new Date();
-	let firstDay: Date = new Date(date.getFullYear(), date.getMonth() - 1, 1);
+	let firstDay: Date = new Date(date.getFullYear(), date.getMonth(), 1);
 	// let lastDay: Date = new Date(date.getFullYear(), date.getMonth(), 1);
 	let showedMonth: string = FormatNumberToTwoDigi((firstDay.getMonth() + 1).toString());
 	const dispatch = createEventDispatcher<{

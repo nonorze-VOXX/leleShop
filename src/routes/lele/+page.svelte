@@ -1,4 +1,6 @@
 <script lang="ts">
+	import AdminTotalPage from './AdminTotalPage.svelte';
+
 	import AdminTradeTable from './AdminTradeTable.svelte';
 	import ReportKeyTable from './ReportKeyTable.svelte';
 	import ArtistListPart from './ArtistListPart.svelte';
@@ -8,11 +10,6 @@
 	import PaymentTable from './PaymentTable.svelte';
 	import db from '$lib/db';
 	import ImportPart from './importPart.svelte';
-	import LeleTable from '$lib/Component/htmlWrapper/LeleTable.svelte';
-	import LeleThead from '$lib/Component/htmlWrapper/LeleThead.svelte';
-	import LeleTbody from '$lib/Component/htmlWrapper/LeleTbody.svelte';
-	import { GetTradeTotalDataEachOne } from './leleFunction';
-	import { NextMonthFirstDate, ThisMonthFirstDate } from '$lib/function/Utils';
 
 	let artistData: ArtistRow[] = [];
 	enum TabEnum {
@@ -24,24 +21,8 @@
 		import
 	}
 	let tabType: TabEnum = TabEnum.artist_list;
-	let totalData: { total_sales_sum: number; net_sales_sum: number; discount_sum: number } = {
-		total_sales_sum: -1,
-		net_sales_sum: -1,
-		discount_sum: -1
-	};
 	onMount(async () => {
 		artistData = (await db.GetArtistDataList())?.data ?? [];
-		const { total_sales_sum, net_sales_sum, discount_sum, error } = await GetTradeTotalDataEachOne(
-			ThisMonthFirstDate(),
-			NextMonthFirstDate()
-		);
-		if (error) {
-			console.error(error);
-			return;
-		}
-		console.log(total_sales_sum, net_sales_sum, discount_sum);
-
-		totalData = { total_sales_sum, net_sales_sum, discount_sum };
 	});
 </script>
 
@@ -72,16 +53,6 @@
 	>
 </div>
 
-{#if tabType === TabEnum.total}
-	<div class="flex flex-col items-center rounded-xl border-4 border-lele-line bg-lele-bg p-5">
-		<LeleTable>
-			<LeleThead>
-				<tr>Total</tr>
-			</LeleThead>
-			<LeleTbody></LeleTbody>
-		</LeleTable>
-	</div>
-{/if}
 {#if tabType === TabEnum.artist_list}
 	<ArtistListPart bind:artistData></ArtistListPart>
 {/if}
@@ -96,4 +67,8 @@
 {/if}
 {#if tabType === TabEnum.import}
 	<ImportPart></ImportPart>
+{/if}
+
+{#if tabType === TabEnum.total}
+	<AdminTotalPage></AdminTotalPage>
 {/if}

@@ -7,8 +7,8 @@
 	let tradeDataList: QueryTradeBodyWithTradeHead | undefined;
 	onMount(async () => {
 		const date = new Date();
-		let firstDay: Date = new Date(date.getFullYear(), date.getMonth() - 1, 1);
-		let lastDay: Date = new Date(date.getFullYear(), date.getMonth(), 1);
+		let firstDay: Date = new Date(date.getFullYear(), date.getMonth(), 1);
+		let lastDay: Date = new Date(date.getFullYear(), date.getMonth() + 1, 1);
 
 		await UpdateTradeData(firstDay, lastDay);
 	});
