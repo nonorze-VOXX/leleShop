@@ -7,8 +7,8 @@ export async function GetTradeTotalDataEachOne(firstDate: Date, lastDate: Date) 
 	}
 	const query = supabase
 		.from('artist')
-		.select('id,artist_name, artist_trade(*)')
-		.gt('artist_trade.trade_date', firstDate.toISOString())
+		.select('id,artist_name, artist_trade!inner(*)')
+		.gte('artist_trade.trade_date', firstDate.toISOString())
 		.lt('artist_trade.trade_date', lastDate.toISOString());
 
 	const { data, error } = await query;
@@ -19,6 +19,7 @@ export async function GetTradeTotalDataEachOne(firstDate: Date, lastDate: Date) 
 			result: []
 		};
 	}
+
 	const result: {
 		id: number;
 		name: string;
@@ -41,5 +42,5 @@ export async function GetTradeTotalDataEachOne(firstDate: Date, lastDate: Date) 
 		});
 	}
 
-	return { result };
+	return { result, error: null };
 }
