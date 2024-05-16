@@ -3,7 +3,7 @@
 	import LeleTable from '$lib/Component/htmlWrapper/LeleTable.svelte';
 	import LeleThead from '$lib/Component/htmlWrapper/LeleThead.svelte';
 	import LeleTbody from '$lib/Component/htmlWrapper/LeleTbody.svelte';
-	import { GetTradeTotalDataEachOne } from './leleFunction';
+	import { GetTradeTotalDataEachOne } from './totalPage';
 	import { NextMonthFirstDate, ThisMonthFirstDate } from '$lib/function/Utils';
 	import LeleTbodyTr from '$lib/Component/htmlWrapper/LeleTbodyTr.svelte';
 
