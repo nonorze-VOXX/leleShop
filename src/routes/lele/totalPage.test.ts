@@ -1,9 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import { GetTradeTotalDataEachOne } from './totalPage';
-import db, { supabase, type Artist, type TradeBody, type TradeHead } from '$lib/db';
+import db, { supabase, type TradeBody, type TradeHead } from '$lib/db';
 import { PUBLIC_ADMIN_MAIL_FOR_TEST, PUBLIC_ADMIN_PASSWORD_FOR_TEST } from '$env/static/public';
 
 type TradeBodyWithoutArtistId = Omit<TradeBody, 'artist_id'>;
+type TradeBodyWithArtistName = TradeBodyWithoutArtistId & { artist_name: string };
 describe('totalPage', () => {
 	it.each([
 		{
@@ -21,9 +22,11 @@ describe('totalPage', () => {
 					total_sales: 1,
 					discount: 0,
 					net_sales: 1,
+					artist_name: 'artist_namr',
 					item_name: 'item'
 				}
 			],
+			artistList: [{ artist_name: 'artist_namr' }],
 			expectResult: [{ discount_sum: 0, name: 'artist_namr', net_sales_sum: 1, total_sales_sum: 1 }]
 		}
 	])(
@@ -31,10 +34,12 @@ describe('totalPage', () => {
 		async ({
 			tradeBodyWithoutArtistIdList,
 			tradeHeadList,
+			artistList,
 			expectResult
 		}: {
-			tradeBodyWithoutArtistIdList: TradeBodyWithoutArtistId[];
+			tradeBodyWithoutArtistIdList: TradeBodyWithArtistName[];
 			tradeHeadList: TradeHead[];
+			artistList: { artist_name: string }[];
 			expectResult: {
 				discount_sum: number;
 				name: string;
@@ -56,14 +61,28 @@ describe('totalPage', () => {
 				expect(error).equal(null);
 			}
 			{
-				const { error, data } = await db.SaveArtistName([{ artist_name: 'artist_namr' }]);
+				const { error } = await supabase
+					.from('artist')
+					.delete()
+					.in(
+						'artist_name',
+						artistList.map((a) => a.artist_name)
+					);
 				expect(error).equal(null);
-				expect(data?.length).equal(1);
+			}
+			{
+				const { error, data } = await db.SaveArtistName(artistList);
+				expect(error).equal(null);
+				expect(data?.length).equal(artistList.length);
 				const tradeBodyList: TradeBody[] = tradeBodyWithoutArtistIdList.map((tradeBody) => {
+					const index = data?.findIndex((a) => a.artist_name === tradeBody.artist_name) ?? -1;
 					if (data !== null) {
-						artist_id = data[0].id;
-						return { ...tradeBody, artist_id };
+						artist_id = data[index].id;
+						// eslint-disable-next-line @typescript-eslint/no-unused-vars
+						const { artist_name: _, ...other } = tradeBody;
+						return { ...other, artist_id };
 					}
+
 					return { ...tradeBody, artist_id: -1 };
 				});
 
