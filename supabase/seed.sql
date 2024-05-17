@@ -1,5 +1,3 @@
--- supabase/seed.sql
---
 -- create test users
 INSERT INTO
     auth.users (
@@ -26,8 +24,8 @@ INSERT INTO
             uuid_generate_v4 (),
             'authenticated',
             'authenticated',
-            'a@gmail.com',
-            'password',
+            'user' || (ROW_NUMBER() OVER ()) || '@example.com',
+            crypt ('password123', gen_salt ('bf')),
             current_timestamp,
             current_timestamp,
             current_timestamp,
@@ -47,6 +45,7 @@ INSERT INTO
 INSERT INTO
     auth.identities (
         id,
+        provider_id,
         user_id,
         identity_data,
         provider,
@@ -55,6 +54,7 @@ INSERT INTO
         updated_at
     ) (
         select
+            uuid_generate_v4 (),
             uuid_generate_v4 (),
             id,
             format('{"sub":"%s","email":"%s"}', id::text, email)::jsonb,
