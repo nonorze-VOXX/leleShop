@@ -26,7 +26,7 @@
 	});
 </script>
 
-<div>month:{ThisMonthFirstDate(-1).getMonth()}</div>
+<div>month:{ThisMonthFirstDate(-1).getMonth() + 1}</div>
 <LeleTable>
 	<LeleThead>
 		<tr>
