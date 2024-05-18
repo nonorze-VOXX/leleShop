@@ -1,4 +1,6 @@
 <script lang="ts">
+	import AdminTotalPage from './AdminTotalPage.svelte';
+
 	import AdminTradeTable from './AdminTradeTable.svelte';
 	import ReportKeyTable from './ReportKeyTable.svelte';
 	import ArtistListPart from './ArtistListPart.svelte';
@@ -15,6 +17,7 @@
 		trade,
 		report_key,
 		payment,
+		total,
 		import
 	}
 	let tabType: TabEnum = TabEnum.artist_list;
@@ -44,6 +47,10 @@
 		class="flex rounded-xl bg-lele-line p-2 font-semibold text-lele-bg"
 		on:click={() => (tabType = TabEnum.import)}>import</button
 	>
+	<button
+		class="flex rounded-xl bg-lele-line p-2 font-semibold text-lele-bg"
+		on:click={() => (tabType = TabEnum.total)}>Total</button
+	>
 </div>
 
 {#if tabType === TabEnum.artist_list}
@@ -60,4 +67,8 @@
 {/if}
 {#if tabType === TabEnum.import}
 	<ImportPart></ImportPart>
+{/if}
+
+{#if tabType === TabEnum.total}
+	<AdminTotalPage></AdminTotalPage>
 {/if}

@@ -53,3 +53,16 @@ export const randomNumber = (length: number) => {
 	}
 	return number;
 };
+
+export const add = (a: number, b: number) => a + b;
+
+export const arr_sum = (arr: number[]) => arr.reduce(add, 0);
+
+export const ThisMonthFirstDate = () => {
+	const date = new Date();
+	return new Date(date.getFullYear(), date.getMonth() + 1, 1);
+};
+export const NextMonthFirstDate = () => {
+	const date = new Date();
+	return new Date(date.getFullYear(), date.getMonth() + 2, 1);
+};

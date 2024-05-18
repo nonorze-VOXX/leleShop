@@ -2,7 +2,7 @@ import { createClient, type QueryData } from '@supabase/supabase-js';
 import { PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_KEY } from '$env/static/public';
 import { type Database } from './db.types';
 // import { PRIVATE_SUPABASE_KEY, PRIVATE_SUPABASE_URL } from '$env/static/private';
-import { GetSeason, payment_compare_year_month } from './function/Utils';
+import { GetSeason, add, payment_compare_year_month } from './function/Utils';
 
 // export const supabase = createClient<Database>(PRIVATE_SUPABASE_URL, PRIVATE_SUPABASE_KEY);
 export const supabase = createClient<Database>(PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_KEY);
@@ -16,6 +16,7 @@ export type ArtistRow = Database['public']['Tables']['artist']['Row'];
 export type PaymentStatusInsert = Database['public']['Tables']['artist_payment_status']['Insert'];
 export type PaymentStatusRow = Database['public']['Tables']['artist_payment_status']['Row'];
 export type PaymentStatusUpdate = Database['public']['Tables']['artist_payment_status']['Update'];
+export type ArtistWithTradeRow = Database['public']['Views']['artist_trade']['Row'];
 
 const QueryTradeHeadAndBody = supabase.from('trade_body').select('*, trade_head(*)');
 export type QueryTradeBodyWithTradeHead = QueryData<typeof QueryTradeHeadAndBody>;
@@ -23,6 +24,68 @@ const QueryArtistWithPaymentStatus = supabase.from('artist').select('*, artist_p
 export type QueryArtistWithPaymentStatus = QueryData<typeof QueryArtistWithPaymentStatus>;
 
 export default {
+	async GetTradeTotalData(
+		id: string = '*',
+		date: { firstDate: Date | null; lastDate: Date | null } = { firstDate: null, lastDate: null }
+	) {
+		let query = supabase.from('artist_trade').select('total_sales,net_sales,discount'); //, sum(net_sales), sum(discount)');
+		if (id !== '*') {
+			query = query.eq('artist_id', id);
+		}
+		if (date.firstDate !== null && date.lastDate !== null) {
+			query = query
+				.gte('trade_date', date.firstDate.toISOString())
+				.lte('trade_date', date.lastDate.toISOString());
+		}
+
+		const { data, error } = await query;
+		if (error) {
+			console.error(error);
+		}
+		let total_sales_sum = 0;
+		let net_sales_sum = 0;
+		let discount_sum = 0;
+		if (data) {
+			total_sales_sum = data.map((el) => el.total_sales ?? 0).reduce(add);
+			net_sales_sum = data.map((el) => el.net_sales ?? 0).reduce(add);
+			discount_sum = data.map((el) => el.discount ?? 0).reduce(add);
+		}
+		return { total_sales_sum, net_sales_sum, discount_sum, error: null };
+	},
+	async GetOriginalData(
+		id: string = '*',
+		date: { firstDate: Date | null; lastDate: Date | null } = { firstDate: null, lastDate: null }
+	) {
+		let query = supabase.from('artist_trade').select('*');
+		if (id !== '*') {
+			query = query.eq('artist_id', id);
+		}
+		let cq = supabase.from('artist_trade').select('*', { count: 'exact', head: true });
+		if (date.firstDate !== null && date.lastDate !== null) {
+			query = query
+				.gte('trade_date', date.firstDate.toISOString())
+				.lte('trade_date', date.lastDate.toISOString());
+			cq = cq
+				.gte('trade_date', date.firstDate.toISOString())
+				.lte('trade_date', date.lastDate.toISOString());
+		}
+
+		const { count } = await cq;
+		if (count === null) {
+			console.error('count is null');
+			return { error: 'count is null', data: null };
+		}
+		const result: ArtistWithTradeRow[] = [];
+
+		for (let i = 0; i < count; i += 1000) {
+			const { data, error } = await query.range(i, i + 1000);
+			if (error) {
+				console.error(error);
+			}
+			result.push(...(data ?? []));
+		}
+		return { data: result, error: null };
+	},
 	async ChangePaymentStatus(update: PaymentStatusUpdate, id: number) {
 		if (!update.artist_id) {
 			return { error: 'artist_id is required' };
