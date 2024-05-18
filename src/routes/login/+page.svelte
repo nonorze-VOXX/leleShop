@@ -1,24 +1,21 @@
 <script lang="ts">
-	import { deserialize } from '$app/forms';
-	import type { ActionResult } from '@sveltejs/kit';
-	import type { PageData } from './$types';
-	import { goto, invalidateAll } from '$app/navigation';
-	export let data: PageData;
+	import { goto } from '$app/navigation';
+	import { supabase } from '$lib/db';
 
 	let loginFailed = false;
 	async function LoginSubmit(event: { currentTarget: EventTarget & HTMLFormElement }) {
-		const data = new FormData(event.currentTarget);
-
-		const response = await fetch(event.currentTarget.action, {
-			method: 'POST',
-			body: data
+		const email = event.currentTarget.email.value;
+		const password = event.currentTarget.password.value;
+		const { error } = await supabase.auth.signInWithPassword({
+			email,
+			password
 		});
-		const result: ActionResult = deserialize(await response.text());
-		if (result.type === 'success') {
-			goto('/lele', { replaceState: true });
-		} else {
+		if (error) {
 			loginFailed = true;
+			return;
 		}
+		console.log('login success');
+		goto('/lele', { replaceState: true });
 	}
 </script>
 

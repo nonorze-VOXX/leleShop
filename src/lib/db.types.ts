@@ -133,25 +133,51 @@ export type Database = {
       }
       trade_head: {
         Row: {
-          state: string | null
-          trade_date: string | null
+          trade_date: string
           trade_id: string
         }
         Insert: {
-          state?: string | null
-          trade_date?: string | null
+          trade_date: string
           trade_id: string
         }
         Update: {
-          state?: string | null
-          trade_date?: string | null
+          trade_date?: string
           trade_id?: string
         }
         Relationships: []
       }
     }
     Views: {
-      [_ in never]: never
+      artist_trade: {
+        Row: {
+          artist_id: number | null
+          artist_name: string | null
+          discount: number | null
+          id: number | null
+          item_name: string | null
+          net_sales: number | null
+          quantity: number | null
+          total_sales: number | null
+          trade_date: string | null
+          trade_id: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trade_body_artist_id_fkey"
+            columns: ["artist_id"]
+            isOneToOne: false
+            referencedRelation: "artist"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "trade_body_trade_id_fkey"
+            columns: ["trade_id"]
+            isOneToOne: false
+            referencedRelation: "trade_head"
+            referencedColumns: ["trade_id"]
+          },
+        ]
+      }
     }
     Functions: {
       [_ in never]: never

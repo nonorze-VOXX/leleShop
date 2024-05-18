@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { QueryTradeBodyWithTradeHead, TradeHead } from '$lib/db';
+	import type { QueryTradeBodyWithTradeHead } from '$lib/db';
 	import { FormatNumberToTwoDigi } from '$lib/function/Utils';
 	import ReportTable from './ReportTable.svelte';
 	import { createEventDispatcher } from 'svelte';
@@ -21,7 +21,7 @@
 		'12'
 	];
 	const date = new Date();
-	let firstDay: Date = new Date(date.getFullYear(), date.getMonth() - 1, 1);
+	let firstDay: Date = new Date(date.getFullYear(), date.getMonth(), 1);
 	// let lastDay: Date = new Date(date.getFullYear(), date.getMonth(), 1);
 	let showedMonth: string = FormatNumberToTwoDigi((firstDay.getMonth() + 1).toString());
 	const dispatch = createEventDispatcher<{

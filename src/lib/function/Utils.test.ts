@@ -65,3 +65,10 @@ test.each([
 	};
 	expect(payment_compare_year_month(data1, data2)).toBe(answer);
 });
+
+// test('tmp teset', () => {
+// 	const today = new Date();
+// 	expect(today.getMonth()).toBe(4);
+// 	const yearmonth = GetYearMonth();
+// 	expect(yearmonth).toBe('2024-05');
+// });

@@ -72,6 +72,7 @@ describe('importFunction', () => {
 				'日期'
 			],
 			answer: {
+				susTradeIdList: [],
 				tradeBodyList: [
 					{
 						artist_id: 10,
@@ -85,7 +86,6 @@ describe('importFunction', () => {
 				],
 				tradeHeadList: [
 					{
-						state: '關閉',
 						trade_date: '2024-01-01T13:37:00.000Z',
 						trade_id: 'trade_id'
 					}
@@ -114,6 +114,7 @@ describe('importFunction', () => {
 				'日期'
 			],
 			answer: {
+				susTradeIdList: [],
 				tradeBodyList: [],
 				tradeHeadList: []
 			}
@@ -138,6 +139,33 @@ describe('importFunction', () => {
 				'日期'
 			],
 			answer: {
+				susTradeIdList: [],
+				tradeBodyList: [],
+				tradeHeadList: []
+			}
+		},
+		{
+			tradeIdList: [{ trade_id: '1' }],
+			artistList: [{ artist_name: 'artist_name', id: 10 }],
+			groupByIndex: {
+				trade_id: [
+					['trade_id', 'artist_name', 'item', '1', '1', '0', '1', 'not關閉', '2024-01-01 21:37']
+				]
+			},
+			timezoneOffset: '+08:00',
+			dataHeader: [
+				'收據號碼',
+				'類別',
+				'商品',
+				'數量',
+				'銷售總額',
+				'折扣',
+				'淨銷售額',
+				'狀態',
+				'日期'
+			],
+			answer: {
+				susTradeIdList: ['trade_id'],
 				tradeBodyList: [],
 				tradeHeadList: []
 			}

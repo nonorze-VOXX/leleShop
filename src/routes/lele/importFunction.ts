@@ -1,5 +1,5 @@
-import type { Artist, ArtistRow, TradeBody, TradeHead } from '$lib/db';
-import { fail } from '@sveltejs/kit';
+import type { Artist, ArtistRow, TradeBody, TradeBodyRow, TradeHead, TradeHeadRow } from '$lib/db';
+import db from '$lib/db';
 
 export const findIndex = (dataHeader: string[], target: string) => {
 	return dataHeader.findLastIndex((e) => e === target);
@@ -54,13 +54,7 @@ export const GetNewArtistList = (
 	return newArtistList;
 };
 
-export const GetStoreData = (
-	tradeIdList: { trade_id: string }[],
-	artistList: ArtistRow[],
-	groupByIndex: Record<string, string[][]>,
-	timezoneOffset: string,
-	dataHeader: string[]
-) => {
+const CheckDataHeader = (dataHeader: string[]) => {
 	const shouldDataHeader = [
 		'收據號碼',
 		'類別',
@@ -80,13 +74,30 @@ export const GetStoreData = (
 	});
 	if (notFoundColumn.length > 0) {
 		return {
+			error: notFoundColumn.join(',') + ', not found'
+		};
+	}
+	return { error: null };
+};
+
+export const GetStoreData = (
+	tradeIdList: { trade_id: string }[],
+	artistList: ArtistRow[],
+	groupByIndex: Record<string, string[][]>,
+	timezoneOffset: string,
+	dataHeader: string[]
+) => {
+	const { error } = CheckDataHeader(dataHeader);
+	if (error) {
+		return {
 			tradeBodyList: [],
 			tradeHeadList: [],
-			error: notFoundColumn.join(',') + ', not found'
+			error
 		};
 	}
 	const tradeBodyList: TradeBody[] = [];
 	const tradeHeadList: TradeHead[] = [];
+	const susTradeIdList: string[] = [];
 
 	for (const key in groupByIndex) {
 		if (key === undefined || key === 'undefined') continue;
@@ -100,11 +111,14 @@ export const GetStoreData = (
 		if (stateIndex(dataHeader) !== -1) {
 			state = element[0][stateIndex(dataHeader)];
 		}
-
+		if (state !== '關閉') {
+			// todo: return not close trade
+			susTradeIdList.push(key);
+			continue;
+		}
 		tradeHeadList.push({
 			trade_date: date.toISOString(),
-			trade_id: element[0][tradeIdIndex(dataHeader)],
-			state: state
+			trade_id: element[0][tradeIdIndex(dataHeader)]
 		});
 
 		for (let i = 0; i < element.length; i++) {
@@ -127,7 +141,7 @@ export const GetStoreData = (
 			});
 		}
 	}
-	return { tradeBodyList, tradeHeadList };
+	return { tradeBodyList, tradeHeadList, susTradeIdList };
 };
 
 export const fileToArray = async (file: File) => {
@@ -160,4 +174,51 @@ export const GetDateWithTimeZone = (dateStr: string, timezoneOffset: string) => 
 	}
 	const date = new Date(dateStr.replace(/ /g, 'T') + timezoneOffset);
 	return date;
+};
+export const GetDateRange = async (
+	groupByOrder: Record<string, string[][]>,
+	dataHeader: string[],
+	timezoneOffset: string
+) => {
+	let minDate: Date | null = null;
+	let maxDate: Date | null = null;
+	for (const key in groupByOrder) {
+		if (key === undefined || key === 'undefined') continue;
+		const tradeDate = groupByOrder[key][0][dateIndex(dataHeader)];
+		const date = GetDateWithTimeZone(tradeDate, timezoneOffset);
+		if (minDate === null) {
+			minDate = date;
+		}
+		if (maxDate === null) {
+			maxDate = date;
+		}
+		if (date < minDate) {
+			minDate = date;
+		}
+		if (date > maxDate) {
+			maxDate = date;
+		}
+	}
+	return { minDate, maxDate };
+};
+export const savePartToDb = async (tradeBodyList: TradeBody[], tradeHeadList: TradeHead[]) => {
+	console.log('tradeBodyList', tradeBodyList);
+	console.log('tradeHeadList', tradeHeadList);
+	let newTradeHead: TradeHeadRow[] = [];
+	let newTradeBody: TradeBodyRow[] = [];
+	{
+		const { error, data } = await db.SaveTradeHead(tradeHeadList);
+		if (error !== null) {
+			return { error, newTradeHead, newTradeBody };
+		}
+		newTradeHead = data ?? [];
+	}
+	{
+		const { error, data } = await db.SaveTradeBody(tradeBodyList);
+		if (error !== null) {
+			return { error, newTradeHead, newTradeBody };
+		}
+		newTradeBody = data ?? [];
+	}
+	return { error: null, newTradeHead, newTradeBody };
 };

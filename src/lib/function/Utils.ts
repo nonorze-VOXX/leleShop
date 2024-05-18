@@ -20,7 +20,7 @@ export function GetSeason(offset: number = 0) {
 }
 export function GetYearMonth(offset: number = 0) {
 	const date = new Date();
-	const d = new Date(date.getFullYear(), date.getMonth() + offset, 1);
+	const d = new Date(date.getFullYear(), date.getMonth() + offset + 1, 1);
 	return (
 		d.getFullYear().toString() + '-' + FormatNumberToTwoDigi(Math.floor(d.getMonth()).toString())
 	);
@@ -45,4 +45,24 @@ export const payment_compare_year_month = (a: PaymentStatusRow, b: PaymentStatus
 	if (a.year_month < b.year_month) return -1;
 	else if (a.year_month > b.year_month) return 1;
 	return 0;
+};
+export const randomNumber = (length: number) => {
+	let number = '';
+	for (let i = 0; i < length; i++) {
+		number += Math.floor(Math.random() * 10).toString();
+	}
+	return number;
+};
+
+export const add = (a: number, b: number) => a + b;
+
+export const arr_sum = (arr: number[]) => arr.reduce(add, 0);
+
+export const ThisMonthFirstDate = () => {
+	const date = new Date();
+	return new Date(date.getFullYear(), date.getMonth() + 1, 1);
+};
+export const NextMonthFirstDate = () => {
+	const date = new Date();
+	return new Date(date.getFullYear(), date.getMonth() + 2, 1);
 };
