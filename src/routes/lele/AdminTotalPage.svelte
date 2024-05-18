@@ -15,8 +15,8 @@
 	}[] = [];
 	onMount(async () => {
 		const { result, error } = await GetTradeTotalDataEachOne(
-			ThisMonthFirstDate(),
-			NextMonthFirstDate()
+			ThisMonthFirstDate(-1),
+			NextMonthFirstDate(-1)
 		);
 		if (error) {
 			console.error(error);
@@ -26,7 +26,7 @@
 	});
 </script>
 
-<div>month:{ThisMonthFirstDate().getMonth()}</div>
+<div>month:{ThisMonthFirstDate(-1).getMonth()}</div>
 <LeleTable>
 	<LeleThead>
 		<tr>
