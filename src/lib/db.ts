@@ -278,12 +278,7 @@ export default {
 		visible?: boolean | null;
 		year_month_list?: string[];
 	}) {
-		option = option ?? {
-			id: '*',
-			visible: true,
-			year_month_list: [GetSeason(0), GetSeason(1), GetSeason(2)]
-		};
-		let { id, visible, year_month_list } = option;
+		let { id, visible, year_month_list } = option ?? {};
 		id = id ?? '*';
 		visible = visible ?? true;
 		year_month_list = year_month_list ?? [GetSeason(0), GetSeason(1), GetSeason(2)];
