@@ -43,11 +43,11 @@
 						{:else}
 							{#each artists.artist_payment_status as paymentStatus}
 								{#if paymentStatus.process_state === 'done'}
-									✅
+									✓
 								{:else if paymentStatus.process_state === 'doing'}
-									🔺
+									A
 								{:else}
-									❌
+									X
 								{/if}
 							{/each}
 						{/if}
