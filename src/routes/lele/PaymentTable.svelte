@@ -8,6 +8,7 @@
 	import db from '$lib/db';
 	import { PreInsertPaymentStatus } from './leleFunction';
 	import { GetSeason, GetYearMonth } from '$lib/function/Utils';
+	import { invalidate, invalidateAll } from '$app/navigation';
 
 	let nowSeasonPaymentDataList: {
 		id: number;
@@ -31,12 +32,31 @@
 		});
 		nextSeasonPaymentDataList = result1.data ?? [];
 
-		await PreInsertPaymentStatus(GetSeason());
-		await PreInsertPaymentStatus(GetSeason(1));
-		await PreInsertPaymentStatus(GetSeason(2));
-		await PreInsertPaymentStatus(GetSeason(3));
-		await PreInsertPaymentStatus(GetSeason(4));
-		await PreInsertPaymentStatus(GetSeason(5));
+		if (result.data) {
+			if (
+				!result.data.every((element) => {
+					return element.artist_payment_status.length === 3;
+				})
+			) {
+				await PreInsertPaymentStatus(GetSeason());
+				await PreInsertPaymentStatus(GetSeason(1));
+				await PreInsertPaymentStatus(GetSeason(2));
+				invalidateAll();
+			}
+		}
+		if (result1.data) {
+			if (
+				!result1.data.every((element) => {
+					return element.artist_payment_status.length === 3;
+				})
+			) {
+				await PreInsertPaymentStatus(GetSeason(3));
+				await PreInsertPaymentStatus(GetSeason(4));
+				await PreInsertPaymentStatus(GetSeason(5));
+				invalidateAll();
+			}
+		}
+
 		nowSeasonPaymentDataList = result.data ?? [];
 		console.log(nowSeasonPaymentDataList);
 	});
