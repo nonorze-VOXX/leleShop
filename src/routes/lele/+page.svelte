@@ -31,10 +31,10 @@
 		on:click={() => (tabType = TabEnum.artist_list)}
 		class="flex rounded-xl bg-lele-line p-2 font-semibold text-lele-bg">Artist List</button
 	>
-	<button
+	<!-- <button
 		class="flex rounded-xl bg-lele-line p-2 font-semibold text-lele-bg"
 		on:click={() => (tabType = TabEnum.trade)}>Trade</button
-	>
+	> -->
 	<button
 		class="flex rounded-xl bg-lele-line p-2 font-semibold text-lele-bg"
 		on:click={() => (tabType = TabEnum.report_key)}>Manage Key</button
@@ -56,9 +56,9 @@
 {#if tabType === TabEnum.artist_list}
 	<ArtistListPart bind:artistData></ArtistListPart>
 {/if}
-{#if tabType === TabEnum.trade}
+<!-- {#if tabType === TabEnum.trade}
 	<AdminTradeTable></AdminTradeTable>
-{/if}
+{/if} -->
 {#if tabType === TabEnum.report_key}
 	<ReportKeyTable bind:artistData></ReportKeyTable>
 {/if}
