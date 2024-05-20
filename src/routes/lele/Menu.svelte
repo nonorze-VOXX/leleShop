@@ -22,7 +22,10 @@
 	>
 	<button
 		class="flex rounded-xl bg-lele-line p-2 font-semibold text-lele-bg"
-		on:click={() => (tabType = TabEnum.trade)}>Trade</button
+		on:click={() => {
+			tabType = TabEnum.trade;
+			goto('/lele/trade');
+		}}>Trade</button
 	>
 	<button
 		class="flex rounded-xl bg-lele-line p-2 font-semibold text-lele-bg"
@@ -33,11 +36,17 @@
 	>
 	<button
 		class="flex rounded-xl bg-lele-line p-2 font-semibold text-lele-bg"
-		on:click={() => (tabType = TabEnum.payment)}>payment</button
+		on:click={() => {
+			tabType = TabEnum.payment;
+			goto('/lele/payment');
+		}}>payment</button
 	>
 	<button
 		class="flex rounded-xl bg-lele-line p-2 font-semibold text-lele-bg"
-		on:click={() => (tabType = TabEnum.import)}>import</button
+		on:click={() => {
+			tabType = TabEnum.import;
+			goto('/lele/import');
+		}}>import</button
 	>
 	<button
 		class="flex rounded-xl bg-lele-line p-2 font-semibold text-lele-bg"
