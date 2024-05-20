@@ -2,6 +2,7 @@
 	import { supabase } from '$lib/db';
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
+	import Menu from './Menu.svelte';
 
 	onMount(async () => {
 		const access_token = (await supabase.auth.getSession()).data.session?.access_token;
@@ -34,4 +35,5 @@
 		</div>
 	</div>
 </div>
+<Menu></Menu>
 <slot />
