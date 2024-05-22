@@ -61,7 +61,15 @@
 		console.log(nowSeasonPaymentDataList);
 	});
 
-	const UpdatePaymentStatus = async (paymentData: PaymentStatusRow) => {
+	const UpdatePaymentStatus = async (
+		paymentData: PaymentStatusRow,
+		artist_payment_status: {
+			artist_id: number | null;
+			id: number;
+			process_state: 'todo' | 'doing' | 'done' | null;
+			year_month: string;
+		}[]
+	) => {
 		if (
 			paymentData.year_month === null ||
 			paymentData.process_state === null ||
@@ -72,28 +80,58 @@
 			return;
 		}
 		const state = paymentData.process_state === 'done' ? 'todo' : 'done';
-		console.log('paymentData.process_state =', paymentData.process_state);
-		const season = paymentData.year_month;
-		const process_state = state;
-		const artist_id = paymentData.artist_id;
-		const payment_id = paymentData.id;
-		const update: PaymentStatusUpdate = { artist_id, year_month: season, process_state };
-
-		const { error } = await db.ChangePaymentStatus(update, payment_id);
-		if (error) {
-			console.error(error);
+		if (state === 'done') {
+			console.log('state = done');
+			for (let i = 0; i < artist_payment_status.length; i++) {
+				const season = artist_payment_status[i].year_month;
+				const process_state = state;
+				const artist_id = paymentData.artist_id;
+				const payment_id = artist_payment_status[i].id;
+				const update: PaymentStatusUpdate = { artist_id, year_month: season, process_state };
+				const { error } = await db.ChangePaymentStatus(update, payment_id);
+				if (error) {
+					console.error(error);
+				} else {
+					artist_payment_status[i].process_state = state;
+					console.log(
+						'artist id: ',
+						artist_id,
+						'season:',
+						season,
+						'state:',
+						state,
+						'payment_id:',
+						payment_id
+					);
+				}
+				if (artist_payment_status[i].year_month === paymentData.year_month) {
+					break;
+				}
+			}
 		} else {
-			paymentData.process_state = state;
-			console.log(
-				'artist id: ',
-				artist_id,
-				'season:',
-				season,
-				'state:',
-				state,
-				'payment_id:',
-				payment_id
-			);
+			console.log('state = todo');
+			const season = paymentData.year_month;
+			const process_state = state;
+			const artist_id = paymentData.artist_id;
+			const payment_id = paymentData.id;
+			const update: PaymentStatusUpdate = { artist_id, year_month: season, process_state };
+
+			const { error } = await db.ChangePaymentStatus(update, payment_id);
+			if (error) {
+				console.error(error);
+			} else {
+				paymentData.process_state = state;
+				console.log(
+					'artist id: ',
+					artist_id,
+					'season:',
+					season,
+					'state:',
+					state,
+					'payment_id:',
+					payment_id
+				);
+			}
 		}
 	};
 </script>
@@ -125,7 +163,7 @@
 										type="checkbox"
 										checked={pay.process_state === 'done'}
 										on:change={async () => {
-											await UpdatePaymentStatus(pay);
+											await UpdatePaymentStatus(pay, p.artist_payment_status);
 										}}
 										class="peer sr-only"
 									/>
@@ -152,7 +190,7 @@
 												type="checkbox"
 												checked={pay.process_state === 'done'}
 												on:change={async () => {
-													await UpdatePaymentStatus(pay);
+													await UpdatePaymentStatus(pay, p1.artist_payment_status);
 												}}
 												class="peer sr-only"
 											/>
