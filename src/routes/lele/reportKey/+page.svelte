@@ -1,11 +1,15 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import type { ArtistRow } from '$lib/db';
-	import { supabase } from '$lib/db';
+	import db, { supabase } from '$lib/db';
 	import { randomNumber } from '$lib/function/Utils';
 	import { LeleTbody, LeleTable, LeleTbodyTr, LeleThead } from '$lib/Component/htmlWrapper';
+	import { onMount } from 'svelte';
 
-	export let artistData: ArtistRow[] = [];
+	let artistData: ArtistRow[] = [];
+	onMount(async () => {
+		artistData = (await db.GetArtistDataList())?.data ?? [];
+	});
 	const ButtonFunction = async (id: number) => {
 		const random = randomNumber(5);
 		const { data, error } = await supabase

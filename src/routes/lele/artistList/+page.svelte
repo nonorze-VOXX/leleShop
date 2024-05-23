@@ -1,12 +1,16 @@
 <script lang="ts">
 	import Toggle from '$lib/Component/Toggle.svelte';
-	import { supabase, type ArtistRow } from '$lib/db';
+	import db, { supabase, type ArtistRow } from '$lib/db';
 	import LeleTable from '$lib/Component/htmlWrapper/LeleTable.svelte';
 	import LeleThead from '$lib/Component/htmlWrapper/LeleThead.svelte';
 	import LeleTbody from '$lib/Component/htmlWrapper/LeleTbody.svelte';
 	import LeleTbodyTr from '$lib/Component/htmlWrapper/LeleTbodyTr.svelte';
+	import { onMount } from 'svelte';
 
-	export let artistData: ArtistRow[] = [];
+	let artistData: ArtistRow[] = [];
+	onMount(async () => {
+		artistData = (await db.GetArtistDataList())?.data ?? [];
+	});
 	const UpdateVisiable = async (artistData: ArtistRow) => {
 		const id = artistData.id;
 		const visible = artistData.visible;

@@ -8,6 +8,7 @@
 	import db from '$lib/db';
 	import { PreInsertPaymentStatus } from './leleFunction';
 	import { GetSeason, GetYearMonth } from '$lib/function/Utils';
+	import { invalidate, invalidateAll } from '$app/navigation';
 
 	let nowSeasonPaymentDataList: {
 		id: number;
@@ -22,6 +23,7 @@
 		visible: boolean;
 		artist_payment_status: PaymentStatusRow[];
 	}[] = [];
+	let checked: { [id: number]: boolean } = {};
 
 	onMount(async () => {
 		const result = await db.GetArtistDataWithPaymentStatus({ visible: null });
@@ -31,17 +33,49 @@
 		});
 		nextSeasonPaymentDataList = result1.data ?? [];
 
-		await PreInsertPaymentStatus(GetSeason());
-		await PreInsertPaymentStatus(GetSeason(1));
-		await PreInsertPaymentStatus(GetSeason(2));
-		await PreInsertPaymentStatus(GetSeason(3));
-		await PreInsertPaymentStatus(GetSeason(4));
-		await PreInsertPaymentStatus(GetSeason(5));
+		if (result.data) {
+			if (
+				!result.data.every((element) => {
+					return element.artist_payment_status.length === 3;
+				})
+			) {
+				await PreInsertPaymentStatus(GetSeason());
+				await PreInsertPaymentStatus(GetSeason(1));
+				await PreInsertPaymentStatus(GetSeason(2));
+				invalidateAll();
+			}
+		}
+		if (result1.data) {
+			if (
+				!result1.data.every((element) => {
+					return element.artist_payment_status.length === 3;
+				})
+			) {
+				await PreInsertPaymentStatus(GetSeason(3));
+				await PreInsertPaymentStatus(GetSeason(4));
+				await PreInsertPaymentStatus(GetSeason(5));
+				invalidateAll();
+			}
+		}
+
 		nowSeasonPaymentDataList = result.data ?? [];
 		console.log(nowSeasonPaymentDataList);
+		nowSeasonPaymentDataList.forEach((element) => {
+			element.artist_payment_status.forEach((element1) => {
+				checked[element1.id] = 'done' === element1.process_state;
+			});
+		});
 	});
 
-	const UpdatePaymentStatus = async (paymentData: PaymentStatusRow) => {
+	const UpdatePaymentStatus = async (
+		paymentData: PaymentStatusRow,
+		artist_payment_status: {
+			artist_id: number | null;
+			id: number;
+			process_state: 'todo' | 'doing' | 'done' | null;
+			year_month: string;
+		}[]
+	) => {
 		if (
 			paymentData.year_month === null ||
 			paymentData.process_state === null ||
@@ -52,28 +86,61 @@
 			return;
 		}
 		const state = paymentData.process_state === 'done' ? 'todo' : 'done';
-		console.log('paymentData.process_state =', paymentData.process_state);
-		const season = paymentData.year_month;
-		const process_state = state;
-		const artist_id = paymentData.artist_id;
-		const payment_id = paymentData.id;
-		const update: PaymentStatusUpdate = { artist_id, year_month: season, process_state };
+		if (state === 'done') {
+			console.log('state = done');
+			for (let i = 0; i < artist_payment_status.length; i++) {
+				const season = artist_payment_status[i].year_month;
+				const process_state = state;
+				const artist_id = paymentData.artist_id;
+				const payment_id = artist_payment_status[i].id;
+				const update: PaymentStatusUpdate = { artist_id, year_month: season, process_state };
+				const { error } = await db.ChangePaymentStatus(update, payment_id);
+				if (error) {
+					console.error(error);
+				} else {
+					artist_payment_status[i].process_state = state;
+					checked[artist_payment_status[i].id] = true;
 
-		const { error } = await db.ChangePaymentStatus(update, payment_id);
-		if (error) {
-			console.error(error);
+					console.log(
+						'artist id: ',
+						artist_id,
+						'season:',
+						season,
+						'state:',
+						state,
+						'payment_id:',
+						payment_id
+					);
+				}
+				if (artist_payment_status[i].year_month === paymentData.year_month) {
+					break;
+				}
+			}
 		} else {
-			paymentData.process_state = state;
-			console.log(
-				'artist id: ',
-				artist_id,
-				'season:',
-				season,
-				'state:',
-				state,
-				'payment_id:',
-				payment_id
-			);
+			console.log('state = todo');
+			const season = paymentData.year_month;
+			const process_state = state;
+			const artist_id = paymentData.artist_id;
+			const payment_id = paymentData.id;
+			const update: PaymentStatusUpdate = { artist_id, year_month: season, process_state };
+
+			const { error } = await db.ChangePaymentStatus(update, payment_id);
+			if (error) {
+				console.error(error);
+			} else {
+				paymentData.process_state = state;
+				checked[paymentData.id] = false;
+				console.log(
+					'artist id: ',
+					artist_id,
+					'season:',
+					season,
+					'state:',
+					state,
+					'payment_id:',
+					payment_id
+				);
+			}
 		}
 	};
 </script>
@@ -103,9 +170,9 @@
 									<!-- todo: use toggle component	 -->
 									<input
 										type="checkbox"
-										checked={pay.process_state === 'done'}
+										bind:checked={checked[pay.id]}
 										on:change={async () => {
-											await UpdatePaymentStatus(pay);
+											await UpdatePaymentStatus(pay, p.artist_payment_status);
 										}}
 										class="peer sr-only"
 									/>
@@ -130,9 +197,9 @@
 											<!-- todo: use toggle component	 -->
 											<input
 												type="checkbox"
-												checked={pay.process_state === 'done'}
+												bind:checked={checked[pay.id]}
 												on:change={async () => {
-													await UpdatePaymentStatus(pay);
+													await UpdatePaymentStatus(pay, p1.artist_payment_status);
 												}}
 												class="peer sr-only"
 											/>
