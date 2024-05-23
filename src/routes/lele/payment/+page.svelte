@@ -148,7 +148,7 @@
 <LeleTable>
 	<LeleThead>
 		<tr>
-			<th scope="col" class="w-auto p-2"> 品牌 </th>
+			<th scope="col" class="w-40 p-2"> 品牌 </th>
 			<th scope="col" class="w-40 p-2"> 繳交狀況1</th>
 			<th scope="col" class="w-40 p-2"> 繳交狀況2</th>
 		</tr>
