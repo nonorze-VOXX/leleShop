@@ -15,8 +15,8 @@
 		artist_name = artist_data.length !== 0 ? artist_data[0].artist_name : 'not found this artist';
 		artist_id = params;
 		const date = new Date();
-		const firstDay = new Date(date.getFullYear(), date.getMonth() - 1, 1);
-		const lastDay = new Date(date.getFullYear(), date.getMonth(), 1);
+		const firstDay = new Date(date.getFullYear(), date.getMonth(), 1);
+		const lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 1);
 		UpdateTradeData(firstDay, lastDay);
 	});
 	let net_total: null | number = null;

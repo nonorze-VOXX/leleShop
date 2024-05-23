@@ -23,9 +23,9 @@
 		artist_name = artist_data.length !== 0 ? artist_data[0].artist_name : 'not found this artist';
 		artist_id = params;
 		let date = new Date();
-		firstDay = new Date(date.getFullYear(), date.getMonth() - 1, 1);
-		lastDay = new Date(date.getFullYear(), date.getMonth(), 1);
-		UpdateTradeData(firstDay, lastDay);
+		firstDay = new Date(date.getFullYear(), date.getMonth(), 1);
+		lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 1);
+		await UpdateTradeData(firstDay, lastDay);
 	});
 	const noCommisionText = '這個月優惠，不抽成喔';
 	let queryTradeBodyWithTradeHead: QueryTradeBodyWithTradeHead;
@@ -35,6 +35,7 @@
 			firstDate,
 			lastDate
 		});
+		console.log(firstDate, lastDate);
 		tradeDataList = data;
 		showedLength = tradeDataList.length as number;
 		UpdateCommissionData(tradeDataList);
@@ -56,7 +57,7 @@
 			bind:artist_id
 			on:success={(e) => {
 				admit = true;
-				UpdateTradeData(e.detail.firstDate, e.detail.lastDate);
+				//  UpdateTradeData(e.detail.firstDate, e.detail.lastDate);
 			}}
 		></PasswordPanel>
 	{:else}
@@ -84,9 +85,9 @@
 		</div>
 		<MonthTabReportTable
 			bind:tradeDataList
-			on:changeShowedDataList={(e) => {
+			on:changeShowedDataList={async (e) => {
 				console.log('get dispatch');
-				UpdateTradeData(e.detail.firstDay, e.detail.lastDay);
+				await UpdateTradeData(e.detail.firstDay, e.detail.lastDay);
 			}}
 		></MonthTabReportTable>
 	{/if}
