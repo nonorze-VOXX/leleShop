@@ -23,6 +23,7 @@
 		visible: boolean;
 		artist_payment_status: PaymentStatusRow[];
 	}[] = [];
+	let checked: { [id: number]: boolean } = {};
 
 	onMount(async () => {
 		const result = await db.GetArtistDataWithPaymentStatus({ visible: null });
@@ -59,6 +60,11 @@
 
 		nowSeasonPaymentDataList = result.data ?? [];
 		console.log(nowSeasonPaymentDataList);
+		nowSeasonPaymentDataList.forEach((element) => {
+			element.artist_payment_status.forEach((element1) => {
+				checked[element1.id] = 'done' === element1.process_state;
+			});
+		});
 	});
 
 	const UpdatePaymentStatus = async (
@@ -93,6 +99,8 @@
 					console.error(error);
 				} else {
 					artist_payment_status[i].process_state = state;
+					checked[artist_payment_status[i].id] = true;
+
 					console.log(
 						'artist id: ',
 						artist_id,
@@ -121,6 +129,7 @@
 				console.error(error);
 			} else {
 				paymentData.process_state = state;
+				checked[paymentData.id] = false;
 				console.log(
 					'artist id: ',
 					artist_id,
@@ -161,7 +170,7 @@
 									<!-- todo: use toggle component	 -->
 									<input
 										type="checkbox"
-										checked={pay.process_state === 'done'}
+										bind:checked={checked[pay.id]}
 										on:change={async () => {
 											await UpdatePaymentStatus(pay, p.artist_payment_status);
 										}}
@@ -188,7 +197,7 @@
 											<!-- todo: use toggle component	 -->
 											<input
 												type="checkbox"
-												checked={pay.process_state === 'done'}
+												bind:checked={checked[pay.id]}
 												on:change={async () => {
 													await UpdatePaymentStatus(pay, p1.artist_payment_status);
 												}}
