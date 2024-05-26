@@ -32,6 +32,7 @@
 		<tr>
 			<th scope="col" class="w-auto p-2">name</th>
 			<th scope="col" class="w-20 p-2">Total</th>
+			<th scope="col" class="w-20 p-2">90%</th>
 		</tr>
 	</LeleThead>
 	<LeleTbody>
@@ -39,6 +40,7 @@
 			<LeleTbodyTr>
 				<td class="p-2">{data.name}</td>
 				<td class="p-2">{data.total_sales_sum - data.discount_sum}</td>
+				<td class="p-2">{Math.floor((data.total_sales_sum - data.discount_sum) * 0.9)}</td>
 			</LeleTbodyTr>
 		{/each}
 	</LeleTbody>
