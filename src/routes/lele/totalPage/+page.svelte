@@ -4,8 +4,13 @@
 	import LeleThead from '$lib/Component/htmlWrapper/LeleThead.svelte';
 	import LeleTbody from '$lib/Component/htmlWrapper/LeleTbody.svelte';
 	import { GetTradeTotalDataEachOne } from './totalPage';
-	import { NextMonthFirstDate, ThisMonthFirstDate } from '$lib/function/Utils';
+	import {
+		FormatNumberToTwoDigi,
+		NextMonthFirstDate,
+		ThisMonthFirstDate
+	} from '$lib/function/Utils';
 	import LeleTbodyTr from '$lib/Component/htmlWrapper/LeleTbodyTr.svelte';
+	import MonthTab from '$lib/Component/monthTab.svelte';
 
 	let totalData: {
 		name: string;
@@ -14,19 +19,49 @@
 		discount_sum: number;
 	}[] = [];
 	onMount(async () => {
-		const { result, error } = await GetTradeTotalDataEachOne(
-			ThisMonthFirstDate(-1),
-			NextMonthFirstDate(-1)
-		);
+		await FetchData(ThisMonthFirstDate(-1), NextMonthFirstDate(-1));
+	});
+	let showedMonth: string;
+	const FetchData = async (firstDate: Date, lastDate: Date) => {
+		const { result, error } = await GetTradeTotalDataEachOne(firstDate, lastDate);
+		showedMonth = FormatNumberToTwoDigi((firstDate.getMonth() + 1).toString());
 		if (error) {
 			console.error(error);
 			return;
 		}
 		totalData = result;
-	});
+	};
+
+	let tabDataList: string[] = [
+		'01',
+		'02',
+		'03',
+		'04',
+		'05',
+		'06',
+		'07',
+		'08',
+		'09',
+		'10',
+		'11',
+		'12'
+	];
+	const ClickTab = async (tabData: string) => {
+		showedMonth = tabData;
+		const date = new Date();
+		let firstDay = new Date(date.getFullYear(), parseInt(tabData) - 1, 1);
+		let lastDay = new Date(date.getFullYear(), parseInt(tabData), 1);
+		await FetchData(firstDay, lastDay);
+	};
 </script>
 
-<div>month:{ThisMonthFirstDate(-1).getMonth() + 1}</div>
+<MonthTab
+	bind:tabDataList
+	bind:showedMonth
+	on:onTabChange={async (e) => {
+		await ClickTab(e.detail.showedMonth);
+	}}
+></MonthTab>
 <LeleTable>
 	<LeleThead>
 		<tr>
