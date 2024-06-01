@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { QueryTradeBodyWithTradeHead } from '$lib/db';
-	import { FormatNumberToTwoDigi, GetAllMonth } from '$lib/function/Utils';
+	import { FormatNumberToTwoDigi, GetAllMonth, ThisMonthFirstDate } from '$lib/function/Utils';
 	import ReportTable from './ReportTable.svelte';
 	import { createEventDispatcher } from 'svelte';
 	import MonthTab from './MonthTab.svelte';
@@ -8,9 +8,7 @@
 	export let tradeDataList: QueryTradeBodyWithTradeHead;
 	let showedTradeDataList: QueryTradeBodyWithTradeHead;
 	let tabDataList: string[] = GetAllMonth();
-	const date = new Date();
-	let firstDay: Date = new Date(date.getFullYear(), date.getMonth(), 1);
-	// let lastDay: Date = new Date(date.getFullYear(), date.getMonth(), 1);
+	let firstDay: Date = ThisMonthFirstDate(-1);
 	let showedMonth: string = FormatNumberToTwoDigi((firstDay.getMonth() + 1).toString());
 	const dispatch = createEventDispatcher<{
 		changeShowedDataList: { firstDay: Date; lastDay: Date };
