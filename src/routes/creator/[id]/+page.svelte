@@ -6,6 +6,9 @@
 	import MonthTabReportTable from '$lib/Component/MonthTabReportTable.svelte';
 	import db from '$lib/db';
 	import { page } from '$app/stores';
+	import { NextMonthFirstDate, ThisMonthFirstDate } from '$lib/function/Utils';
+	import TradeCount from '$lib/Component/reportComponent/TradeCount.svelte';
+	import Commision from '$lib/Component/reportComponent/Commision.svelte';
 
 	let artist_name: string = '';
 	let net_total = -1;
@@ -18,13 +21,11 @@
 	let firstDay: Date;
 	let lastDay: Date;
 	onMount(async () => {
-		const params = $page.params.id;
-		const artist_data = (await db.GetArtistData(params)).data ?? [];
+		artist_id = $page.params.id;
+		const artist_data = (await db.GetArtistData(artist_id)).data ?? [];
 		artist_name = artist_data.length !== 0 ? artist_data[0].artist_name : 'not found this artist';
-		artist_id = params;
-		let date = new Date();
-		firstDay = new Date(date.getFullYear(), date.getMonth(), 1);
-		lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 1);
+		firstDay = ThisMonthFirstDate(-1);
+		lastDay = NextMonthFirstDate(-1);
 		await UpdateTradeData(firstDay, lastDay);
 	});
 	const noCommisionText = '這個月優惠，不抽成喔';
@@ -65,21 +66,8 @@
 			<h1 class="rounded-xl border-4 border-lele-line bg-lele-bg p-2 text-lele-line">
 				{artist_name}
 			</h1>
-			{#if net_total != -1}
-				<div
-					class="flex justify-center rounded-xl border-4 border-lele-line bg-lele-bg p-2 text-lele-line"
-				>
-					<p class="inline">抽成10%:</p>
-					{#if net_total >= 0}
-						{commission}
-					{:else}
-						{noCommisionText}
-					{/if}
-				</div>
-			{/if}
-			<div class=" rounded-xl border-4 border-lele-line bg-lele-bg p-2 text-center text-lele-line">
-				交易次數：{showedLength}
-			</div>
+			<Commision bind:net_total></Commision>
+			<TradeCount bind:showedLength></TradeCount>
 
 			<DownloadButton bind:artist_name bind:queryTradeBodyWithTradeHead></DownloadButton>
 		</div>

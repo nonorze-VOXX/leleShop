@@ -4,6 +4,8 @@
 	import MonthTabReportTable from '$lib/Component/MonthTabReportTable.svelte';
 	import db from '$lib/db';
 	import { page } from '$app/stores';
+	import TradeCount from '$lib/Component/reportComponent/TradeCount.svelte';
+	import Commision from '$lib/Component/reportComponent/Commision.svelte';
 
 	let artist_name: string = '';
 	let artist_id: string = '';
@@ -35,24 +37,8 @@
 <div class="flex flex-col items-center gap-3">
 	<div class="flex flex-col justify-center gap-4 text-center text-sm font-semibold">
 		<h1 class="rounded-xl bg-lele-line p-2 text-lele-bg">{artist_name}</h1>
-		{#if net_total != -1}
-			<div class="flex justify-between rounded-xl bg-lele-line p-2 text-lele-bg">
-				<p class="inline">抽成10%:</p>
-				<div>
-					{#if net_total !== null}
-						{Math.floor(net_total * 0.1)}
-					{:else}
-						計算中
-					{/if}
-				</div>
-			</div>
-		{/if}
-		<div class="flex justify-between rounded-xl bg-lele-line p-2 text-lele-bg">
-			<p class="inline">交易次數：</p>
-			<div>
-				{showedLength}
-			</div>
-		</div>
+		<Commision bind:net_total></Commision>
+		<TradeCount bind:showedLength></TradeCount>
 		<div class="flex justify-between rounded-xl bg-lele-line p-2 text-lele-bg">
 			<p class="inline">匯款金額：</p>
 			<div>
