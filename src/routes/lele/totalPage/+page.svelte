@@ -6,11 +6,12 @@
 	import { GetTradeTotalDataEachOne } from './totalPage';
 	import {
 		FormatNumberToTwoDigi,
+		GetAllMonth,
 		NextMonthFirstDate,
 		ThisMonthFirstDate
 	} from '$lib/function/Utils';
 	import LeleTbodyTr from '$lib/Component/htmlWrapper/LeleTbodyTr.svelte';
-	import MonthTab from '$lib/Component/monthTab.svelte';
+	import MonthTab from '$lib/Component/MonthTab.svelte';
 
 	let totalData: {
 		name: string;
@@ -32,20 +33,7 @@
 		totalData = result;
 	};
 
-	let tabDataList: string[] = [
-		'01',
-		'02',
-		'03',
-		'04',
-		'05',
-		'06',
-		'07',
-		'08',
-		'09',
-		'10',
-		'11',
-		'12'
-	];
+	let tabDataList: string[] = GetAllMonth();
 	const ClickTab = async (tabData: string) => {
 		showedMonth = tabData;
 		const date = new Date();

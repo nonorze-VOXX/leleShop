@@ -66,3 +66,7 @@ export const NextMonthFirstDate = (offset: number = 0) => {
 	const date = new Date();
 	return new Date(date.getFullYear(), date.getMonth() + 2 + offset, 1);
 };
+
+export const GetAllMonth = () => {
+	return ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12'];
+};
