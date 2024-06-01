@@ -75,7 +75,11 @@
 			<LeleTbodyTr>
 				<td class="p-2">{data.name}</td>
 				<td class="p-2">{data.total_sales_sum - data.discount_sum}</td>
-				<td class="p-2">{Math.floor((data.total_sales_sum - data.discount_sum) * 0.9)}</td>
+				<td class="p-2"
+					>{data.total_sales_sum -
+						data.discount_sum -
+						Math.floor((data.total_sales_sum - data.discount_sum) * 0.1)}</td
+				>
 			</LeleTbodyTr>
 		{/each}
 	</LeleTbody>
