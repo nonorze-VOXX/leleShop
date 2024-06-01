@@ -1,26 +1,13 @@
 <script lang="ts">
 	import type { QueryTradeBodyWithTradeHead } from '$lib/db';
-	import { FormatNumberToTwoDigi } from '$lib/function/Utils';
+	import { FormatNumberToTwoDigi, GetAllMonth } from '$lib/function/Utils';
 	import ReportTable from './ReportTable.svelte';
 	import { createEventDispatcher } from 'svelte';
-	import MonthTab from './monthTab.svelte';
+	import MonthTab from './MonthTab.svelte';
 
 	export let tradeDataList: QueryTradeBodyWithTradeHead;
 	let showedTradeDataList: QueryTradeBodyWithTradeHead;
-	let tabDataList: string[] = [
-		'01',
-		'02',
-		'03',
-		'04',
-		'05',
-		'06',
-		'07',
-		'08',
-		'09',
-		'10',
-		'11',
-		'12'
-	];
+	let tabDataList: string[] = GetAllMonth();
 	const date = new Date();
 	let firstDay: Date = new Date(date.getFullYear(), date.getMonth(), 1);
 	// let lastDay: Date = new Date(date.getFullYear(), date.getMonth(), 1);
