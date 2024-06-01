@@ -6,19 +6,19 @@
 	import { page } from '$app/stores';
 	import TradeCount from '$lib/Component/reportComponent/TradeCount.svelte';
 	import Commision from '$lib/Component/reportComponent/Commision.svelte';
+	import Remit from '$lib/Component/reportComponent/Remit.svelte';
+	import { ThisMonthFirstDate } from '$lib/function/Utils';
 
 	let artist_name: string = '';
 	let artist_id: string = '';
 	let tradeDataList: QueryTradeBodyWithTradeHead = [];
 	let showedLength = 0;
 	onMount(async () => {
-		const params = $page.params.id;
-		const artist_data = (await db.GetArtistData(params)).data ?? [];
+		artist_id = $page.params.id;
+		const artist_data = (await db.GetArtistData(artist_id)).data ?? [];
 		artist_name = artist_data.length !== 0 ? artist_data[0].artist_name : 'not found this artist';
-		artist_id = params;
-		const date = new Date();
-		const firstDay = new Date(date.getFullYear(), date.getMonth(), 1);
-		const lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 1);
+		const firstDay = ThisMonthFirstDate(-1);
+		const lastDay = ThisMonthFirstDate();
 		UpdateTradeData(firstDay, lastDay);
 	});
 	let net_total: null | number = null;
@@ -39,16 +39,7 @@
 		<h1 class="rounded-xl bg-lele-line p-2 text-lele-bg">{artist_name}</h1>
 		<Commision bind:net_total></Commision>
 		<TradeCount bind:showedLength></TradeCount>
-		<div class="flex justify-between rounded-xl bg-lele-line p-2 text-lele-bg">
-			<p class="inline">匯款金額：</p>
-			<div>
-				{#if net_total != null}
-					{Math.floor(net_total * 0.9)}
-				{:else}
-					計算中
-				{/if}
-			</div>
-		</div>
+		<Remit bind:net_total></Remit>
 	</div>
 	{#if tradeDataList}
 		<MonthTabReportTable

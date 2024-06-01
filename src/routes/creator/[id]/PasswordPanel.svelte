@@ -9,7 +9,7 @@
 	let admit_fail = false;
 
 	const dispatch = createEventDispatcher<{
-		success: { firstDate: Date; lastDate: Date };
+		success: {};
 	}>();
 	const SubmitKey = async (event: { currentTarget: EventTarget & HTMLFormElement }) => {
 		const { data, error } = await supabase
@@ -21,10 +21,7 @@
 			admit_fail = true;
 			return;
 		}
-		const date = new Date();
-		let firstDate: Date = ThisMonthFirstDate();
-		let lastDate: Date = NextMonthFirstDate();
-		dispatch('success', { firstDate, lastDate });
+		dispatch('success', {});
 	};
 </script>
 

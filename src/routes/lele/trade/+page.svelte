@@ -3,12 +3,13 @@
 	import type { QueryTradeBodyWithTradeHead } from '$lib/db';
 	import MonthTabReportTable from '$lib/Component/MonthTabReportTable.svelte';
 	import db from '$lib/db';
+	import { ThisMonthFirstDate } from '$lib/function/Utils';
 
 	let tradeDataList: QueryTradeBodyWithTradeHead | undefined;
 	onMount(async () => {
 		const date = new Date();
-		let firstDay: Date = new Date(date.getFullYear(), date.getMonth(), 1);
-		let lastDay: Date = new Date(date.getFullYear(), date.getMonth() + 1, 1);
+		let firstDay: Date = ThisMonthFirstDate(-1);
+		let lastDay: Date = ThisMonthFirstDate();
 
 		await UpdateTradeData(firstDay, lastDay);
 	});

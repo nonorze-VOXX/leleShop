@@ -60,11 +60,11 @@ export const arr_sum = (arr: number[]) => arr.reduce(add, 0);
 
 export const ThisMonthFirstDate = (offset: number = 0) => {
 	const date = new Date();
-	return new Date(date.getFullYear(), date.getMonth() + 1 + offset, 1);
+	return new Date(date.getFullYear(), date.getMonth() + offset, 1);
 };
 export const NextMonthFirstDate = (offset: number = 0) => {
 	const date = new Date();
-	return new Date(date.getFullYear(), date.getMonth() + 2 + offset, 1);
+	return new Date(date.getFullYear(), date.getMonth() + 1 + offset, 1);
 };
 
 export const GetAllMonth = () => {
