@@ -9,6 +9,8 @@
 	import { PreInsertPaymentStatus } from './leleFunction';
 	import { GetSeason, GetYearMonth } from '$lib/function/Utils';
 	import { invalidate, invalidateAll } from '$app/navigation';
+	import Toggle from '$lib/Component/Toggle.svelte';
+	import PaymentToggle from './paymentToggle.svelte';
 
 	let nowSeasonPaymentDataList: {
 		id: number;
@@ -65,6 +67,11 @@
 				checked[element1.id] = 'done' === element1.process_state;
 			});
 		});
+		nextSeasonPaymentDataList.forEach((element) => {
+			element.artist_payment_status.forEach((element1) => {
+				checked[element1.id] = 'done' === element1.process_state;
+			});
+		});
 	});
 
 	const UpdatePaymentStatus = async (
@@ -100,17 +107,6 @@
 				} else {
 					artist_payment_status[i].process_state = state;
 					checked[artist_payment_status[i].id] = true;
-
-					console.log(
-						'artist id: ',
-						artist_id,
-						'season:',
-						season,
-						'state:',
-						state,
-						'payment_id:',
-						payment_id
-					);
 				}
 				if (artist_payment_status[i].year_month === paymentData.year_month) {
 					break;
@@ -130,16 +126,6 @@
 			} else {
 				paymentData.process_state = state;
 				checked[paymentData.id] = false;
-				console.log(
-					'artist id: ',
-					artist_id,
-					'season:',
-					season,
-					'state:',
-					state,
-					'payment_id:',
-					payment_id
-				);
 			}
 		}
 	};
@@ -160,55 +146,16 @@
 					{p.artist_name}
 				</td>
 				<td>
-					<div class="flex flex-col justify-around gap-2 py-2">
-						{#each p.artist_payment_status as pay}
-							<div class="flex justify-start gap-2 align-baseline">
-								<div class="">
-									{pay.year_month}
-								</div>
-								<label class="inline-flex cursor-pointer items-center">
-									<!-- todo: use toggle component	 -->
-									<input
-										type="checkbox"
-										bind:checked={checked[pay.id]}
-										on:change={async () => {
-											await UpdatePaymentStatus(pay, p.artist_payment_status);
-										}}
-										class="peer sr-only"
-									/>
-									<div
-										class="peer relative z-10 h-6 w-11 rounded-full bg-gray-200 after:absolute after:start-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-blue-600 peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none peer-focus:ring-0 peer-focus:ring-blue-300 rtl:peer-checked:after:-translate-x-full dark:border-gray-600 dark:bg-gray-700 dark:peer-focus:ring-blue-800"
-									></div>
-								</label>
-							</div>
-						{/each}
-					</div>
+					<PaymentToggle bind:checked bind:paymentStatusRows={p.artist_payment_status}
+					></PaymentToggle>
 				</td>
+
 				<td>
 					<div class="flex flex-col justify-around gap-2 py-2">
 						{#each nextSeasonPaymentDataList as p1}
 							{#if p.id === p1.id}
-								{#each p1.artist_payment_status as pay}
-									<div class="flex justify-start gap-2 align-baseline">
-										<div class="">
-											{pay.year_month}
-										</div>
-										<label class="inline-flex cursor-pointer items-center">
-											<!-- todo: use toggle component	 -->
-											<input
-												type="checkbox"
-												bind:checked={checked[pay.id]}
-												on:change={async () => {
-													await UpdatePaymentStatus(pay, p1.artist_payment_status);
-												}}
-												class="peer sr-only"
-											/>
-											<div
-												class="peer relative z-10 h-6 w-11 rounded-full bg-gray-200 after:absolute after:start-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-blue-600 peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none peer-focus:ring-0 peer-focus:ring-blue-300 rtl:peer-checked:after:-translate-x-full dark:border-gray-600 dark:bg-gray-700 dark:peer-focus:ring-blue-800"
-											></div>
-										</label>
-									</div>
-								{/each}
+								<PaymentToggle bind:checked bind:paymentStatusRows={p1.artist_payment_status}
+								></PaymentToggle>
 							{/if}
 						{/each}
 					</div>
