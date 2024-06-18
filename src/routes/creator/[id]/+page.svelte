@@ -32,6 +32,8 @@
 
 	const UpdateTradeData = async (firstDate: Date, lastDate: Date) => {
 		total = await db.GetTradeTotal(parseInt(artist_id), firstDate, lastDate);
+		net_total = total.net_total;
+
 		const { data } = await db.GetTradeData(artist_id, {
 			firstDate,
 			lastDate
@@ -74,9 +76,6 @@
 			on:changeShowedDataList={async (e) => {
 				console.log('get dispatch');
 				await UpdateTradeData(e.detail.firstDay, e.detail.lastDay);
-			}}
-			on:onTotalChange={(e) => {
-				net_total = e.detail.net_total;
 			}}
 		></MonthTabReportTable>
 	{/if}

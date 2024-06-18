@@ -39,5 +39,5 @@
 			ClickTab(e.detail.showedMonth);
 		}}
 	></MonthTab>
-	<ReportTable on:onTotalChange bind:showedTradeDataList bind:totalData></ReportTable>
+	<ReportTable bind:showedTradeDataList bind:totalData></ReportTable>
 </div>
