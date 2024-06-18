@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { QueryTradeBodyWithTradeHead } from '$lib/db';
+	import { type QueryTradeBodyWithTradeHead, type SalesTotalData } from '$lib/db';
 	import { FormatDate, add, arr_sum } from '$lib/function/Utils';
 	import { createEventDispatcher } from 'svelte';
 	import LeleTable from './htmlWrapper/LeleTable.svelte';
@@ -7,6 +7,7 @@
 	import LeleTbodyTr from './htmlWrapper/LeleTbodyTr.svelte';
 	import LeleThead from './htmlWrapper/LeleThead.svelte';
 	export let showedTradeDataList: QueryTradeBodyWithTradeHead;
+	export let totalData: SalesTotalData;
 
 	let total = -1;
 	let net_total = -1;
@@ -26,12 +27,11 @@
 		};
 	}>();
 	const UpdateTotalData = (data: QueryTradeBodyWithTradeHead) => {
-		total = arr_sum(data.map((el) => el.total_sales ?? 0));
-		net_total = arr_sum(data.map((el) => el.net_sales ?? 0));
-		discount_total = arr_sum(data.map((el) => el.discount ?? 0));
-		total_quantity = arr_sum(data.map((el) => el.quantity ?? 0));
+		total = totalData.sales_total;
+		net_total = totalData.net_total;
+		discount_total = totalData.discount_total;
+		total_quantity = totalData.total_quantity;
 		dispatch('onTotalChange', { total: total, net_total, discount_total, total_quantity });
-		// commission = net_total >= 2000 ? Math.floor(net_total * 0.1) : 0;
 	};
 </script>
 

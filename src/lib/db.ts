@@ -17,6 +17,12 @@ export type PaymentStatusInsert = Database['public']['Tables']['artist_payment_s
 export type PaymentStatusRow = Database['public']['Tables']['artist_payment_status']['Row'];
 export type PaymentStatusUpdate = Database['public']['Tables']['artist_payment_status']['Update'];
 export type ArtistWithTradeRow = Database['public']['Views']['artist_trade']['Row'];
+export type SalesTotalData = {
+	sales_total: number;
+	net_total: number;
+	discount_total: number;
+	total_quantity: number;
+};
 
 const QueryTradeHeadAndBody = supabase.from('trade_body').select('*, trade_head(*)');
 export type QueryTradeBodyWithTradeHead = QueryData<typeof QueryTradeHeadAndBody>;
@@ -233,6 +239,36 @@ export default {
 		}
 
 		return { count };
+	},
+	async GetTradeTotal(artist_id: number, start_date: string | Date, end_date: string | Date) {
+		if (start_date instanceof Date) {
+			start_date = start_date.toISOString();
+		}
+		if (end_date instanceof Date) {
+			end_date = end_date.toISOString();
+		}
+		const { data, error } = await supabase.rpc('get_total_trade', {
+			artist_id,
+			start_date,
+			end_date
+		});
+		if (error) {
+			console.error(error);
+			return {
+				sales_total: -1,
+				net_total: -1,
+				discount_total: -1,
+				total_quantity: -1
+			};
+		}
+
+		const total: SalesTotalData = {
+			sales_total: data.f1 as number,
+			net_total: data.f2 as number,
+			discount_total: data.f3 as number,
+			total_quantity: data.f4 as number
+		};
+		return total;
 	},
 	async GetTradeData(
 		id: string,

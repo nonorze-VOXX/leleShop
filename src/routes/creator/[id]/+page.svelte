@@ -2,9 +2,9 @@
 	import PasswordPanel from './PasswordPanel.svelte';
 	import DownloadButton from './DownloadButton.svelte';
 	import { onMount } from 'svelte';
-	import type { QueryTradeBodyWithTradeHead } from '$lib/db';
+	import type { QueryTradeBodyWithTradeHead, SalesTotalData } from '$lib/db';
 	import MonthTabReportTable from '$lib/Component/MonthTabReportTable.svelte';
-	import db from '$lib/db';
+	import db, { supabase } from '$lib/db';
 	import { page } from '$app/stores';
 	import { NextMonthFirstDate, ThisMonthFirstDate } from '$lib/function/Utils';
 	import TradeCount from '$lib/Component/reportComponent/TradeCount.svelte';
@@ -18,6 +18,12 @@
 	let tradeDataList: QueryTradeBodyWithTradeHead = [];
 	let showedLength = 0;
 
+	let total: SalesTotalData = {
+		sales_total: 0,
+		net_total: 0,
+		discount_total: 0,
+		total_quantity: 0
+	};
 	onMount(async () => {
 		artist_id = $page.params.id;
 		const artist_data = (await db.GetArtistData(artist_id)).data ?? [];
@@ -26,6 +32,7 @@
 	let queryTradeBodyWithTradeHead: QueryTradeBodyWithTradeHead;
 
 	const UpdateTradeData = async (firstDate: Date, lastDate: Date) => {
+		total = await db.GetTradeTotal(parseInt(artist_id), firstDate, lastDate);
 		const { data } = await db.GetTradeData(artist_id, {
 			firstDate,
 			lastDate
@@ -64,6 +71,7 @@
 		</div>
 		<MonthTabReportTable
 			bind:tradeDataList
+			bind:totalData={total}
 			on:changeShowedDataList={async (e) => {
 				console.log('get dispatch');
 				await UpdateTradeData(e.detail.firstDay, e.detail.lastDay);
