@@ -12,7 +12,6 @@
 
 	let artist_name: string = '';
 	let net_total = -1;
-	let commission = 0;
 	let artist_id: string = '';
 	let admit = false;
 	let tradeDataList: QueryTradeBodyWithTradeHead = [];
@@ -78,7 +77,6 @@
 			}}
 			on:onTotalChange={(e) => {
 				net_total = e.detail.net_total;
-				commission = net_total >= 0 ? Math.floor(net_total * 0.1) : 0;
 			}}
 		></MonthTabReportTable>
 	{/if}

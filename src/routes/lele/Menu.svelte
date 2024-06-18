@@ -3,7 +3,6 @@
 
 	enum TabEnum {
 		artist_list,
-		trade,
 		report_key,
 		payment,
 		total,
@@ -19,13 +18,6 @@
 			goto('/lele/artistList');
 		}}
 		class="flex rounded-xl bg-lele-line p-2 font-semibold text-lele-bg">Artist List</button
-	>
-	<button
-		class="flex rounded-xl bg-lele-line p-2 font-semibold text-lele-bg"
-		on:click={() => {
-			tabType = TabEnum.trade;
-			goto('/lele/trade');
-		}}>Trade</button
 	>
 	<button
 		class="flex rounded-xl bg-lele-line p-2 font-semibold text-lele-bg"
