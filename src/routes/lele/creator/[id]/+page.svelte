@@ -1,5 +1,5 @@
 <script lang="ts">
-	import MonthTabReportTableWithLogic from './MonthTabReportTableWithLogic.svelte';
+	import MonthTabReportTableWithLogic from '$lib/Component/MonthTabReportTableWithLogic.svelte';
 
 	import { onMount } from 'svelte';
 	import db from '$lib/db';
