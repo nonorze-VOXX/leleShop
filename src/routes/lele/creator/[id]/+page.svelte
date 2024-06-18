@@ -30,6 +30,7 @@
 		bind:artist_id
 		on:change={(e) => {
 			net_total = e.detail.net_total;
+			showedLength = e.detail.showedLength;
 		}}
 	></MonthTabReportTableWithLogic>
 </div>

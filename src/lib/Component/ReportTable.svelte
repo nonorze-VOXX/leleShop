@@ -13,17 +13,13 @@
 	let net_total = -1;
 	let discount_total = 0;
 	let total_quantity = 0;
-	// let commission = 0;
 
 	$: {
-		UpdateTotalData();
-	}
-	const UpdateTotalData = () => {
 		total = totalData.sales_total;
 		net_total = totalData.net_total;
 		discount_total = totalData.discount_total;
 		total_quantity = totalData.total_quantity;
-	};
+	}
 </script>
 
 <LeleTable>

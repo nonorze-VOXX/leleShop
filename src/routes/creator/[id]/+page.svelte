@@ -5,7 +5,6 @@
 
 	import PasswordPanel from './PasswordPanel.svelte';
 	import { onMount } from 'svelte';
-	import OkButton from '$lib/UrlBox.svelte';
 	import db from '$lib/db';
 	import { page } from '$app/stores';
 	import TradeCount from '$lib/Component/reportComponent/TradeCount.svelte';
@@ -51,6 +50,7 @@
 				net_total = e.detail.net_total;
 				firstDate = e.detail.firstDate;
 				lastDate = e.detail.lastDate;
+				showedLength = e.detail.showedLength;
 			}}
 		></MonthTabReportTableWithLogic1>
 	{/if}

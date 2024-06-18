@@ -7,7 +7,6 @@
 
 	export let artist_id: string;
 	let tradeDataList: QueryTradeBodyWithTradeHead = [];
-	let showedLength = 0;
 
 	let total: SalesTotalData = {
 		sales_total: 0,
@@ -18,23 +17,26 @@
 	onMount(async () => {
 		const firstDay = ThisMonthFirstDate(-1);
 		const lastDay = ThisMonthFirstDate();
-		UpdateTradeData(firstDay, lastDay);
-		total = await db.GetTradeTotal(parseInt(artist_id), firstDay, lastDay);
+		await UpdateTradeData(firstDay, lastDay);
 	});
 
 	const dispatch = createEventDispatcher<{
-		change: { net_total: number; firstDate: Date; lastDate: Date };
+		change: { net_total: number; firstDate: Date; lastDate: Date; showedLength: number };
 	}>();
 	const UpdateTradeData = async (firstDate: Date, lastDate: Date) => {
 		total = await db.GetTradeTotal(parseInt(artist_id), firstDate, lastDate);
-		dispatch('change', { net_total: total.net_total, firstDate, lastDate });
 
 		const { data } = await db.GetTradeData(artist_id, {
 			firstDate,
 			lastDate
 		});
 		tradeDataList = data;
-		showedLength = tradeDataList.length;
+		dispatch('change', {
+			net_total: total.net_total,
+			firstDate,
+			lastDate,
+			showedLength: tradeDataList.length
+		});
 	};
 </script>
 
