@@ -9,10 +9,9 @@
 	import Remit from '$lib/Component/reportComponent/Remit.svelte';
 
 	let artist_name: string = '';
-	let artist_id: string = '';
+	let artist_id: string = $page.params.id;
 	let showedLength = 0;
 	onMount(async () => {
-		artist_id = $page.params.id;
 		const artist_data = (await db.GetArtistData(artist_id)).data ?? [];
 		artist_name = artist_data.length !== 0 ? artist_data[0].artist_name : 'not found this artist';
 	});
