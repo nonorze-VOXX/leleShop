@@ -56,21 +56,19 @@
 </script>
 
 {#if tradeDataList}
-	<div class="flex flex-col">
-		<MonthTabReportTable
-			bind:tradeDataList
-			bind:totalData={total}
-			on:changeShowedDataList={async (e) => {
-				await DateChange(e.detail.firstDay, e.detail.lastDay);
-			}}
-		></MonthTabReportTable>
-		<MonthTab
-			bind:tabDataList={pageIndex}
-			bind:showedMonth={nowPage}
-			shape="full"
-			on:onTabChange={async (e) => {
-				tradeDataList = await PageChange();
-			}}
-		></MonthTab>
-	</div>
+	<MonthTabReportTable
+		bind:tradeDataList
+		bind:totalData={total}
+		on:changeShowedDataList={async (e) => {
+			await DateChange(e.detail.firstDay, e.detail.lastDay);
+		}}
+	></MonthTabReportTable>
+	<MonthTab
+		bind:tabDataList={pageIndex}
+		bind:showedMonth={nowPage}
+		shape="full"
+		on:onTabChange={async (e) => {
+			tradeDataList = await PageChange();
+		}}
+	></MonthTab>
 {/if}

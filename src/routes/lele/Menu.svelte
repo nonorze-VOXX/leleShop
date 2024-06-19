@@ -11,7 +11,7 @@
 	let tabType: TabEnum = TabEnum.artist_list;
 </script>
 
-<div class="flex justify-start gap-2 p-2">
+<div class="flex justify-start gap-2 overflow-auto p-2">
 	<button
 		on:click={() => {
 			tabType = TabEnum.artist_list;
