@@ -7,6 +7,8 @@
 	export let shape: 'full' | 'up' | 'down' = 'up';
 	let focus: boolean[] = [];
 	$: {
+		// force tracking
+		tabDataList;
 		UpdateFocus();
 	}
 	function UpdateFocus() {

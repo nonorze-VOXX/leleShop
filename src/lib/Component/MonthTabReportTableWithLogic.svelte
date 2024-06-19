@@ -24,13 +24,19 @@
 		dateRange = { firstDate, lastDate };
 		const { count } = await db.GetTradeDataCount(artist_id, { firstDate, lastDate });
 
-		for (let i = 0; i < Math.ceil((count ?? 0) / onePageLength); i++) {
+		pageIndex = [];
+		for (let i = 1; i <= Math.ceil((count ?? 0) / onePageLength); i++) {
 			pageIndex.push(i.toString());
 		}
 		pageIndex = pageIndex;
-		console.log(pageIndex);
-		await UpdateTradeData(firstDate, lastDate);
-		nowPage = '0';
+		nowPage = pageIndex[0] ?? '0';
+		tradeDataList = await UpdateTradeData(firstDate, lastDate);
+		dispatch('change', {
+			net_total: total.net_total,
+			firstDate,
+			lastDate,
+			showedLength: count ?? 0
+		});
 	};
 
 	const dispatch = createEventDispatcher<{
@@ -39,21 +45,12 @@
 	const UpdateTradeData = async (firstDate: Date, lastDate: Date) => {
 		total = await db.GetTradeTotal(parseInt(artist_id), firstDate, lastDate);
 
-		const { data } = await db.GetTradeData(
-			artist_id,
-			{
-				firstDate,
-				lastDate
-			},
-			parseInt(nowPage)
-		);
-		tradeDataList = data;
-		dispatch('change', {
-			net_total: total.net_total,
-			firstDate,
-			lastDate,
-			showedLength: tradeDataList.length
-		});
+		const { data } = await db.GetTradeData(artist_id, dateRange, parseInt(nowPage) - 1);
+		return data;
+	};
+	const PageChange = async () => {
+		const { data } = await db.GetTradeData(artist_id, dateRange, parseInt(nowPage) - 1);
+		return data;
 	};
 </script>
 
@@ -63,16 +60,15 @@
 			bind:tradeDataList
 			bind:totalData={total}
 			on:changeShowedDataList={async (e) => {
-				await UpdateTradeData(e.detail.firstDay, e.detail.lastDay);
+				await DateChange(e.detail.firstDay, e.detail.lastDay);
 			}}
 		></MonthTabReportTable>
 		<MonthTab
 			bind:tabDataList={pageIndex}
 			bind:showedMonth={nowPage}
 			shape="full"
-			on:onTabChange={(e) => {
-				// nowPage = e.detail.showedMonth;
-				console.log('event', e.detail.showedMonth);
+			on:onTabChange={async (e) => {
+				tradeDataList = await PageChange();
 			}}
 		></MonthTab>
 	</div>
