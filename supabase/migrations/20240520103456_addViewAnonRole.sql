@@ -1,1 +1,0 @@
-alter view artist_trade set (security_invoker=on);

@@ -59,30 +59,6 @@ export type Database = {
           },
         ]
       }
-      posts: {
-        Row: {
-          content: string
-          create_time: string
-          edit_time: string
-          id: number
-          title: string
-        }
-        Insert: {
-          content?: string
-          create_time?: string
-          edit_time?: string
-          id?: never
-          title?: string
-        }
-        Update: {
-          content?: string
-          create_time?: string
-          edit_time?: string
-          id?: never
-          title?: string
-        }
-        Relationships: []
-      }
       trade_body: {
         Row: {
           artist_id: number
@@ -180,7 +156,14 @@ export type Database = {
       }
     }
     Functions: {
-      [_ in never]: never
+      get_total_trade: {
+        Args: {
+          artist_id: number
+          start_date: string
+          end_date: string
+        }
+        Returns: Record<string, unknown>
+      }
     }
     Enums: {
       processenum: "todo" | "doing" | "done"

@@ -17,6 +17,13 @@ export type PaymentStatusInsert = Database['public']['Tables']['artist_payment_s
 export type PaymentStatusRow = Database['public']['Tables']['artist_payment_status']['Row'];
 export type PaymentStatusUpdate = Database['public']['Tables']['artist_payment_status']['Update'];
 export type ArtistWithTradeRow = Database['public']['Views']['artist_trade']['Row'];
+export type SalesTotalData = {
+	sales_total: number;
+	net_total: number;
+	discount_total: number;
+	total_quantity: number;
+};
+export const onePageLength = 100;
 
 const QueryTradeHeadAndBody = supabase.from('trade_body').select('*, trade_head(*)');
 export type QueryTradeBodyWithTradeHead = QueryData<typeof QueryTradeHeadAndBody>;
@@ -234,14 +241,44 @@ export default {
 
 		return { count };
 	},
+	async GetTradeTotal(artist_id: number, start_date: string | Date, end_date: string | Date) {
+		if (start_date instanceof Date) {
+			start_date = start_date.toISOString();
+		}
+		if (end_date instanceof Date) {
+			end_date = end_date.toISOString();
+		}
+		const { data, error } = await supabase.rpc('get_total_trade', {
+			artist_id,
+			start_date,
+			end_date
+		});
+		if (error) {
+			console.error(error);
+			return {
+				sales_total: -1,
+				net_total: -1,
+				discount_total: -1,
+				total_quantity: -1
+			};
+		}
+
+		const total: SalesTotalData = {
+			sales_total: data.f1 as number,
+			net_total: data.f2 as number,
+			discount_total: data.f3 as number,
+			total_quantity: data.f4 as number
+		};
+		return total;
+	},
 	async GetTradeData(
 		id: string,
-		date: { firstDate: Date | null; lastDate: Date | null } = { firstDate: null, lastDate: null }
+		date: { firstDate: Date | null; lastDate: Date | null } = { firstDate: null, lastDate: null },
+		page: number | null = null
 	) {
 		const count = (await this.GetTradeDataCount(id, date)).count as number;
 		let result: QueryTradeBodyWithTradeHead = [];
-
-		for (let i = 0; i < count; i += 1000) {
+		if (page !== null) {
 			let query = supabase.from('trade_body').select('*, trade_head!inner(trade_id, trade_date)');
 
 			if (id !== '*' && id !== '') {
@@ -252,25 +289,50 @@ export default {
 					.gte('trade_head.trade_date', date.firstDate.toISOString())
 					.lte('trade_head.trade_date', date.lastDate.toISOString());
 			}
-			const { data, error } = await query.range(i, i + 1000);
+			query.order('trade_head(trade_date)', { ascending: false });
+			const { data, error } = await query.range(
+				page * onePageLength,
+				(page + 1) * onePageLength - 1
+			);
 			if (error) {
 				console.log(error);
 			}
 
 			result = result.concat(data as QueryTradeBodyWithTradeHead);
-		}
-		// sort by trade_date
-		result.sort((a, b) => {
-			if (a.trade_head && b.trade_head) {
-				if (a.trade_head.trade_date < b.trade_head.trade_date) {
-					return -1;
+		} else {
+			for (let i = 0; i < count; i += 1000) {
+				let query = supabase.from('trade_body').select('*, trade_head!inner(trade_id, trade_date)');
+
+				if (id !== '*' && id !== '') {
+					query = query.eq('artist_id', id);
 				}
-				if (a.trade_head.trade_date > b.trade_head.trade_date) {
-					return 1;
+				if (date.firstDate !== null && date.lastDate !== null) {
+					query = query
+						.gte('trade_head.trade_date', date.firstDate.toISOString())
+						.lte('trade_head.trade_date', date.lastDate.toISOString());
 				}
+				query.order('trade_head(trade_date)', { ascending: false });
+				const { data, error } = await query.range(i, i + 1000 - 1);
+				if (error) {
+					console.log(error);
+				}
+
+				result = result.concat(data as QueryTradeBodyWithTradeHead);
 			}
-			return 0;
-		});
+
+			// sort by trade_date
+			// result.sort((a, b) => {
+			// 	if (a.trade_head && b.trade_head) {
+			// 		if (a.trade_head.trade_date < b.trade_head.trade_date) {
+			// 			return -1;
+			// 		}
+			// 		if (a.trade_head.trade_date > b.trade_head.trade_date) {
+			// 			return 1;
+			// 		}
+			// 	}
+			// 	return 0;
+			// });
+		}
 		return { data: result };
 	},
 	async GetArtistDataWithPaymentStatus(option?: {

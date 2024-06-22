@@ -70,3 +70,18 @@ export const NextMonthFirstDate = (offset: number = 0) => {
 export const GetAllMonth = () => {
 	return ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12'];
 };
+
+export function DownloadData(data: string | Blob, name: string) {
+	let blob: Blob;
+	if (data instanceof Blob) {
+		blob = data;
+	} else {
+		blob = new Blob([data], { type: 'text/csv;charset=utf-8' });
+	}
+	const a = document.createElement('a');
+	document.body.append(a);
+	a.download = name;
+	a.href = URL.createObjectURL(blob);
+	a.click();
+	a.remove();
+}
