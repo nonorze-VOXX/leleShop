@@ -19,6 +19,14 @@
 		net_sales_sum: number;
 		discount_sum: number;
 	}[] = [];
+
+	let realTotal: number[] = [];
+	let totalData90: number[] = [];
+
+	let sumTotalData: {
+		real_sales_sum: number;
+		real_sales_90_sum: number;
+	};
 	onMount(async () => {
 		await FetchData(ThisMonthFirstDate(-1), NextMonthFirstDate(-1));
 	});
@@ -31,6 +39,20 @@
 			return;
 		}
 		totalData = result;
+		realTotal = [];
+		totalData90 = [];
+		totalData.map((data) => {
+			realTotal.push(data.total_sales_sum - data.discount_sum);
+			totalData90.push(
+				data.total_sales_sum -
+					data.discount_sum -
+					Math.floor((data.total_sales_sum - data.discount_sum) * 0.1)
+			);
+		});
+		sumTotalData = {
+			real_sales_sum: realTotal.reduce((a, b) => a + b, 0),
+			real_sales_90_sum: totalData90.reduce((a, b) => a + b, 0)
+		};
 	};
 
 	let tabDataList: string[] = GetAllMonth();
@@ -43,13 +65,15 @@
 	};
 </script>
 
-<MonthTab
-	bind:tabDataList
-	bind:showedMonth
-	on:onTabChange={async (e) => {
-		await ClickTab(e.detail.showedMonth);
-	}}
-></MonthTab>
+{#if showedMonth}
+	<MonthTab
+		bind:tabDataList
+		bind:showedMonth
+		on:onTabChange={async (e) => {
+			await ClickTab(e.detail.showedMonth);
+		}}
+	></MonthTab>
+{/if}
 <LeleTable>
 	<LeleThead>
 		<tr>
@@ -59,15 +83,20 @@
 		</tr>
 	</LeleThead>
 	<LeleTbody>
-		{#each totalData as data}
+		{#if sumTotalData}
+			<LeleTbodyTr>
+				<td class="p-2"> TOTAL</td>
+				<td class="p-2">{sumTotalData.real_sales_sum}</td>
+				<td class="p-2">{sumTotalData.real_sales_90_sum}</td>
+			</LeleTbodyTr>
+		{/if}
+		{#each totalData as data, index}
 			<LeleTbodyTr>
 				<td class="p-2">{data.name}</td>
-				<td class="p-2">{data.total_sales_sum - data.discount_sum}</td>
-				<td class="p-2"
-					>{data.total_sales_sum -
-						data.discount_sum -
-						Math.floor((data.total_sales_sum - data.discount_sum) * 0.1)}</td
-				>
+				<td class="p-2">{realTotal[index]}</td>
+				<td class="p-2">
+					{realTotal[index]}
+				</td>
 			</LeleTbodyTr>
 		{/each}
 	</LeleTbody>
