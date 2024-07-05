@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest';
-import { FormatDate, groupBy, payment_compare_year_month } from './Utils';
+import { FormatDate, GetSeason, groupBy, payment_compare_year_month } from './Utils';
 import type { PaymentStatusRow } from '$lib/db';
 
 test.each([
@@ -66,9 +66,21 @@ test.each([
 	expect(payment_compare_year_month(data1, data2)).toBe(answer);
 });
 
-// test('tmp teset', () => {
-// 	const today = new Date();
-// 	expect(today.getMonth()).toBe(4);
-// 	const yearmonth = GetYearMonth();
-// 	expect(yearmonth).toBe('2024-05');
-// });
+test('test payment compare year month', () => {
+	{
+		let season = GetSeason(new Date(2024, 3, 1));
+		expect(season).toBe('2024-05');
+	}
+	{
+		let season = GetSeason(new Date(2024, 2, 1));
+		expect(season).toBe('2024-02');
+	}
+	{
+		let season = GetSeason(new Date(2024, 1, 1));
+		expect(season).toBe('2024-02');
+	}
+	{
+		let season = GetSeason(new Date(2024, 0, 1));
+		expect(season).toBe('2024-02');
+	}
+});

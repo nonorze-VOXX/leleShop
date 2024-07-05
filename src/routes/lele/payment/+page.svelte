@@ -29,9 +29,10 @@
 
 	onMount(async () => {
 		const result = await db.GetArtistDataWithPaymentStatus({ visible: null });
+		const date = new Date();
 		const result1 = await db.GetArtistDataWithPaymentStatus({
 			visible: null,
-			year_month_list: [GetSeason(3), GetSeason(4), GetSeason(5)]
+			year_month_list: [GetSeason(date, 3), GetSeason(date, 4), GetSeason(date, 5)]
 		});
 		nextSeasonPaymentDataList = result1.data ?? [];
 
@@ -41,9 +42,9 @@
 					return element.artist_payment_status.length === 3;
 				})
 			) {
-				await PreInsertPaymentStatus(GetSeason());
-				await PreInsertPaymentStatus(GetSeason(1));
-				await PreInsertPaymentStatus(GetSeason(2));
+				await PreInsertPaymentStatus(GetSeason(date, 0));
+				await PreInsertPaymentStatus(GetSeason(date, 1));
+				await PreInsertPaymentStatus(GetSeason(date, 2));
 				invalidateAll();
 			}
 		}
@@ -53,9 +54,9 @@
 					return element.artist_payment_status.length === 3;
 				})
 			) {
-				await PreInsertPaymentStatus(GetSeason(3));
-				await PreInsertPaymentStatus(GetSeason(4));
-				await PreInsertPaymentStatus(GetSeason(5));
+				await PreInsertPaymentStatus(GetSeason(date, 3));
+				await PreInsertPaymentStatus(GetSeason(date, 4));
+				await PreInsertPaymentStatus(GetSeason(date, 5));
 				invalidateAll();
 			}
 		}

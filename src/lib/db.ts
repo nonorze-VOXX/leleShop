@@ -343,7 +343,12 @@ export default {
 		let { id, visible, year_month_list } = option ?? {};
 		id = id ?? '*';
 		visible = visible ?? true;
-		year_month_list = year_month_list ?? [GetSeason(0), GetSeason(1), GetSeason(2)];
+		const date = new Date();
+		year_month_list = year_month_list ?? [
+			GetSeason(date, 0),
+			GetSeason(date, 1),
+			GetSeason(date, 2)
+		];
 
 		let query = supabase.from('artist').select('id, artist_name, visible,artist_payment_status(*)');
 		if (id !== '*') {
