@@ -9,6 +9,7 @@
 	import { page } from '$app/stores';
 	import TradeCount from '$lib/Component/reportComponent/TradeCount.svelte';
 	import Commision from '$lib/Component/reportComponent/Commision.svelte';
+	import Remit from '$lib/Component/reportComponent/Remit.svelte';
 
 	let artist_name: string = '';
 	let net_total = -1;
@@ -41,6 +42,7 @@
 			</h1>
 			<Commision bind:net_total></Commision>
 			<TradeCount bind:showedLength></TradeCount>
+			<Remit bind:net_total></Remit>
 
 			<DownloadButton bind:firstDate bind:lastDate bind:artist_id></DownloadButton>
 		</div>
