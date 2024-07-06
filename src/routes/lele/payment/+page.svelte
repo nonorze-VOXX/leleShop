@@ -5,9 +5,10 @@
 	import LeleTbody from '$lib/Component/htmlWrapper/LeleTbody.svelte';
 	import LeleTbodyTr from '$lib/Component/htmlWrapper/LeleTbodyTr.svelte';
 	import { onMount } from 'svelte';
-	import db from '$lib/db';
+	import db, { supabase } from '$lib/db';
 	import PaymentToggle from './paymentToggle.svelte';
 	import { GetSeason } from '$lib/function/Utils';
+	import { invalidate, invalidateAll } from '$app/navigation';
 
 	let seasonPaymentDataList: {
 		prevSeason: {
@@ -15,7 +16,7 @@
 			artist_name: string | null;
 			visible: boolean;
 			artist_payment_status: PaymentStatusRow;
-		};
+		} | null;
 		nowSeason: {
 			id: number;
 			artist_name: string | null;
@@ -27,7 +28,7 @@
 			artist_name: string | null;
 			visible: boolean;
 			artist_payment_status: PaymentStatusRow;
-		};
+		} | null;
 	}[] = [];
 	var season: { nowSeason: number; prevSeason: number; nextSeason: number };
 
@@ -45,18 +46,88 @@
 		});
 		const nextResult = await db.GetArtistDataWithPaymentStatus({
 			visible: null,
-			season: season.prevSeason
+			season: season.nextSeason
 		});
+
+		await PreInsertPaymentStatus();
+
 		for (let i = 0; i < result.data.length; i++) {
 			seasonPaymentDataList.push({
 				nowSeason: result.data[i],
-				prevSeason: prevResult.data[i],
-				nextSeason: nextResult.data[i]
+				prevSeason: prevResult.data.find((e) => e.id === result.data[i].id) ?? null,
+
+				nextSeason: nextResult.data.find((e) => e.id === result.data[i].id) ?? null
 			});
 		}
-		console.log(seasonPaymentDataList);
 		seasonPaymentDataList = seasonPaymentDataList;
 	});
+	async function PreInsertPaymentStatus() {
+		const {
+			count: paymentCount,
+			data: paymentData,
+			error: paymentError
+		} = await supabase
+			.from('artist_payment_status')
+			.select('*', { count: 'exact', head: false })
+			.eq('season', season.nextSeason);
+		if (paymentError) {
+			console.log(paymentError);
+		}
+		if (paymentCount === 0) {
+			const { data, error: artistError } = await supabase.from('artist').select('id');
+			if (artistError) {
+				console.log(artistError);
+			}
+			const artistData = data ?? [];
+			const { data: insertData, error } = await supabase
+				.from('artist_payment_status')
+				.insert(
+					artistData.map((artist) => {
+						return {
+							artist_id: artist.id,
+							season: season.nextSeason,
+							state_by_season: 0
+						};
+					})
+				)
+				.select();
+			if (error) {
+				console.error(error);
+			}
+			await invalidateAll();
+		} else {
+			const {
+				data: artistData,
+				count: artistCount,
+				error: artistError
+			} = await supabase.from('artist').select('id', { count: 'exact', head: false });
+			if (artistError) {
+				console.log(artistError);
+			}
+			console.log(artistCount, paymentCount);
+			if (artistCount !== paymentCount) {
+				const data = artistData ?? [];
+				const { data: insertData, error } = await supabase
+					.from('artist_payment_status')
+					.insert(
+						data
+							.filter((e) => !paymentData?.some(({ artist_id }) => e.id === artist_id))
+							.map((artist) => {
+								return {
+									artist_id: artist.id,
+									season: season.nextSeason,
+									state_by_season: 0
+								};
+							})
+					)
+					.select();
+				if (error) {
+					console.error(error);
+				}
+				await invalidateAll();
+			}
+		}
+	}
 </script>
 
 {#if season}
@@ -78,10 +149,12 @@
 							{p.nowSeason.artist_name}
 						</td>
 						<td>
-							<PaymentToggle
-								bind:season={p.prevSeason.artist_payment_status.state_by_season}
-								bind:paymentStatusRows={p.prevSeason.artist_payment_status}
-							></PaymentToggle>
+							{#if p.prevSeason}
+								<PaymentToggle
+									bind:season={p.prevSeason.artist_payment_status.state_by_season}
+									bind:paymentStatusRows={p.prevSeason.artist_payment_status}
+								></PaymentToggle>
+							{/if}
 						</td>
 						<td>
 							<PaymentToggle
@@ -90,10 +163,12 @@
 							></PaymentToggle>
 						</td>
 						<td>
-							<PaymentToggle
-								bind:season={p.nextSeason.artist_payment_status.state_by_season}
-								bind:paymentStatusRows={p.nextSeason.artist_payment_status}
-							></PaymentToggle>
+							{#if p.nextSeason}
+								<PaymentToggle
+									bind:season={p.nextSeason.artist_payment_status.state_by_season}
+									bind:paymentStatusRows={p.nextSeason.artist_payment_status}
+								></PaymentToggle>
+							{/if}
 						</td>
 					</LeleTbodyTr>
 				{/each}
