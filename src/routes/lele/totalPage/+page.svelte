@@ -43,11 +43,7 @@
 		totalData90 = [];
 		totalData.map((data) => {
 			realTotal.push(data.total_sales_sum - data.discount_sum);
-			totalData90.push(
-				data.total_sales_sum -
-					data.discount_sum -
-					Math.floor((data.total_sales_sum - data.discount_sum) * 0.1)
-			);
+			totalData90.push(Math.ceil(data.net_sales_sum * 0.9));
 		});
 		sumTotalData = {
 			real_sales_sum: realTotal.reduce((a, b) => a + b, 0),
@@ -95,7 +91,7 @@
 				<td class="p-2">{data.name}</td>
 				<td class="p-2">{realTotal[index]}</td>
 				<td class="p-2">
-					{realTotal[index]}
+					{totalData90[index]}
 				</td>
 			</LeleTbodyTr>
 		{/each}
