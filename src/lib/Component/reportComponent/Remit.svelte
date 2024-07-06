@@ -6,7 +6,7 @@
 	<p class="inline">匯款金額：</p>
 	<div>
 		{#if net_total != null}
-			{Math.floor(net_total * 0.9)}
+			{Math.ceil(net_total * 0.9)}
 		{:else}
 			計算中
 		{/if}
