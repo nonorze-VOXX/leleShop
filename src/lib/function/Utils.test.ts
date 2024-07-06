@@ -84,7 +84,6 @@ test.each([
 ])('get season $year-$month', ({ expected, month, year }) => {
 	{
 		const date = new Date(year, month - 1);
-		// expect(date.getMonth()).toBe(month);
 		const result = GetSeason(date);
 		expect(result).toBe(expected);
 	}
