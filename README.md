@@ -26,10 +26,6 @@ npm i
 
 ### table comment
 
-#### artist_payment_status
-
-year_month is record by format `YYYY-MM`
-
 - fill supabase data in .env file
 
 ```bash

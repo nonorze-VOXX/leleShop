@@ -1,6 +1,4 @@
 import { expect, test } from 'vitest';
-import { FormatDate, groupBy, payment_compare_year_month } from './Utils';
-import type { PaymentStatusRow } from '$lib/db';
 
 test('test date 0 or cross year', () => {
 	for (let i = 0; i < 12; i++) {

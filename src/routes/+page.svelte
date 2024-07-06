@@ -6,15 +6,18 @@
 	import LeleTable from '$lib/Component/htmlWrapper/LeleTable.svelte';
 	import LeleTbodyTr from '$lib/Component/htmlWrapper/LeleTbodyTr.svelte';
 	import db from '$lib/db';
+	import { GetSeason } from '$lib/function/Utils';
 	let artistData: {
 		id: number;
 		artist_name: string;
 		visible: boolean;
-		artist_payment_status: PaymentStatusRow[];
+		artist_payment_status: PaymentStatusRow;
 	}[] = [];
 
 	onMount(async () => {
-		const { data, error } = await db.GetArtistDataWithPaymentStatus();
+		const { data, error } = await db.GetArtistDataWithPaymentStatus({
+			season: GetSeason(new Date())
+		});
 		if (error) {
 			console.error(error);
 		}
@@ -38,18 +41,16 @@
 				</td>
 				<td class="text-center">
 					<div class="text-lg">
-						{#if artists.artist_payment_status.length !== 3}
-							data missing
-						{:else}
-							{#each artists.artist_payment_status as paymentStatus}
-								{#if paymentStatus.process_state === 'done'}
-									✓
-								{:else if paymentStatus.process_state === 'doing'}
-									A
-								{:else}
+						{#if artists.artist_payment_status}
+							{#each { length: 3 } as _, i}
+								{#if artists.artist_payment_status.state_by_season == null || i >= artists.artist_payment_status.state_by_season}
 									X
+								{:else}
+									✓
 								{/if}
 							{/each}
+						{:else}
+							data missing
 						{/if}
 					</div>
 				</td>

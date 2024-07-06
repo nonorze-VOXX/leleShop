@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { createEventDispatcher } from 'svelte';
 
-	export let choosing: number = 0;
+	export let choosing: number | null = 0;
 	let checked: boolean[] = [false, false, false, false];
 	let sr = true;
 	const OnChange = (n: number) => {
@@ -14,6 +14,7 @@
 	}>();
 
 	$: {
+		choosing = choosing ?? 0;
 		choosing = choosing > 3 ? 3 : choosing < 0 ? 0 : choosing;
 		OnChange(choosing);
 		dispatch('change', { choosing });

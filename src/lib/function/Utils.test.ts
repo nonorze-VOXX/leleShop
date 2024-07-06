@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest';
-import { FormatDate, GetSeason, groupBy, payment_compare_year_month } from './Utils';
+import { FormatDate, GetYearMonth, groupBy } from './Utils';
 import type { PaymentStatusRow } from '$lib/db';
 
 test.each([
@@ -45,42 +45,21 @@ test.each([
 	expect(result).toStrictEqual(output);
 });
 
-test.each([
-	{ year_month1: '2025-06', year_month2: '2024-06', answer: 1 },
-	{ year_month1: '2024-06', year_month2: '2024-06', answer: 0 },
-	{ year_month1: '2024-07', year_month2: '2024-06', answer: 1 },
-	{ year_month1: '2024-05', year_month2: '2024-06', answer: -1 }
-])('test payment compare year month', ({ year_month1, year_month2, answer }) => {
-	const data1: PaymentStatusRow = {
-		artist_id: null,
-		id: 0,
-		process_state: 'todo',
-		year_month: year_month1
-	};
-	const data2: PaymentStatusRow = {
-		artist_id: null,
-		id: 0,
-		process_state: 'todo',
-		year_month: year_month2
-	};
-	expect(payment_compare_year_month(data1, data2)).toBe(answer);
-});
-
 test('test payment compare year month', () => {
 	{
-		let season = GetSeason(new Date(2024, 3, 1));
+		let season = GetYearMonth(new Date(2024, 3, 1));
 		expect(season).toBe('2024-05');
 	}
 	{
-		let season = GetSeason(new Date(2024, 2, 1));
+		let season = GetYearMonth(new Date(2024, 2, 1));
 		expect(season).toBe('2024-02');
 	}
 	{
-		let season = GetSeason(new Date(2024, 1, 1));
+		let season = GetYearMonth(new Date(2024, 1, 1));
 		expect(season).toBe('2024-02');
 	}
 	{
-		let season = GetSeason(new Date(2024, 0, 1));
+		let season = GetYearMonth(new Date(2024, 0, 1));
 		expect(season).toBe('2024-02');
 	}
 });
