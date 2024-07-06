@@ -36,7 +36,6 @@ end) as season,
         else 0 end)
         
 from    artist_payment_status t
-where artist_id = 57
 group by artist_id,
 (case 
 when  year_month='2024-02' 
