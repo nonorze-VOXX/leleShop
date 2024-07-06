@@ -9,7 +9,7 @@
 	};
 
 	$: {
-		choosing;
+		choosing = choosing > 2 ? 2 : choosing < 0 ? 0 : choosing;
 		OnChange(choosing);
 	}
 </script>
@@ -39,6 +39,7 @@
 		<input
 			type="checkbox"
 			bind:checked={checked[0]}
+			on:click
 			on:change={() => {
 				choosing = 0;
 			}}
@@ -49,6 +50,7 @@
 		<input
 			type="checkbox"
 			bind:checked={checked[1]}
+			on:click
 			on:change={() => {
 				choosing = 1;
 			}}
@@ -59,6 +61,7 @@
 		<input
 			type="checkbox"
 			bind:checked={checked[2]}
+			on:click
 			on:change={() => {
 				choosing = 2;
 			}}
