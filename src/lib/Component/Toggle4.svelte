@@ -41,9 +41,15 @@
 		before:rounded-full
 		before:bg-lele-bg
 		before:transition
+
+		after:absolute
+		after:h-4
+		after:w-0.5
+		after:translate-x-10
+		after:bg-lele-bg
 		 "
 >
-	<label class=" inline-flex h-full w-1/3 cursor-pointer items-center bg-none">
+	<label class=" inline-flex h-full w-1/4 cursor-pointer items-center bg-none">
 		<input
 			type="checkbox"
 			bind:checked={checked[0]}
@@ -53,7 +59,7 @@
 			class:sr-only={sr}
 		/>
 	</label>
-	<label class="inline-flex h-full w-1/3 cursor-pointer items-center bg-none">
+	<label class="inline-flex h-full w-1/4 cursor-pointer items-center bg-none">
 		<input
 			type="checkbox"
 			bind:checked={checked[1]}
@@ -63,7 +69,7 @@
 			class:sr-only={sr}
 		/>
 	</label>
-	<label class="inline-flex h-full w-1/3 cursor-pointer items-center bg-none">
+	<label class="inline-flex h-full w-1/4 cursor-pointer items-center bg-none">
 		<input
 			type="checkbox"
 			bind:checked={checked[2]}
@@ -73,7 +79,7 @@
 			class:sr-only={sr}
 		/>
 	</label>
-	<label class="inline-flex h-full w-1/3 cursor-pointer items-center bg-none">
+	<label class="inline-flex h-full w-1/4 cursor-pointer items-center bg-none">
 		<input
 			type="checkbox"
 			bind:checked={checked[3]}
