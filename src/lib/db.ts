@@ -2,7 +2,7 @@ import { createClient, type QueryData } from '@supabase/supabase-js';
 import { PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_KEY } from '$env/static/public';
 import { type Database } from './db.types';
 // import { PRIVATE_SUPABASE_KEY, PRIVATE_SUPABASE_URL } from '$env/static/private';
-import { GetSeason, add, payment_compare_year_month } from './function/Utils';
+import { add } from './function/Utils';
 
 // export const supabase = createClient<Database>(PRIVATE_SUPABASE_URL, PRIVATE_SUPABASE_KEY);
 export const supabase = createClient<Database>(PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_KEY);
@@ -97,7 +97,7 @@ export default {
 		if (!update.artist_id) {
 			return { error: 'artist_id is required' };
 		}
-		if (!update.year_month) {
+		if (!update.season) {
 			return { error: 'season is required' };
 		}
 		const { error } = await supabase
@@ -295,7 +295,7 @@ export default {
 				(page + 1) * onePageLength - 1
 			);
 			if (error) {
-				console.log(error);
+				console.error(error);
 			}
 
 			result = result.concat(data as QueryTradeBodyWithTradeHead);
@@ -338,12 +338,11 @@ export default {
 	async GetArtistDataWithPaymentStatus(option?: {
 		id?: string;
 		visible?: boolean | null;
-		year_month_list?: string[];
+		season: number;
 	}) {
-		let { id, visible, year_month_list } = option ?? {};
+		let { id, visible, season } = option ?? {};
 		id = id ?? '*';
-		visible = visible ?? true;
-		year_month_list = year_month_list ?? [GetSeason(0), GetSeason(1), GetSeason(2)];
+		visible = visible === undefined ? true : visible;
 
 		let query = supabase.from('artist').select('id, artist_name, visible,artist_payment_status(*)');
 		if (id !== '*') {
@@ -353,19 +352,34 @@ export default {
 		if (visible !== null) {
 			query = query.eq('visible', visible);
 		}
-		if (year_month_list.length > 0) {
-			query = query.in('artist_payment_status.year_month', year_month_list);
+		if (season) {
+			query = query.eq('artist_payment_status.season', season);
+		} else {
+			return { data: [], error: 'season is required' };
 		}
 
 		query = query.order('id', { ascending: true });
 		const { data, error } = await query;
-		const artistData = data ?? [];
-		artistData.forEach((element) => {
-			element.artist_payment_status.sort(payment_compare_year_month);
-		});
 		if (error) {
 			console.error(error);
 		}
-		return { data, error };
+		var value = data?.filter((e) => e.artist_payment_status.length > 0) ?? [];
+		var result: {
+			id: number;
+			artist_name: string;
+			visible: boolean;
+			artist_payment_status: PaymentStatusRow;
+		}[] = [];
+		for (let i = 0; i < value.length; i++) {
+			var e = value[i];
+			var single = e.artist_payment_status.at(0) as PaymentStatusRow;
+			result.push({
+				id: e.id,
+				artist_name: e.artist_name,
+				visible: e.visible,
+				artist_payment_status: single
+			});
+		}
+		return { data: result, error };
 	}
 };

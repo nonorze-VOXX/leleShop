@@ -1,6 +1,5 @@
 import { expect, test } from 'vitest';
-import { FormatDate, groupBy, payment_compare_year_month } from './Utils';
-import type { PaymentStatusRow } from '$lib/db';
+import { FormatDate, GetSeason, groupBy } from './Utils';
 
 test.each([
 	{ dateStr: '2024-01-01 19:00', answer: '2024/01/01' },
@@ -46,29 +45,46 @@ test.each([
 });
 
 test.each([
-	{ year_month1: '2025-06', year_month2: '2024-06', answer: 1 },
-	{ year_month1: '2024-06', year_month2: '2024-06', answer: 0 },
-	{ year_month1: '2024-07', year_month2: '2024-06', answer: 1 },
-	{ year_month1: '2024-05', year_month2: '2024-06', answer: -1 }
-])('test payment compare year month', ({ year_month1, year_month2, answer }) => {
-	const data1: PaymentStatusRow = {
-		artist_id: null,
-		id: 0,
-		process_state: 'todo',
-		year_month: year_month1
-	};
-	const data2: PaymentStatusRow = {
-		artist_id: null,
-		id: 0,
-		process_state: 'todo',
-		year_month: year_month2
-	};
-	expect(payment_compare_year_month(data1, data2)).toBe(answer);
+	{
+		year: 2024,
+		month: 2,
+		expected: 1
+	},
+	{
+		year: 2024,
+		month: 1,
+		expected: 0
+	},
+	{
+		year: 2025,
+		month: 2,
+		expected: 5
+	},
+	{
+		year: 2025,
+		month: 1,
+		day: 1,
+		expected: 4
+	},
+	{
+		year: 2024,
+		month: 7,
+		expected: 2
+	},
+	{
+		year: 2025,
+		month: 7,
+		expected: 6
+	},
+	{
+		year: 2024,
+		month: 12,
+		expected: 4
+	}
+])('get season $year-$month', ({ expected, month, year }) => {
+	{
+		const date = new Date(year, month - 1);
+		const result = GetSeason(date);
+		expect(result).toBe(expected);
+	}
 });
-
-// test('tmp teset', () => {
-// 	const today = new Date();
-// 	expect(today.getMonth()).toBe(4);
-// 	const yearmonth = GetYearMonth();
-// 	expect(yearmonth).toBe('2024-05');
-// });
