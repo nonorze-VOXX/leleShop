@@ -13,12 +13,8 @@ export const FormatDate = (dateStr: string | null | undefined) => {
 		.toString()
 		.replace(/-/g, '/');
 };
-export function GetYearMonth(date: Date, offset: number = 0) {
-	const d = new Date(date.getFullYear(), Math.floor(date.getMonth() / 3) * 3 + 2 + offset, 1);
-	return d.getFullYear().toString() + '-' + FormatNumberToTwoDigi(d.getMonth().toString());
-}
 export function GetSeason(date: Date) {
-	var month = date.getMonth() - 1 < 0 ? date.getMonth() - 1 + 12 : date.getMonth() - 1;
+	var month = date.getMonth() - 1 < 0 ? date.getMonth() - 3 : date.getMonth() - 1;
 	var season = Math.floor(month / 3) + 1;
 	return (date.getFullYear() - 2024) * 4 + season;
 }
