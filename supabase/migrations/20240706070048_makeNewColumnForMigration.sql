@@ -10,7 +10,6 @@ DELETE from artist_payment_status where season != NULL;
 
 INSERT INTO artist_payment_status (season , artist_id, state_by_season)
 select 
-        --1 as season,
 (case 
 when  year_month='2024-02' 
 or year_month='2024-03' 
@@ -58,7 +57,8 @@ or year_month='2025-01'
 then 4
 else null
 end);
-delete from artist_payment_status where season =NULL ;
+
+delete from artist_payment_status where season is NULL ;
 
 
 -- drop old
