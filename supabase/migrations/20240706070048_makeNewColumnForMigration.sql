@@ -8,7 +8,7 @@ alter table "public"."artist_payment_status" alter column "year_month" drop not 
 
 DELETE from artist_payment_status where season != NULL;
 
---INSERT INTO artist_payment_status (season , artist_id, state_by_season)
+INSERT INTO artist_payment_status (season , artist_id, state_by_season)
 select 
         --1 as season,
 (case 
