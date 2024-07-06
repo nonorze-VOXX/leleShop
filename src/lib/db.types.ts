@@ -34,20 +34,20 @@ export type Database = {
         Row: {
           artist_id: number | null
           id: number
-          process_state: Database["public"]["Enums"]["processenum"] | null
-          year_month: string
+          season: number | null
+          state_by_season: number | null
         }
         Insert: {
           artist_id?: number | null
           id?: never
-          process_state?: Database["public"]["Enums"]["processenum"] | null
-          year_month: string
+          season?: number | null
+          state_by_season?: number | null
         }
         Update: {
           artist_id?: number | null
           id?: never
-          process_state?: Database["public"]["Enums"]["processenum"] | null
-          year_month?: string
+          season?: number | null
+          state_by_season?: number | null
         }
         Relationships: [
           {
