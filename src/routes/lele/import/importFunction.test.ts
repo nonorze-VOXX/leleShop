@@ -72,6 +72,7 @@ describe('importFunction', () => {
 				'日期'
 			],
 			answer: {
+				error: null,
 				susTradeIdList: [],
 				tradeBodyList: [
 					{
@@ -87,7 +88,8 @@ describe('importFunction', () => {
 				tradeHeadList: [
 					{
 						trade_date: '2024-01-01T13:37:00.000Z',
-						trade_id: 'trade_id'
+						trade_id: 'trade_id',
+						shop_id: 1
 					}
 				]
 			}
@@ -114,6 +116,7 @@ describe('importFunction', () => {
 				'日期'
 			],
 			answer: {
+				error: null,
 				susTradeIdList: [],
 				tradeBodyList: [],
 				tradeHeadList: []
@@ -124,7 +127,7 @@ describe('importFunction', () => {
 			artistList: [{ artist_name: 'artist_name', id: 10 }],
 			groupByIndex: {
 				trade_id: [],
-				exist_trade_id: [['exist_trade_id', 'artist_name', 'item', '1', '1']]
+				exist_trade_id: [['exist_trade_id', 'artist_name', 'item', '1', '1', 1]]
 			},
 			timezoneOffset: '+08:00',
 			dataHeader: [
@@ -139,6 +142,7 @@ describe('importFunction', () => {
 				'日期'
 			],
 			answer: {
+				error: null,
 				susTradeIdList: [],
 				tradeBodyList: [],
 				tradeHeadList: []
@@ -149,7 +153,7 @@ describe('importFunction', () => {
 			artistList: [{ artist_name: 'artist_name', id: 10 }],
 			groupByIndex: {
 				trade_id: [
-					['trade_id', 'artist_name', 'item', '1', '1', '0', '1', 'not關閉', '2024-01-01 21:37']
+					['trade_id', 'artist_name', 'item', '1', '1', '0', '1', 'not關閉', '2024-01-01 21:37', 1]
 				]
 			},
 			timezoneOffset: '+08:00',
@@ -165,6 +169,7 @@ describe('importFunction', () => {
 				'日期'
 			],
 			answer: {
+				error: null,
 				susTradeIdList: ['trade_id'],
 				tradeBodyList: [],
 				tradeHeadList: []
@@ -178,7 +183,8 @@ describe('importFunction', () => {
 				artistList as ArtistRow[],
 				groupByIndex as Record<string, string[][]>,
 				timezoneOffset,
-				dataHeader
+				dataHeader,
+				1
 			);
 			expect(result).toStrictEqual(answer);
 		}
@@ -194,7 +200,8 @@ describe('importFunction', () => {
 			artistList as ArtistRow[],
 			groupByIndex as Record<string, string[][]>,
 			timezoneOffset,
-			dataHeader
+			dataHeader,
+			1
 		);
 		expect(error).toStrictEqual('銷售總額,折扣,淨銷售額,日期, not found');
 	});
