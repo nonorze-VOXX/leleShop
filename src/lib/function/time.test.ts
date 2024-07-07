@@ -23,7 +23,7 @@ test('test date 0 or cross year', () => {
 
 test('format from lele', () => {
 	{
-		let timezoneOffset = new Date().getTimezoneOffset();
+		let timezoneOffset = -480;
 		let HHMM = timeZoneOffsetToHHMM(timezoneOffset);
 		expect(HHMM).toBe('+08:00');
 		let date = GetDateWithTimeZone('2024-05-31 21:51', HHMM);
