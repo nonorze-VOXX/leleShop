@@ -12,12 +12,15 @@
 	} from '$lib/function/Utils';
 	import LeleTbodyTr from '$lib/Component/htmlWrapper/LeleTbodyTr.svelte';
 	import MonthTab from '$lib/Component/MonthTab.svelte';
+	import type { ShopRow } from '$lib/db';
+	import db from '$lib/db';
+	import { page } from '$app/stores';
+	import ShopChooser from '$lib/Component/ShopChooser.svelte';
+	import { goto } from '$app/navigation';
 
 	let totalData: {
-		name: string;
-		total_sales_sum: number;
-		net_sales_sum: number;
-		discount_sum: number;
+		artist_name: string;
+		net_total: number;
 	}[] = [];
 
 	let realTotal: number[] = [];
@@ -27,23 +30,38 @@
 		real_sales_sum: number;
 		real_sales_90_sum: number;
 	};
+	let shop_id: number | '*' = '*';
+	let shopList: ShopRow[] = [];
+	let commission: number | null = null;
+	let dateRange: { firstDate: Date; lastDate: Date };
 	onMount(async () => {
-		await FetchData(ThisMonthFirstDate(-1), NextMonthFirstDate(-1));
+		const { data } = await db.GetShopList();
+		shopList = data ?? [];
+		let paramId = $page.url.searchParams.get('shop_id');
+		if (paramId === null) {
+			shop_id = '*';
+			commission = null;
+		} else {
+			shop_id = parseInt(paramId);
+			commission = shopList.find((e) => e.id == shop_id)?.commission ?? null;
+		}
+		dateRange = { firstDate: ThisMonthFirstDate(-1), lastDate: NextMonthFirstDate(-1) };
+		await FetchData(dateRange.firstDate, dateRange.lastDate, shop_id);
 	});
 	let showedMonth: string;
-	const FetchData = async (firstDate: Date, lastDate: Date) => {
-		const { result, error } = await GetTradeTotalDataEachOne(firstDate, lastDate);
+	const FetchData = async (firstDate: Date, lastDate: Date, shop_id: number | '*') => {
+		const { result, error } = await GetTradeTotalDataEachOne(firstDate, lastDate, shop_id);
 		showedMonth = FormatNumberToTwoDigi((firstDate.getMonth() + 1).toString());
 		if (error) {
 			console.error(error);
 			return;
 		}
-		totalData = result;
 		realTotal = [];
 		totalData90 = [];
-		totalData.map((data) => {
-			realTotal.push(data.total_sales_sum - data.discount_sum);
-			totalData90.push(Math.ceil(data.net_sales_sum * 0.9));
+		totalData = result;
+		result.map((data) => {
+			realTotal.push(data.net_total);
+			totalData90.push(Math.ceil(data.net_total * 0.9));
 		});
 		sumTotalData = {
 			real_sales_sum: realTotal.reduce((a, b) => a + b, 0),
@@ -57,10 +75,31 @@
 		const date = new Date();
 		let firstDay = new Date(date.getFullYear(), parseInt(tabData) - 1, 1);
 		let lastDay = new Date(date.getFullYear(), parseInt(tabData), 1);
-		await FetchData(firstDay, lastDay);
+		dateRange = { firstDate: firstDay, lastDate: lastDay };
+		await FetchData(firstDay, lastDay, shop_id);
 	};
+
+	async function handleShopChange(event: { currentTarget: EventTarget & HTMLFormElement }) {
+		const formData = new FormData(event.currentTarget);
+		const param = new URLSearchParams($page.url.searchParams);
+		const id = formData.get('shops') as string;
+		if (id === '*') {
+			param.delete('shop_id');
+			shop_id = '*';
+		} else {
+			param.set('shop_id', id);
+			shop_id = parseInt(id);
+		}
+		commission =
+			shopList.find((e) => e.id == parseInt(formData.get('shops') as string))?.commission ?? null;
+		await FetchData(dateRange.firstDate, dateRange.lastDate, shop_id);
+		goto(`?${param.toString()}`);
+	}
 </script>
 
+<form on:change|preventDefault={handleShopChange} class="flex flex-col items-center gap-4 text-lg">
+	<ShopChooser bind:shop_id bind:shopList></ShopChooser>
+</form>
 {#if showedMonth}
 	<MonthTab
 		bind:tabDataList
@@ -88,7 +127,7 @@
 		{/if}
 		{#each totalData as data, index}
 			<LeleTbodyTr>
-				<td class="p-2">{data.name}</td>
+				<td class="p-2">{data.artist_name}</td>
 				<td class="p-2">{realTotal[index]}</td>
 				<td class="p-2">
 					{totalData90[index]}

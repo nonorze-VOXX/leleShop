@@ -1,12 +1,15 @@
 <script lang="ts">
-	import { type QueryTradeBodyWithTradeHead, type SalesTotalData } from '$lib/db';
+	import {
+		type ArtistWithTradeWithShopRow,
+		type QueryTradeBodyWithTradeHead,
+		type SalesTotalData
+	} from '$lib/db';
 	import { FormatDate, add, arr_sum } from '$lib/function/Utils';
-	import { createEventDispatcher } from 'svelte';
 	import LeleTable from './htmlWrapper/LeleTable.svelte';
 	import LeleTbody from './htmlWrapper/LeleTbody.svelte';
 	import LeleTbodyTr from './htmlWrapper/LeleTbodyTr.svelte';
 	import LeleThead from './htmlWrapper/LeleThead.svelte';
-	export let showedTradeDataList: QueryTradeBodyWithTradeHead;
+	export let showedTradeDataList: ArtistWithTradeWithShopRow[];
 	export let totalData: SalesTotalData;
 
 	let total = -1;
@@ -54,7 +57,7 @@
 			<LeleTbodyTr>
 				<td class="p-2">
 					<p>
-						{FormatDate(trade.trade_head?.trade_date)}
+						{trade.trade_date ? FormatDate(new Date(trade.trade_date)) : 'date error'}
 					</p>
 					<!-- <p>
 										{trade.trade_head?.trade_date?.split('+')[0].split('T')[1]}

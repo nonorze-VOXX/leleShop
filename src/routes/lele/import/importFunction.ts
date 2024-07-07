@@ -1,5 +1,6 @@
 import type { Artist, ArtistRow, TradeBody, TradeBodyRow, TradeHead, TradeHeadRow } from '$lib/db';
-import db from '$lib/db';
+import db, { supabase } from '$lib/db';
+import { groupBy } from '$lib/function/Utils';
 
 export const findIndex = (dataHeader: string[], target: string) => {
 	return dataHeader.findLastIndex((e) => e === target);
@@ -79,19 +80,28 @@ const CheckDataHeader = (dataHeader: string[]) => {
 	}
 	return { error: null };
 };
+export const timeZoneOffsetToHHMM = (timeZoneOffset: number) => {
+	const sign = timeZoneOffset < 0 ? '+' : '-';
+	const abs = Math.abs(timeZoneOffset);
+	const hour = Math.floor(abs / 60);
+	const minute = abs % 60;
+	return sign + (hour < 10 ? '0' : '') + hour + ':' + (minute < 10 ? '0' : '') + minute;
+};
 
 export const GetStoreData = (
 	tradeIdList: { trade_id: string }[],
 	artistList: ArtistRow[],
 	groupByIndex: Record<string, string[][]>,
 	timezoneOffset: string,
-	dataHeader: string[]
+	dataHeader: string[],
+	shop_id: number
 ) => {
 	const { error } = CheckDataHeader(dataHeader);
 	if (error) {
 		return {
 			tradeBodyList: [],
 			tradeHeadList: [],
+			susTradeIdList: [],
 			error
 		};
 	}
@@ -112,13 +122,13 @@ export const GetStoreData = (
 			state = element[0][stateIndex(dataHeader)];
 		}
 		if (state !== '關閉') {
-			// todo: return not close trade
 			susTradeIdList.push(key);
 			continue;
 		}
 		tradeHeadList.push({
 			trade_date: date.toISOString(),
-			trade_id: element[0][tradeIdIndex(dataHeader)]
+			trade_id: element[0][tradeIdIndex(dataHeader)],
+			shop_id
 		});
 
 		for (let i = 0; i < element.length; i++) {
@@ -128,7 +138,12 @@ export const GetStoreData = (
 			}
 			const artist_id = artistList.find((artist) => artist.artist_name === artist_name)?.id;
 			if (artist_id === undefined)
-				return { error: 'artist not found', tradeBodyList: [], tradeHeadList: [] };
+				return {
+					error: 'artist not found',
+					tradeBodyList: [],
+					tradeHeadList: [],
+					susTradeIdList: []
+				};
 
 			tradeBodyList.push({
 				item_name: element[i][itemNameIndex(dataHeader)],
@@ -141,7 +156,7 @@ export const GetStoreData = (
 			});
 		}
 	}
-	return { tradeBodyList, tradeHeadList, susTradeIdList };
+	return { tradeBodyList, tradeHeadList, susTradeIdList, error: null };
 };
 
 export const fileToArray = async (file: File) => {
@@ -172,7 +187,7 @@ export const GetDateWithTimeZone = (dateStr: string, timezoneOffset: string) => 
 		const date = new Date(dateStr);
 		return date;
 	}
-	const date = new Date(dateStr.replace(/ /g, 'T') + timezoneOffset);
+	const date = new Date(dateStr + timezoneOffset);
 	return date;
 };
 export const GetDateRange = async (
@@ -201,20 +216,32 @@ export const GetDateRange = async (
 	}
 	return { minDate, maxDate };
 };
+const SaveTradeHead = async (head: TradeHead[]) => {
+	const { data, error } = await supabase.from('trade_head').insert(head).select();
+	if (error !== null) {
+		console.log(error);
+	}
+	return { data, error };
+};
+const SaveTradeBody = async (body: TradeBody[]) => {
+	const { data, error } = await supabase.from('trade_body').insert(body).select();
+	if (error !== null) {
+		console.log(error);
+	}
+	return { data, error };
+};
 export const savePartToDb = async (tradeBodyList: TradeBody[], tradeHeadList: TradeHead[]) => {
-	console.log('tradeBodyList', tradeBodyList);
-	console.log('tradeHeadList', tradeHeadList);
 	let newTradeHead: TradeHeadRow[] = [];
 	let newTradeBody: TradeBodyRow[] = [];
 	{
-		const { error, data } = await db.SaveTradeHead(tradeHeadList);
+		const { error, data } = await SaveTradeHead(tradeHeadList);
 		if (error !== null) {
 			return { error, newTradeHead, newTradeBody };
 		}
 		newTradeHead = data ?? [];
 	}
 	{
-		const { error, data } = await db.SaveTradeBody(tradeBodyList);
+		const { error, data } = await SaveTradeBody(tradeBodyList);
 		if (error !== null) {
 			return { error, newTradeHead, newTradeBody };
 		}
@@ -222,3 +249,29 @@ export const savePartToDb = async (tradeBodyList: TradeBody[], tradeHeadList: Tr
 	}
 	return { error: null, newTradeHead, newTradeBody };
 };
+export async function FileListToHeadAndBody(files: FormDataEntryValue[]) {
+	const fileList = await Promise.all(
+		files.map(async (tmpFile) => {
+			const file = tmpFile as File;
+			const fileArr2D = await fileToArray(file);
+			let dataHeader: string[] = [];
+			dataHeader = fileArr2D[0];
+			if (!dataHeader) {
+				return null;
+			}
+			return { body: fileArr2D.slice(1), dataHeader };
+		})
+	);
+	var notNullFileList: {
+		body: string[][];
+		dataHeader: string[];
+	}[] = [];
+	fileList.forEach((element) => {
+		if (element !== null) {
+			notNullFileList.push(element);
+		}
+	});
+	return notNullFileList.map(({ body, dataHeader }) => {
+		return { groupByOrder: groupBy(body, (i) => i[tradeIdIndex(dataHeader)]), dataHeader };
+	});
+}
