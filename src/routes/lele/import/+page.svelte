@@ -1,29 +1,35 @@
 <script lang="ts">
 	import { invalidateAll } from '$app/navigation';
-	import type { TradeBodyRow, TradeHeadRow } from '$lib/db';
+	import type { ShopRow, TradeBodyRow, TradeHeadRow } from '$lib/db';
 	import {
 		GetDateRange,
 		GetNewArtistList,
 		GetStoreData,
 		fileToArray,
+		timeZoneOffsetToHHMM,
 		savePartToDb,
 		tradeIdIndex
 	} from './importFunction';
 	import { groupBy } from '$lib/function/Utils';
-	import db from '$lib/db';
+	import db, { supabase } from '$lib/db';
+	import { onMount } from 'svelte';
+
+	let shopList: ShopRow[] = [];
+
+	onMount(async () => {
+		const { data, error } = await supabase.from('shop').select('*');
+		if (error) {
+			console.error(error);
+			return;
+		}
+		shopList = data;
+	});
 	enum ProcessedStatus {
 		NORMAL,
 		PROCESSING,
 		ERROR,
 		PROCESSED
 	}
-	const timeZoneOffsetToHHMM = (timeZoneOffset: number) => {
-		const sign = timeZoneOffset < 0 ? '+' : '-';
-		const abs = Math.abs(timeZoneOffset);
-		const hour = Math.floor(abs / 60);
-		const minute = abs % 60;
-		return sign + (hour < 10 ? '0' : '') + hour + ':' + (minute < 10 ? '0' : '') + minute;
-	};
 
 	let newTradeHeadList: TradeHeadRow[] = [];
 	let newTradeBodyList: TradeBodyRow[] = [];
@@ -57,61 +63,120 @@
 			return { error: 'You must provide a file to upload' };
 		}
 		let susTradeIdLists: string[] = [];
-
-		for (let i = 0; i < files.length; i++) {
-			const file = files[i] as File;
-			const fileArr2D = await fileToArray(file);
-			let dataHeader: string[] = [];
-			dataHeader = fileArr2D[0];
-			if (!dataHeader) {
-				continue;
-			}
-
-			const groupByOrder = groupBy(fileArr2D.slice(1), (i) => i[tradeIdIndex(dataHeader)]);
-			const { maxDate, minDate } = await GetDateRange(groupByOrder, dataHeader, timezoneOffset);
-
-			const tradeIdList =
-				(await db.GetTradeIdList({ firstDate: minDate, lastDate: maxDate })).data ?? [];
-			let artistList = (await db.GetArtistDataList()).data ?? [];
-			const newArtistList = GetNewArtistList(artistList, groupByOrder, dataHeader);
-			{
-				if (newArtistList.length > 0) {
+		const result = (
+			await Promise.all(
+				files.map(async (tmpFile) => {
+					const file = tmpFile as File;
+					const fileArr2D = await fileToArray(file);
+					let dataHeader: string[] = [];
+					dataHeader = fileArr2D[0];
+					if (!dataHeader) {
+						return null;
+					}
+					return { body: fileArr2D.slice(1), dataHeader };
+				})
+			)
+		)
+			.filter((file) => file !== null)
+			.map(({ body, dataHeader }) => {
+				return { groupByOrder: groupBy(body, (i) => i[tradeIdIndex(dataHeader)]), dataHeader };
+			});
+		const groupAndHeaderAndDateRange = await Promise.all(
+			result.map(async ({ groupByOrder, dataHeader }) => {
+				const dateRange = await GetDateRange(groupByOrder, dataHeader, timezoneOffset);
+				return { dateRange, dataHeader, groupByOrder };
+			})
+		);
+		const tradeIdList = await Promise.all(
+			groupAndHeaderAndDateRange.map(async ({ dateRange, dataHeader, groupByOrder }) => {
+				return (
+					(
+						await db.GetTradeIdList({
+							firstDate: dateRange.minDate,
+							lastDate: dateRange.maxDate
+						})
+					).data ?? []
+				);
+			})
+		);
+		const artistList = await Promise.all(
+			result.map(
+				async ({ groupByOrder, dataHeader }, index) => (await db.GetArtistDataList()).data ?? []
+			)
+		);
+		const newArtistList = await Promise.all(
+			artistList
+				.map((artistList, index) =>
+					GetNewArtistList(
+						artistList,
+						groupAndHeaderAndDateRange[index].groupByOrder,
+						groupAndHeaderAndDateRange[index].dataHeader
+					)
+				)
+				.filter((newArtistList) => newArtistList.length > 0)
+				.map(async (newArtistList) => {
 					const { data } = await db.SaveArtistName(newArtistList);
-					artistList = artistList.concat(data ?? []);
-				}
-			}
+					return data ?? [];
+				})
+		);
+		artistList.forEach((list, index) => {
+			list.concat(newArtistList[index]);
+		});
+		const storeDataList = artistList
+			.map((list, index) => {
+				return GetStoreData(
+					tradeIdList[index],
+					list,
+					groupAndHeaderAndDateRange[index].groupByOrder,
+					timezoneOffset,
+					groupAndHeaderAndDateRange[index].dataHeader
+				);
+			})
+			.filter((e) => e.error === null)
+			.map(({ susTradeIdList, tradeBodyList, tradeHeadList }, index) => {
+				susTradeIdLists = susTradeIdLists.concat(susTradeIdList ?? []);
+				return { tradeBodyList, tradeHeadList };
+			});
+		const errors: string[] = [];
+		const newTradeBodys: TradeBodyRow[] = [],
+			newTradeHeads: TradeHeadRow[] = [];
 
-			const { tradeBodyList, tradeHeadList, susTradeIdList, error } = GetStoreData(
-				tradeIdList,
-				artistList,
-				groupByOrder,
-				timezoneOffset,
-				dataHeader
+		storeDataList.map(async ({ tradeBodyList, tradeHeadList }) => {
+			const { error, newTradeBody, newTradeHead } = await savePartToDb(
+				tradeBodyList,
+				tradeHeadList
 			);
 			if (error) {
-				return { error: error };
-			}
-			susTradeIdLists = susTradeIdLists.concat(susTradeIdList ?? []);
-			const {
-				error: saveError,
-				newTradeBody,
-				newTradeHead
-			} = await savePartToDb(tradeBodyList, tradeHeadList);
-			if (saveError) {
-				return { error: saveError };
+				console.error(error);
+				errors.push(error.message);
 			} else {
-				return { error: null, newTradeBody, newTradeHead, susTradeIdLists };
+				newTradeBodys.concat(newTradeBody);
+				newTradeHeads.concat(newTradeHead);
 			}
-		}
-		return { error: null, newTradeBody: [], newTradeHead: [], susTradeIdLists };
+		});
+		return {
+			error: errors.length ? null : errors[0],
+			newTradeBody: [],
+			newTradeHead: [],
+			susTradeIdLists
+		};
 	};
 </script>
 
 <div class="flex flex-col items-center rounded-xl border-4 border-lele-line bg-lele-bg p-5">
 	<form on:submit|preventDefault={handleSubmit} class="flex flex-col items-center gap-4 text-lg">
 		<div>
+			<label for="shops">Choose Shop:</label>
+
+			<select name="shops" id="shops" class="p-2">
+				{#each shopList as shop}
+					<option value={shop.id}>{shop.shop_name}</option>
+				{/each}
+			</select>
+		</div>
+		<div>
 			<!-- <label for="file">Upload your file</label> -->
-			<input multiple type="file" id="file" name="fileToUpload" accept=".csv" required />
+			<input multiple type="file" id="file" name="fileToUpload" accept=".csv" />
 		</div>
 
 		<button class="w-fit rounded-full bg-green-600 px-3 font-bold text-white" type="submit"

@@ -99,6 +99,7 @@ export const GetStoreData = (
 		return {
 			tradeBodyList: [],
 			tradeHeadList: [],
+			susTradeIdList: [],
 			error
 		};
 	}
@@ -119,7 +120,6 @@ export const GetStoreData = (
 			state = element[0][stateIndex(dataHeader)];
 		}
 		if (state !== '關閉') {
-			// todo: return not close trade
 			susTradeIdList.push(key);
 			continue;
 		}
@@ -135,7 +135,12 @@ export const GetStoreData = (
 			}
 			const artist_id = artistList.find((artist) => artist.artist_name === artist_name)?.id;
 			if (artist_id === undefined)
-				return { error: 'artist not found', tradeBodyList: [], tradeHeadList: [] };
+				return {
+					error: 'artist not found',
+					tradeBodyList: [],
+					tradeHeadList: [],
+					susTradeIdList: []
+				};
 
 			tradeBodyList.push({
 				item_name: element[i][itemNameIndex(dataHeader)],
@@ -148,7 +153,7 @@ export const GetStoreData = (
 			});
 		}
 	}
-	return { tradeBodyList, tradeHeadList, susTradeIdList };
+	return { tradeBodyList, tradeHeadList, susTradeIdList, error: null };
 };
 
 export const fileToArray = async (file: File) => {
