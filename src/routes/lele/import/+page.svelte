@@ -8,7 +8,8 @@
 		fileToArray,
 		timeZoneOffsetToHHMM,
 		savePartToDb,
-		tradeIdIndex
+		tradeIdIndex,
+		FileListToHeadAndBody
 	} from './importFunction';
 	import { groupBy } from '$lib/function/Utils';
 	import db, { supabase } from '$lib/db';
@@ -16,6 +17,8 @@
 	import { page } from '$app/stores';
 
 	let shopList: ShopRow[] = [];
+	let newTradeLength: { head: number; body: number } = { head: 0, body: 0 };
+	let shop_id: number = 1;
 
 	onMount(async () => {
 		const { data, error } = await supabase.from('shop').select('*');
@@ -24,10 +27,13 @@
 			return;
 		}
 		shopList = data;
-		if ($page.url.searchParams.get('shop_id') === null) {
+		let paramId = $page.url.searchParams.get('shop_id');
+		if (paramId === null) {
 			const param = new URLSearchParams($page.url.searchParams);
 			param.set('shop_id', '1');
 			goto(`?${param.toString()}`);
+		} else {
+			shop_id = parseInt(paramId);
 		}
 	});
 	enum ProcessedStatus {
@@ -37,8 +43,6 @@
 		PROCESSED
 	}
 
-	let newTradeHeadList: TradeHeadRow[] = [];
-	let newTradeBodyList: TradeBodyRow[] = [];
 	let susTrade: string[] = [];
 	let processed: ProcessedStatus = ProcessedStatus.NORMAL;
 	let submitLog: string = '';
@@ -54,8 +58,10 @@
 
 		if (!error) {
 			// submitLog = result.data?.error;
-			newTradeBodyList = newTradeBody ?? [];
-			newTradeHeadList = newTradeHead ?? [];
+			newTradeLength = {
+				body: (newTradeBody ?? []).length,
+				head: (newTradeHead ?? []).length
+			};
 			susTrade = susTradeIdLists ?? [];
 			processed = ProcessedStatus.PROCESSED;
 			await invalidateAll();
@@ -77,26 +83,9 @@
 			return { error: 'You must provide a file to upload' };
 		}
 		let susTradeIdLists: string[] = [];
-		const result = (
-			await Promise.all(
-				files.map(async (tmpFile) => {
-					const file = tmpFile as File;
-					const fileArr2D = await fileToArray(file);
-					let dataHeader: string[] = [];
-					dataHeader = fileArr2D[0];
-					if (!dataHeader) {
-						return null;
-					}
-					return { body: fileArr2D.slice(1), dataHeader };
-				})
-			)
-		)
-			.filter((file) => file !== null)
-			.map(({ body, dataHeader }) => {
-				return { groupByOrder: groupBy(body, (i) => i[tradeIdIndex(dataHeader)]), dataHeader };
-			});
+		const HeadAndBody = await FileListToHeadAndBody(files);
 		const groupAndHeaderAndDateRange = await Promise.all(
-			result.map(async ({ groupByOrder, dataHeader }) => {
+			HeadAndBody.map(async ({ groupByOrder, dataHeader }) => {
 				const dateRange = await GetDateRange(groupByOrder, dataHeader, timezoneOffset);
 				return { dateRange, dataHeader, groupByOrder };
 			})
@@ -114,7 +103,7 @@
 			})
 		);
 		const artistList = await Promise.all(
-			result.map(
+			HeadAndBody.map(
 				async ({ groupByOrder, dataHeader }, index) => (await db.GetArtistDataList()).data ?? []
 			)
 		);
@@ -156,19 +145,22 @@
 		const newTradeBodys: TradeBodyRow[] = [],
 			newTradeHeads: TradeHeadRow[] = [];
 
-		storeDataList.map(async ({ tradeBodyList, tradeHeadList }) => {
-			const { error, newTradeBody, newTradeHead } = await savePartToDb(
-				tradeBodyList,
-				tradeHeadList
-			);
-			if (error) {
-				console.error(error);
-				errors.push(error.message);
-			} else {
-				newTradeBodys.concat(newTradeBody);
-				newTradeHeads.concat(newTradeHead);
-			}
-		});
+		await Promise.all(
+			storeDataList.map(async ({ tradeBodyList, tradeHeadList }) => {
+				const { error, newTradeBody, newTradeHead } = await savePartToDb(
+					tradeBodyList,
+					tradeHeadList
+				);
+				if (error) {
+					console.error(error);
+					errors.push(error.message);
+				} else {
+					newTradeBodys.push(...newTradeBody);
+					newTradeHeads.push(...newTradeHead);
+				}
+			})
+		);
+
 		return {
 			error: errors.length ? null : errors[0],
 			newTradeBodys,
@@ -193,7 +185,7 @@
 		<div>
 			<label for="shops">Choose Shop:</label>
 
-			<select name="shops" id="shops" class="p-2">
+			<select name="shops" id="shops" class="p-2" bind:value={shop_id}>
 				{#each shopList as shop}
 					<option value={shop.id}>{shop.shop_name}</option>
 				{/each}
@@ -219,8 +211,8 @@
 		<p class="text-7xl text-red-600">{submitLog}</p>
 	{/if}
 	<div class="flex flex-col">
-		<div class="text-center">共{newTradeHeadList.length}筆新交易</div>
-		<div class="text-center">賣出{newTradeBodyList.length}次商品</div>
+		<div class="text-center">共{newTradeLength.head}筆新交易</div>
+		<div class="text-center">賣出{newTradeLength.body}次商品</div>
 
 		{#if susTrade.length > 0}
 			<div class="text-center">以下交易序號不是關閉狀態</div>

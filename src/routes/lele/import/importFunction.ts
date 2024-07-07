@@ -1,5 +1,6 @@
 import type { Artist, ArtistRow, TradeBody, TradeBodyRow, TradeHead, TradeHeadRow } from '$lib/db';
 import db, { supabase } from '$lib/db';
+import { groupBy } from '$lib/function/Utils';
 
 export const findIndex = (dataHeader: string[], target: string) => {
 	return dataHeader.findLastIndex((e) => e === target);
@@ -230,8 +231,6 @@ const SaveTradeBody = async (body: TradeBody[]) => {
 	return { data, error };
 };
 export const savePartToDb = async (tradeBodyList: TradeBody[], tradeHeadList: TradeHead[]) => {
-	console.log('tradeBodyList', tradeBodyList);
-	console.log('tradeHeadList', tradeHeadList);
 	let newTradeHead: TradeHeadRow[] = [];
 	let newTradeBody: TradeBodyRow[] = [];
 	{
@@ -250,3 +249,29 @@ export const savePartToDb = async (tradeBodyList: TradeBody[], tradeHeadList: Tr
 	}
 	return { error: null, newTradeHead, newTradeBody };
 };
+export async function FileListToHeadAndBody(files: FormDataEntryValue[]) {
+	const fileList = await Promise.all(
+		files.map(async (tmpFile) => {
+			const file = tmpFile as File;
+			const fileArr2D = await fileToArray(file);
+			let dataHeader: string[] = [];
+			dataHeader = fileArr2D[0];
+			if (!dataHeader) {
+				return null;
+			}
+			return { body: fileArr2D.slice(1), dataHeader };
+		})
+	);
+	var notNullFileList: {
+		body: string[][];
+		dataHeader: string[];
+	}[] = [];
+	fileList.forEach((element) => {
+		if (element !== null) {
+			notNullFileList.push(element);
+		}
+	});
+	return notNullFileList.map(({ body, dataHeader }) => {
+		return { groupByOrder: groupBy(body, (i) => i[tradeIdIndex(dataHeader)]), dataHeader };
+	});
+}
