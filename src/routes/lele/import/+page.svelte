@@ -15,6 +15,7 @@
 	import db, { supabase } from '$lib/db';
 	import { onMount } from 'svelte';
 	import { page } from '$app/stores';
+	import OkButton from '$lib/UrlBox.svelte';
 
 	let shopList: ShopRow[] = [];
 	let newTradeLength: { head: number; body: number } = { head: 0, body: 0 };
@@ -173,7 +174,10 @@
 	}
 </script>
 
-<div class="flex flex-col items-center rounded-xl border-4 border-lele-line bg-lele-bg p-5">
+<div class="flex flex-col items-center gap-4 rounded-xl border-4 border-lele-line bg-lele-bg p-5">
+	<OkButton>
+		<a class="p-2" href={'/lele/import/editShop'}> edit shop</a>
+	</OkButton>
 	<form
 		on:change|preventDefault={handleShopChange}
 		class="flex flex-col items-center gap-4 text-lg"
