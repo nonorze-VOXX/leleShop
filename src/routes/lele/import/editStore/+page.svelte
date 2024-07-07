@@ -1,0 +1,93 @@
+<script lang="ts">
+	import { page } from '$app/stores';
+	import { LeleTable, LeleTbody, LeleTbodyTr, LeleThead } from '$lib/Component/htmlWrapper';
+	import { supabase, type ShopInsert, type ShopRow } from '$lib/db';
+	import { onMount } from 'svelte';
+
+	async function handleSubmit(event: { currentTarget: EventTarget & HTMLFormElement }) {
+		const formData = new FormData(event.currentTarget);
+		const commision = formData.get('commission') as string;
+		console.log(formData);
+		if (commision === null) {
+			return;
+		}
+		const shopData: ShopInsert = {
+			commission: parseFloat(commision),
+			shop_name: formData.get('shop_name') as string
+		};
+		const { error } = await supabase.from('shop').insert(shopData);
+		if (error) {
+			console.error(error);
+			return;
+		}
+	}
+	let shopList: ShopRow[] = [];
+	onMount(async () => {
+		const { data, error } = await supabase.from('shop').select('*');
+		if (error) {
+			console.error(error);
+			return;
+		}
+		shopList = data;
+	});
+
+	async function handleClick(
+		event: MouseEvent & { currentTarget: EventTarget & HTMLButtonElement }
+	) {
+		const shopId = event.currentTarget.dataset.shopId;
+		if (shopId === undefined) {
+			return;
+		}
+		console.log(shopId);
+		const { error } = await supabase.from('shop').delete().eq('id', shopId);
+		if (error) {
+			console.error(error);
+		}
+	}
+</script>
+
+<div class="flex flex-col items-center gap-2">
+	<form
+		on:submit|preventDefault={handleSubmit}
+		method="post"
+		class="flex flex-col items-center gap-4 rounded-xl bg-lele-line p-3 text-base font-semibold text-lele-bg
+        "
+	>
+		<div>Add shop</div>
+		<div class="flex w-full justify-between gap-3">
+			<label for="name">name</label>
+			<input type="text" id="name" name="shop_name" class="w-60 text-lele-line" required />
+		</div>
+		<div class="flex w-full justify-between gap-3">
+			<label for="commission">抽成(%)</label>
+			<input type="number" id="commission" required class="w-60 text-lele-line" name="commission" />
+		</div>
+		<button type="submit" class="rounded-full bg-lele-bg px-2 text-lele-line">add</button>
+	</form>
+
+	<div class="flex w-80">
+		<LeleTable>
+			<LeleThead>
+				<tr>
+					<td>店名</td>
+					<td class="w-20">抽成(%)</td>
+					<td class="w-10">刪除</td>
+				</tr>
+			</LeleThead>
+			<LeleTbody>
+				{#each shopList as shop}
+					<LeleTbodyTr>
+						<td>{shop.shop_name}</td>
+						<td>{shop.commission}</td>
+						<td class="flex items-center justify-center">
+							<button
+								class="m-2 rounded-xl border-2 border-lele-line bg-lele-bg px-2 text-lg font-medium text-red-600"
+								on:click={handleClick}>x</button
+							>
+						</td>
+					</LeleTbodyTr>
+				{/each}
+			</LeleTbody>
+		</LeleTable>
+	</div>
+</div>

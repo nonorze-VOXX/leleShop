@@ -87,7 +87,7 @@ export default {
 		const result: ArtistWithTradeRow[] = [];
 
 		for (let i = 0; i < count; i += 1000) {
-			const { data, error } = await query.range(i, i + 1000);
+			const { data, error } = await query.range(i, i + 999);
 			if (error) {
 				console.error(error);
 			}
@@ -149,20 +149,6 @@ export default {
 		}
 		return { data, error };
 	},
-	async SaveTradeBody(body: TradeBody[]) {
-		const { data, error } = await supabase.from('trade_body').insert(body).select();
-		if (error !== null) {
-			console.log(error);
-		}
-		return { data, error };
-	},
-	async SaveTradeHead(head: TradeHead[]) {
-		const { data, error } = await supabase.from('trade_head').insert(head).select();
-		if (error !== null) {
-			console.log(error);
-		}
-		return { data, error };
-	},
 	async GetArtistData(id: string = '*') {
 		let query = supabase.from('artist').select();
 		if (id !== '*') {
@@ -211,7 +197,7 @@ export default {
 					.gte('trade_date', date.firstDate.toISOString())
 					.lte('trade_date', date.lastDate.toISOString());
 			}
-			const { data, error } = await query.range(i, i + 1000);
+			const { data, error } = await query.range(i, i + 999);
 			if (error !== null) {
 				console.log('fetch head fail');
 			}
@@ -314,7 +300,7 @@ export default {
 						.lte('trade_head.trade_date', date.lastDate.toISOString());
 				}
 				query.order('trade_head(trade_date)', { ascending: false });
-				const { data, error } = await query.range(i, i + 1000 - 1);
+				const { data, error } = await query.range(i, i + 999);
 				if (error) {
 					console.log(error);
 				}

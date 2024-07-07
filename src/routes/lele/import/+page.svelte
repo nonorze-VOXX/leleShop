@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { invalidateAll } from '$app/navigation';
+	import { goto, invalidateAll } from '$app/navigation';
 	import type { ShopRow, TradeBodyRow, TradeHeadRow } from '$lib/db';
 	import {
 		GetDateRange,
@@ -13,6 +13,7 @@
 	import { groupBy } from '$lib/function/Utils';
 	import db, { supabase } from '$lib/db';
 	import { onMount } from 'svelte';
+	import { page } from '$app/stores';
 
 	let shopList: ShopRow[] = [];
 
@@ -23,6 +24,11 @@
 			return;
 		}
 		shopList = data;
+		if ($page.url.searchParams.get('shop_id') === null) {
+			const param = new URLSearchParams($page.url.searchParams);
+			param.set('shop_id', '1');
+			goto(`?${param.toString()}`);
+		}
 	});
 	enum ProcessedStatus {
 		NORMAL,
@@ -39,10 +45,12 @@
 	async function handleSubmit(event: { currentTarget: EventTarget & HTMLFormElement }) {
 		const data = new FormData(event.currentTarget);
 		processed = ProcessedStatus.PROCESSING;
-		const { error, newTradeBody, newTradeHead, susTradeIdLists } = await f(
-			data,
-			timeZoneOffsetToHHMM(new Date().getTimezoneOffset())
-		);
+		const {
+			error,
+			newTradeBodys: newTradeBody,
+			newTradeHeads: newTradeHead,
+			susTradeIdLists
+		} = await f(data, timeZoneOffsetToHHMM(new Date().getTimezoneOffset()));
 
 		if (!error) {
 			// submitLog = result.data?.error;
@@ -58,7 +66,13 @@
 		}
 	}
 	const f = async (formData: FormData, timezoneOffset: string) => {
+		//todo: use for or some to speed up #performance
 		const files = formData.getAll('fileToUpload');
+		const shop_idStr = $page.url.searchParams.get('shop_id');
+		if (shop_idStr === null) {
+			return { error: 'shop_id is null' };
+		}
+		var shop_id: number = parseInt(shop_idStr);
 		if (files.length === 0) {
 			return { error: 'You must provide a file to upload' };
 		}
@@ -129,7 +143,8 @@
 					list,
 					groupAndHeaderAndDateRange[index].groupByOrder,
 					timezoneOffset,
-					groupAndHeaderAndDateRange[index].dataHeader
+					groupAndHeaderAndDateRange[index].dataHeader,
+					shop_id
 				);
 			})
 			.filter((e) => e.error === null)
@@ -156,15 +171,25 @@
 		});
 		return {
 			error: errors.length ? null : errors[0],
-			newTradeBody: [],
-			newTradeHead: [],
+			newTradeBodys,
+			newTradeHeads,
 			susTradeIdLists
 		};
 	};
+
+	async function handleShopChange(event: { currentTarget: EventTarget & HTMLFormElement }) {
+		const formData = new FormData(event.currentTarget);
+		const param = new URLSearchParams($page.url.searchParams);
+		param.set('shop_id', formData.get('shops') as string);
+		goto(`?${param.toString()}`);
+	}
 </script>
 
 <div class="flex flex-col items-center rounded-xl border-4 border-lele-line bg-lele-bg p-5">
-	<form on:submit|preventDefault={handleSubmit} class="flex flex-col items-center gap-4 text-lg">
+	<form
+		on:change|preventDefault={handleShopChange}
+		class="flex flex-col items-center gap-4 text-lg"
+	>
 		<div>
 			<label for="shops">Choose Shop:</label>
 
@@ -174,6 +199,8 @@
 				{/each}
 			</select>
 		</div>
+	</form>
+	<form on:submit|preventDefault={handleSubmit} class="flex flex-col items-center gap-4 text-lg">
 		<div>
 			<!-- <label for="file">Upload your file</label> -->
 			<input multiple type="file" id="file" name="fileToUpload" accept=".csv" />

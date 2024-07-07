@@ -1,5 +1,5 @@
 import type { Artist, ArtistRow, TradeBody, TradeBodyRow, TradeHead, TradeHeadRow } from '$lib/db';
-import db from '$lib/db';
+import db, { supabase } from '$lib/db';
 
 export const findIndex = (dataHeader: string[], target: string) => {
 	return dataHeader.findLastIndex((e) => e === target);
@@ -92,7 +92,8 @@ export const GetStoreData = (
 	artistList: ArtistRow[],
 	groupByIndex: Record<string, string[][]>,
 	timezoneOffset: string,
-	dataHeader: string[]
+	dataHeader: string[],
+	shop_id: number
 ) => {
 	const { error } = CheckDataHeader(dataHeader);
 	if (error) {
@@ -125,7 +126,8 @@ export const GetStoreData = (
 		}
 		tradeHeadList.push({
 			trade_date: date.toISOString(),
-			trade_id: element[0][tradeIdIndex(dataHeader)]
+			trade_id: element[0][tradeIdIndex(dataHeader)],
+			shop_id
 		});
 
 		for (let i = 0; i < element.length; i++) {
@@ -213,20 +215,34 @@ export const GetDateRange = async (
 	}
 	return { minDate, maxDate };
 };
+const SaveTradeHead = async (head: TradeHead[]) => {
+	const { data, error } = await supabase.from('trade_head').insert(head).select();
+	if (error !== null) {
+		console.log(error);
+	}
+	return { data, error };
+};
+const SaveTradeBody = async (body: TradeBody[]) => {
+	const { data, error } = await supabase.from('trade_body').insert(body).select();
+	if (error !== null) {
+		console.log(error);
+	}
+	return { data, error };
+};
 export const savePartToDb = async (tradeBodyList: TradeBody[], tradeHeadList: TradeHead[]) => {
 	console.log('tradeBodyList', tradeBodyList);
 	console.log('tradeHeadList', tradeHeadList);
 	let newTradeHead: TradeHeadRow[] = [];
 	let newTradeBody: TradeBodyRow[] = [];
 	{
-		const { error, data } = await db.SaveTradeHead(tradeHeadList);
+		const { error, data } = await SaveTradeHead(tradeHeadList);
 		if (error !== null) {
 			return { error, newTradeHead, newTradeBody };
 		}
 		newTradeHead = data ?? [];
 	}
 	{
-		const { error, data } = await db.SaveTradeBody(tradeBodyList);
+		const { error, data } = await SaveTradeBody(tradeBodyList);
 		if (error !== null) {
 			return { error, newTradeHead, newTradeBody };
 		}
