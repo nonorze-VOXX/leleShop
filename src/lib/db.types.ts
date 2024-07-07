@@ -59,6 +59,21 @@ export type Database = {
           },
         ]
       }
+      shop: {
+        Row: {
+          id: number
+          name: string
+        }
+        Insert: {
+          id?: number
+          name?: string
+        }
+        Update: {
+          id?: number
+          name?: string
+        }
+        Relationships: []
+      }
       trade_body: {
         Row: {
           artist_id: number
@@ -109,18 +124,29 @@ export type Database = {
       }
       trade_head: {
         Row: {
+          shop_id: number | null
           trade_date: string
           trade_id: string
         }
         Insert: {
+          shop_id?: number | null
           trade_date: string
           trade_id: string
         }
         Update: {
+          shop_id?: number | null
           trade_date?: string
           trade_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "public_trade_head_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: false
+            referencedRelation: "shop"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
