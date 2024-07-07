@@ -61,16 +61,19 @@ export type Database = {
       }
       shop: {
         Row: {
+          commission: number
           id: number
-          name: string
+          shop_name: string
         }
         Insert: {
+          commission?: number
           id?: number
-          name?: string
+          shop_name?: string
         }
         Update: {
+          commission?: number
           id?: number
-          name?: string
+          shop_name?: string
         }
         Relationships: []
       }
