@@ -79,6 +79,13 @@ const CheckDataHeader = (dataHeader: string[]) => {
 	}
 	return { error: null };
 };
+export const timeZoneOffsetToHHMM = (timeZoneOffset: number) => {
+	const sign = timeZoneOffset < 0 ? '+' : '-';
+	const abs = Math.abs(timeZoneOffset);
+	const hour = Math.floor(abs / 60);
+	const minute = abs % 60;
+	return sign + (hour < 10 ? '0' : '') + hour + ':' + (minute < 10 ? '0' : '') + minute;
+};
 
 export const GetStoreData = (
 	tradeIdList: { trade_id: string }[],
@@ -172,7 +179,7 @@ export const GetDateWithTimeZone = (dateStr: string, timezoneOffset: string) => 
 		const date = new Date(dateStr);
 		return date;
 	}
-	const date = new Date(dateStr.replace(/ /g, 'T') + timezoneOffset);
+	const date = new Date(dateStr + timezoneOffset);
 	return date;
 };
 export const GetDateRange = async (

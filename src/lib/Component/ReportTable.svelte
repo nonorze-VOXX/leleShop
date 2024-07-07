@@ -54,7 +54,9 @@
 			<LeleTbodyTr>
 				<td class="p-2">
 					<p>
-						{FormatDate(trade.trade_head?.trade_date)}
+						{trade.trade_head?.trade_date
+							? FormatDate(new Date(trade.trade_head?.trade_date))
+							: 'date error'}
 					</p>
 					<!-- <p>
 										{trade.trade_head?.trade_date?.split('+')[0].split('T')[1]}

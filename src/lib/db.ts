@@ -17,6 +17,8 @@ export type PaymentStatusInsert = Database['public']['Tables']['artist_payment_s
 export type PaymentStatusRow = Database['public']['Tables']['artist_payment_status']['Row'];
 export type PaymentStatusUpdate = Database['public']['Tables']['artist_payment_status']['Update'];
 export type ArtistWithTradeRow = Database['public']['Views']['artist_trade']['Row'];
+export type ShopInsert = Database['public']['Tables']['shop']['Insert'];
+export type ShopRow = Database['public']['Tables']['shop']['Row'];
 export type SalesTotalData = {
 	sales_total: number;
 	net_total: number;
