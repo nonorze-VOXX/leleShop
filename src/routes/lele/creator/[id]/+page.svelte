@@ -8,6 +8,7 @@
 	import Commision from '$lib/Component/reportComponent/Commision.svelte';
 	import Remit from '$lib/Component/reportComponent/Remit.svelte';
 	import { goto } from '$app/navigation';
+	import ShopChooser from '$lib/Component/ShopChooser.svelte';
 
 	let artist_name: string = '';
 	let artist_id: string = $page.params.id;
@@ -52,16 +53,7 @@
 			on:change|preventDefault={handleShopChange}
 			class="flex flex-col items-center gap-4 text-lg"
 		>
-			<div>
-				<label for="shops">Choose Shop:</label>
-
-				<select name="shops" id="shops" class="p-2" bind:value={shop_id}>
-					<option value={'*'}>All</option>
-					{#each shopList as shop}
-						<option value={shop.id}>{shop.shop_name}</option>
-					{/each}
-				</select>
-			</div>
+			<ShopChooser bind:shop_id bind:shopList></ShopChooser>
 		</form>
 	</div>
 	{#if shop_id}
