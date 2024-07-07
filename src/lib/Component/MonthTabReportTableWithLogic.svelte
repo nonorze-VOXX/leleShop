@@ -5,8 +5,10 @@
 	import db, { onePageLength, supabase } from '$lib/db';
 	import { ThisMonthFirstDate } from '$lib/function/Utils';
 	import MonthTab from './MonthTab.svelte';
+	import { invalidateAll } from '$app/navigation';
 
 	export let artist_id: string;
+	export let shop_id: number | '*';
 	let tradeDataList: QueryTradeBodyWithTradeHead = [];
 	let nowPage: string = '0';
 	let total: SalesTotalData = {
@@ -44,7 +46,7 @@
 		change: { net_total: number; firstDate: Date; lastDate: Date; showedLength: number };
 	}>();
 	const UpdateTradeData = async (firstDate: Date, lastDate: Date) => {
-		total = await db.GetTradeTotal(parseInt(artist_id), firstDate, lastDate);
+		total = await db.GetTradeTotal(parseInt(artist_id), firstDate, lastDate, shop_id);
 
 		const { data } = await db.GetTradeData(artist_id, dateRange, parseInt(nowPage) - 1);
 		return data;
@@ -53,6 +55,10 @@
 		const { data } = await db.GetTradeData(artist_id, dateRange, parseInt(nowPage) - 1);
 		return data;
 	};
+	$: {
+		shop_id;
+		if (dateRange) UpdateTradeData(dateRange.firstDate, dateRange.lastDate);
+	}
 </script>
 
 {#if tradeDataList}

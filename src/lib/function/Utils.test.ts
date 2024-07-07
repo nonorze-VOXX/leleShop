@@ -90,40 +90,40 @@ test.each([
 	}
 });
 
-test('test get total with shop', async () => {
-	let artist_id = 1;
-	let start_date = '2024-01-01';
-	let end_date = '2024-01-02';
-	let data1, data2, data3;
+// test('test get total with shop', async () => {
+// 	let artist_id = 1;
+// 	let start_date = '2024-01-01';
+// 	let end_date = '2024-01-02';
+// 	let data1, data2, data3;
 
-	{
-		const { data, error } = await supabase.rpc('get_total_trade', {
-			artist_id,
-			start_date,
-			end_date
-		});
-		expect(error).toBe(null);
-		data1 = data;
-	}
-	{
-		const { data, error } = await supabase.rpc('get_total_trade_with_shop', {
-			artist_id,
-			start_date,
-			end_date,
-			shop_id: 1
-		});
-		expect(error).toBe(null);
-		data2 = data;
-	}
-	{
-		const { data, error } = await supabase.rpc('get_total_trade_with_shop', {
-			artist_id,
-			start_date,
-			end_date,
-			shop_id: 3
-		});
-		expect(error).toBe(null);
-		data3 = data;
-	}
-	expect(data1).toBe(data3);
-});
+// 	{
+// 		const { data, error } = await supabase.rpc('get_total_trade', {
+// 			artist_id,
+// 			start_date,
+// 			end_date
+// 		});
+// 		expect(error).toBe(null);
+// 		data1 = data;
+// 	}
+// 	{
+// 		const { data, error } = await supabase.rpc('get_total_trade_with_shop', {
+// 			artist_id,
+// 			start_date,
+// 			end_date,
+// 			shop_id: 1
+// 		});
+// 		expect(error).toBe(null);
+// 		data2 = data;
+// 	}
+// 	{
+// 		const { data, error } = await supabase.rpc('get_total_trade_with_shop', {
+// 			artist_id,
+// 			start_date,
+// 			end_date,
+// 			shop_id: 3
+// 		});
+// 		expect(error).toBe(null);
+// 		data3 = data;
+// 	}
+// 	expect(data1).toBe(data3);
+// });

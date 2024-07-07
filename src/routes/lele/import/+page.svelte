@@ -21,12 +21,8 @@
 	let shop_id: number = 1;
 
 	onMount(async () => {
-		const { data, error } = await supabase.from('shop').select('*');
-		if (error) {
-			console.error(error);
-			return;
-		}
-		shopList = data;
+		const { data } = await db.GetShopList();
+		shopList = data ?? [];
 		let paramId = $page.url.searchParams.get('shop_id');
 		if (paramId === null) {
 			const param = new URLSearchParams($page.url.searchParams);

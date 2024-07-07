@@ -229,33 +229,67 @@ export default {
 
 		return { count };
 	},
-	async GetTradeTotal(artist_id: number, start_date: string | Date, end_date: string | Date) {
+	async GetTradeTotal(
+		artist_id: number,
+		start_date: string | Date,
+		end_date: string | Date,
+		shop_id: number | '*'
+	) {
 		if (start_date instanceof Date) {
 			start_date = start_date.toISOString();
 		}
 		if (end_date instanceof Date) {
 			end_date = end_date.toISOString();
 		}
-		const { data, error } = await supabase.rpc('get_total_trade', {
-			artist_id,
-			start_date,
-			end_date
-		});
-		if (error) {
-			console.error(error);
-			return {
-				sales_total: -1,
-				net_total: -1,
-				discount_total: -1,
-				total_quantity: -1
-			};
+
+		let data: Record<string, unknown> | null;
+
+		if (shop_id === '*') {
+			const { data: allData, error } = await supabase.rpc('get_total_trade', {
+				artist_id,
+				start_date,
+				end_date
+			});
+			data = allData;
+			if (error) {
+				console.error(error);
+				return {
+					sales_total: -1,
+					net_total: -1,
+					discount_total: -1,
+					total_quantity: -1
+				};
+			}
+		} else {
+			const { data: allData, error } = await supabase.rpc('get_total_trade_with_shop', {
+				artist_id,
+				start_date,
+				end_date,
+				shop_id
+			});
+			data = allData;
+			if (error) {
+				console.error(error);
+				return {
+					sales_total: -1,
+					net_total: -1,
+					discount_total: -1,
+					total_quantity: -1
+				};
+			}
 		}
+		const typedData = data as {
+			f1: number | null;
+			f2: number | null;
+			f3: number | null;
+			f4: number | null;
+		};
 
 		const total: SalesTotalData = {
-			sales_total: data.f1 as number,
-			net_total: data.f2 as number,
-			discount_total: data.f3 as number,
-			total_quantity: data.f4 as number
+			sales_total: typedData.f1 ?? 0,
+			net_total: typedData.f2 ?? 0,
+			discount_total: typedData.f3 ?? 0,
+			total_quantity: typedData.f4 ?? 0
 		};
 		return total;
 	},
@@ -356,5 +390,13 @@ export default {
 			});
 		}
 		return { data: result, error };
+	},
+	async GetShopList() {
+		const { data, error } = await supabase.from('shop').select('*');
+		if (error) {
+			console.error(error);
+		}
+		console.log(data);
+		return { data };
 	}
 };
