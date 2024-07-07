@@ -14,10 +14,8 @@
 	import MonthTab from '$lib/Component/MonthTab.svelte';
 
 	let totalData: {
-		name: string;
-		total_sales_sum: number;
-		net_sales_sum: number;
-		discount_sum: number;
+		artist_name: string;
+		net_total: number;
 	}[] = [];
 
 	let realTotal: number[] = [];
@@ -38,12 +36,12 @@
 			console.error(error);
 			return;
 		}
-		totalData = result;
 		realTotal = [];
 		totalData90 = [];
-		totalData.map((data) => {
-			realTotal.push(data.total_sales_sum - data.discount_sum);
-			totalData90.push(Math.ceil(data.net_sales_sum * 0.9));
+		totalData = result;
+		result.map((data) => {
+			realTotal.push(data.net_total);
+			totalData90.push(Math.ceil(data.net_total * 0.9));
 		});
 		sumTotalData = {
 			real_sales_sum: realTotal.reduce((a, b) => a + b, 0),
@@ -88,7 +86,7 @@
 		{/if}
 		{#each totalData as data, index}
 			<LeleTbodyTr>
-				<td class="p-2">{data.name}</td>
+				<td class="p-2">{data.artist_name}</td>
 				<td class="p-2">{realTotal[index]}</td>
 				<td class="p-2">
 					{totalData90[index]}

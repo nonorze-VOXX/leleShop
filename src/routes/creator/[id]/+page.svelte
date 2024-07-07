@@ -20,6 +20,7 @@
 	let showedLength = 0;
 	let shop_id: number | null | '*' = '*';
 	let shopList: ShopRow[] = [];
+	let commission: number | null = null;
 
 	onMount(async () => {
 		artist_id = $page.params.id;
@@ -30,8 +31,10 @@
 		let paramId = $page.url.searchParams.get('shop_id');
 		if (paramId === null) {
 			shop_id = '*';
+			commission = null;
 		} else {
 			shop_id = parseInt(paramId);
+			commission = shopList.find((e) => e.id == shop_id)?.commission ?? null;
 		}
 	});
 	let firstDate: Date | null;
@@ -41,6 +44,8 @@
 		const formData = new FormData(event.currentTarget);
 		const param = new URLSearchParams($page.url.searchParams);
 		param.set('shop_id', formData.get('shops') as string);
+		commission =
+			shopList.find((e) => e.id == parseInt(formData.get('shops') as string))?.commission ?? null;
 		goto(`?${param.toString()}`);
 	}
 </script>
@@ -62,7 +67,7 @@
 
 			<Commision bind:net_total></Commision>
 			<TradeCount bind:showedLength></TradeCount>
-			<Remit bind:net_total></Remit>
+			<Remit bind:net_total bind:commission></Remit>
 			<form
 				on:change|preventDefault={handleShopChange}
 				class="flex flex-col items-center gap-4 text-lg"
