@@ -127,17 +127,17 @@ export type Database = {
       }
       trade_head: {
         Row: {
-          shop_id: number | null
+          shop_id: number
           trade_date: string
           trade_id: string
         }
         Insert: {
-          shop_id?: number | null
+          shop_id: number
           trade_date: string
           trade_id: string
         }
         Update: {
-          shop_id?: number | null
+          shop_id?: number
           trade_date?: string
           trade_id?: string
         }

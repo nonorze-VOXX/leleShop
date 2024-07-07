@@ -88,3 +88,5 @@ VALUES ('the create',90);
 update trade_head 
 set shop_id=(select id from shop limit 1)
 
+
+alter table "public"."trade_head" alter column "shop_id" set not null;
