@@ -1,6 +1,10 @@
 <script lang="ts">
 	import { createEventDispatcher, onMount } from 'svelte';
-	import type { QueryTradeBodyWithTradeHead, SalesTotalData } from '$lib/db';
+	import type {
+		ArtistWithTradeWithShopRow,
+		QueryTradeBodyWithTradeHead,
+		SalesTotalData
+	} from '$lib/db';
 	import MonthTabReportTable from '$lib/Component/MonthTabReportTable.svelte';
 	import db, { onePageLength, supabase } from '$lib/db';
 	import { ThisMonthFirstDate } from '$lib/function/Utils';
@@ -9,7 +13,7 @@
 
 	export let artist_id: string;
 	export let shop_id: number | '*';
-	let tradeDataList: QueryTradeBodyWithTradeHead = [];
+	let tradeDataList: ArtistWithTradeWithShopRow[] = [];
 	let nowPage: string = '0';
 	let total: SalesTotalData = {
 		sales_total: 0,
@@ -24,7 +28,7 @@
 	});
 	const DateChange = async (firstDate: Date, lastDate: Date) => {
 		dateRange = { firstDate, lastDate };
-		const { count } = await db.GetTradeDataCount(artist_id, { firstDate, lastDate });
+		const { count } = await db.GetTradeDataCount(artist_id, { firstDate, lastDate }, shop_id);
 		console.log(count, artist_id, firstDate, lastDate);
 
 		pageIndex = [];
@@ -57,7 +61,7 @@
 	};
 	$: {
 		shop_id;
-		if (dateRange) UpdateTradeData(dateRange.firstDate, dateRange.lastDate);
+		if (dateRange) DateChange(dateRange.firstDate, dateRange.lastDate);
 	}
 </script>
 

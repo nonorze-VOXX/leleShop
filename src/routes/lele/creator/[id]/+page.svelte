@@ -32,7 +32,12 @@
 	async function handleShopChange(event: { currentTarget: EventTarget & HTMLFormElement }) {
 		const formData = new FormData(event.currentTarget);
 		const param = new URLSearchParams($page.url.searchParams);
-		param.set('shop_id', formData.get('shops') as string);
+		const id = formData.get('shops') as string;
+		if (id === '*') {
+			param.delete('shop_id');
+		} else {
+			param.set('shop_id', id);
+		}
 		goto(`?${param.toString()}`);
 	}
 </script>

@@ -17,6 +17,8 @@ export type PaymentStatusInsert = Database['public']['Tables']['artist_payment_s
 export type PaymentStatusRow = Database['public']['Tables']['artist_payment_status']['Row'];
 export type PaymentStatusUpdate = Database['public']['Tables']['artist_payment_status']['Update'];
 export type ArtistWithTradeRow = Database['public']['Views']['artist_trade']['Row'];
+export type ArtistWithTradeWithShopRow =
+	Database['public']['Views']['artist_trade_with_shop']['Row'];
 export type ShopInsert = Database['public']['Tables']['shop']['Insert'];
 export type ShopRow = Database['public']['Tables']['shop']['Row'];
 export type SalesTotalData = {
@@ -207,21 +209,26 @@ export default {
 	},
 	async GetTradeDataCount(
 		id: string,
-		date: { firstDate: Date | null; lastDate: Date | null } = { firstDate: null, lastDate: null }
+		date: { firstDate: Date | null; lastDate: Date | null } = { firstDate: null, lastDate: null },
+		shop_id: number | '*' = '*'
 	) {
-		let query = supabase.from('trade_body').select('*, trade_head!inner(trade_id, trade_date)', {
-			count: 'exact',
-			head: true
-		});
+		let query = supabase
+			.from('artist_trade_with_shop')
+			.select('*', { count: 'exact', head: false });
 		if (id !== '*' && id !== '') {
 			query = query.eq('artist_id', id);
 		}
 		if (date.firstDate !== null && date.lastDate !== null) {
 			query = query
-				.gte('trade_head.trade_date', date.firstDate.toISOString())
-				.lte('trade_head.trade_date', date.lastDate.toISOString());
+				.gte('trade_date', date.firstDate.toISOString())
+				.lte('trade_date', date.lastDate.toISOString());
+		}
+		if (shop_id !== '*') {
+			query = query.eq('shop_id', shop_id);
 		}
 		const { count, error } = await query;
+		console.log('falsg');
+		console.log(count);
 
 		if (error) {
 			console.log(error);
@@ -296,22 +303,26 @@ export default {
 	async GetTradeData(
 		id: string,
 		date: { firstDate: Date | null; lastDate: Date | null } = { firstDate: null, lastDate: null },
-		page: number | null = null
+		page: number | null = null,
+		shop_id: number | '*' = '*'
 	) {
-		const count = (await this.GetTradeDataCount(id, date)).count as number;
-		let result: QueryTradeBodyWithTradeHead = [];
+		const count = (await this.GetTradeDataCount(id, date, shop_id)).count as number;
+		let result: ArtistWithTradeWithShopRow[] = [];
 		if (page !== null) {
-			let query = supabase.from('trade_body').select('*, trade_head!inner(trade_id, trade_date)');
+			let query = supabase.from('artist_trade_with_shop').select('*');
 
 			if (id !== '*' && id !== '') {
 				query = query.eq('artist_id', id);
 			}
 			if (date.firstDate !== null && date.lastDate !== null) {
 				query = query
-					.gte('trade_head.trade_date', date.firstDate.toISOString())
-					.lte('trade_head.trade_date', date.lastDate.toISOString());
+					.gte('trade_date', date.firstDate.toISOString())
+					.lte('trade_date', date.lastDate.toISOString());
 			}
-			query.order('trade_head(trade_date)', { ascending: false });
+			if (shop_id !== '*') {
+				query = query.eq('shop_id', shop_id);
+			}
+			query.order('trade_date', { ascending: false });
 			const { data, error } = await query.range(
 				page * onePageLength,
 				(page + 1) * onePageLength - 1
@@ -320,26 +331,29 @@ export default {
 				console.error(error);
 			}
 
-			result = result.concat(data as QueryTradeBodyWithTradeHead);
+			result = result.concat(data ?? []);
 		} else {
 			for (let i = 0; i < count; i += 1000) {
-				let query = supabase.from('trade_body').select('*, trade_head!inner(trade_id, trade_date)');
+				let query = supabase.from('artist_trade_with_shop').select('*');
 
 				if (id !== '*' && id !== '') {
 					query = query.eq('artist_id', id);
 				}
 				if (date.firstDate !== null && date.lastDate !== null) {
 					query = query
-						.gte('trade_head.trade_date', date.firstDate.toISOString())
-						.lte('trade_head.trade_date', date.lastDate.toISOString());
+						.gte('trade_date', date.firstDate.toISOString())
+						.lte('trade_date', date.lastDate.toISOString());
 				}
-				query.order('trade_head(trade_date)', { ascending: false });
+				if (shop_id !== '*') {
+					query = query.eq('shop_id', shop_id);
+				}
+				query.order('trade_date', { ascending: false });
 				const { data, error } = await query.range(i, i + 999);
 				if (error) {
 					console.log(error);
 				}
 
-				result = result.concat(data as QueryTradeBodyWithTradeHead);
+				result = result.concat(data ?? []);
 			}
 		}
 		return { data: result };
