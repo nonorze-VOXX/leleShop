@@ -1,38 +1,26 @@
 <script lang="ts">
 	import { goto, invalidateAll } from '$app/navigation';
-	import type { ShopRow, TradeBodyRow, TradeHeadRow } from '$lib/db';
+	import type { ShopInsert, ShopRow, TradeBodyRow, TradeHeadRow } from '$lib/db';
 	import {
 		GetDateRange,
 		GetNewArtistList,
 		GetStoreData,
-		fileToArray,
 		timeZoneOffsetToHHMM,
-		savePartToDb,
+		FileListToHeadAndBody,
+		HeaderAndBodyToGroupByOrderDataHeader,
+		GetInDbTradeIdList,
 		tradeIdIndex,
-		FileListToHeadAndBody
+		savePartToDb,
+		GetShopIndex,
+		GetNewShopNameList
 	} from './importFunction';
-	import { groupBy } from '$lib/function/Utils';
 	import db, { supabase } from '$lib/db';
 	import { onMount } from 'svelte';
-	import { page } from '$app/stores';
 	import OkButton from '$lib/UrlBox.svelte';
 
-	let shopList: ShopRow[] = [];
 	let newTradeLength: { head: number; body: number } = { head: 0, body: 0 };
-	let shop_id: number = 1;
 
-	onMount(async () => {
-		const { data } = await db.GetShopList();
-		shopList = data ?? [];
-		let paramId = $page.url.searchParams.get('shop_id');
-		if (paramId === null) {
-			const param = new URLSearchParams($page.url.searchParams);
-			param.set('shop_id', '1');
-			goto(`?${param.toString()}`);
-		} else {
-			shop_id = parseInt(paramId);
-		}
-	});
+	onMount(async () => {});
 	enum ProcessedStatus {
 		NORMAL,
 		PROCESSING,
@@ -46,15 +34,48 @@
 	async function handleSubmit(event: { currentTarget: EventTarget & HTMLFormElement }) {
 		const data = new FormData(event.currentTarget);
 		processed = ProcessedStatus.PROCESSING;
+		const { HeadAndBody } = await FormData_HeadAnyBody(data);
+		if (HeadAndBody === undefined) {
+			processed = ProcessedStatus.ERROR;
+			submitLog = 'HeadAndBody or timezoneOffset is undefined';
+			return;
+		}
+		const FilteredBodyHead = await Promise.all(
+			HeadAndBody.map(async (e) => {
+				const { filtered_body: body } = await HeadBody_FilteredBody(e);
+				return {
+					dataHeader: e.dataHeader,
+					body
+				};
+			})
+		);
+		let shopList: ShopRow[] = [];
+		{
+			// todo new shop on ui
+			const { data } = await db.GetShopList();
+			shopList = data ?? [];
+			const newShopList = await GetNewShopNameList(FilteredBodyHead, data);
+			if (newShopList.length !== 0) {
+				const { data: newShop, error } = await supabase
+					.from('shop')
+					.insert(newShopList.map((shop_name) => ({ shop_name, commission: 0 })))
+					.select();
+				console.log('newSHOP!!!!');
+				console.log(newShop, error);
+				newShop?.forEach((shop) => {
+					const row: ShopRow = shop;
+					shopList?.push(row);
+				});
+			}
+		}
 		const {
 			error,
 			newTradeBodys: newTradeBody,
 			newTradeHeads: newTradeHead,
 			susTradeIdLists
-		} = await f(data, timeZoneOffsetToHHMM(new Date().getTimezoneOffset()));
+		} = await f2(FilteredBodyHead, timeZoneOffsetToHHMM(new Date().getTimezoneOffset()), shopList);
 
 		if (!error) {
-			// submitLog = result.data?.error;
 			newTradeLength = {
 				body: (newTradeBody ?? []).length,
 				head: (newTradeHead ?? []).length
@@ -68,41 +89,44 @@
 			console.error(error);
 		}
 	}
-	const f = async (formData: FormData, timezoneOffset: string) => {
+	const FormData_HeadAnyBody = async (formData: FormData) => {
 		//todo: use for or some to speed up #performance
 		const files = formData.getAll('fileToUpload');
-		const shop_idStr = $page.url.searchParams.get('shop_id');
-		if (shop_idStr === null) {
-			return { error: 'shop_id is null' };
-		}
-		var shop_id: number = parseInt(shop_idStr);
 		if (files.length === 0) {
 			return { error: 'You must provide a file to upload' };
 		}
-		let susTradeIdLists: string[] = [];
 		const HeadAndBody = await FileListToHeadAndBody(files);
+		return { error: null, HeadAndBody };
+	};
+
+	const HeadBody_FilteredBody = async (HeadAndBody: { body: string[][]; dataHeader: string[] }) => {
+		const e = HeadAndBody;
+		const idList = e.body.map((ee) => ee[tradeIdIndex(e.dataHeader)]);
+		const IdsInDb = await GetInDbTradeIdList(idList);
+		const tradeIdI = tradeIdIndex(e.dataHeader);
+		const filtered_body = e.body.filter((e) => !IdsInDb.includes(e[tradeIdI]));
+		return { filtered_body };
+	};
+
+	const f2 = async (
+		HeadAndBody: {
+			body: string[][];
+			dataHeader: string[];
+		}[],
+		timezoneOffset: string,
+		shopList: ShopRow[]
+	) => {
+		const shop_id = 1;
+		let susTradeIdLists: string[] = [];
+		const groupByOrder_DataHeader = await HeaderAndBodyToGroupByOrderDataHeader(HeadAndBody);
 		const groupAndHeaderAndDateRange = await Promise.all(
-			HeadAndBody.map(async ({ groupByOrder, dataHeader }) => {
+			groupByOrder_DataHeader.map(async ({ groupByOrder, dataHeader }) => {
 				const dateRange = await GetDateRange(groupByOrder, dataHeader, timezoneOffset);
 				return { dateRange, dataHeader, groupByOrder };
 			})
 		);
-		const tradeIdList = await Promise.all(
-			groupAndHeaderAndDateRange.map(async ({ dateRange, dataHeader, groupByOrder }) => {
-				return (
-					(
-						await db.GetTradeIdList({
-							firstDate: dateRange.minDate,
-							lastDate: dateRange.maxDate
-						})
-					).data ?? []
-				);
-			})
-		);
 		const artistList = await Promise.all(
-			HeadAndBody.map(
-				async ({ groupByOrder, dataHeader }, index) => (await db.GetArtistDataList()).data ?? []
-			)
+			groupByOrder_DataHeader.map(async () => (await db.GetArtistDataList()).data ?? [])
 		);
 		const newArtistList = await Promise.all(
 			artistList
@@ -125,12 +149,11 @@
 		const storeDataList = artistList
 			.map((list, index) => {
 				return GetStoreData(
-					tradeIdList[index],
 					list,
 					groupAndHeaderAndDateRange[index].groupByOrder,
 					timezoneOffset,
 					groupAndHeaderAndDateRange[index].dataHeader,
-					shop_id
+					shopList
 				);
 			})
 			.filter((e) => e.error === null)
@@ -144,6 +167,8 @@
 
 		await Promise.all(
 			storeDataList.map(async ({ tradeBodyList, tradeHeadList }) => {
+				console.log('data store to db start');
+				console.log(tradeBodyList, tradeHeadList);
 				const { error, newTradeBody, newTradeHead } = await savePartToDb(
 					tradeBodyList,
 					tradeHeadList
@@ -158,6 +183,8 @@
 			})
 		);
 
+		console.log('data store to db end');
+		console.log(newTradeBodys, newTradeHeads);
 		return {
 			error: errors.length ? null : errors[0],
 			newTradeBodys,
@@ -165,33 +192,12 @@
 			susTradeIdLists
 		};
 	};
-
-	async function handleShopChange(event: { currentTarget: EventTarget & HTMLFormElement }) {
-		const formData = new FormData(event.currentTarget);
-		const param = new URLSearchParams($page.url.searchParams);
-		param.set('shop_id', formData.get('shops') as string);
-		goto(`?${param.toString()}`);
-	}
 </script>
 
 <div class="flex flex-col items-center gap-4 rounded-xl border-4 border-lele-line bg-lele-bg p-5">
 	<OkButton>
 		<a class="p-2" href={'/lele/import/editShop'}> edit shop</a>
 	</OkButton>
-	<form
-		on:change|preventDefault={handleShopChange}
-		class="flex flex-col items-center gap-4 text-lg"
-	>
-		<div>
-			<label for="shops">Choose Shop:</label>
-
-			<select name="shops" id="shops" class="p-2" bind:value={shop_id}>
-				{#each shopList as shop}
-					<option value={shop.id}>{shop.shop_name}</option>
-				{/each}
-			</select>
-		</div>
-	</form>
 	<form on:submit|preventDefault={handleSubmit} class="flex flex-col items-center gap-4 text-lg">
 		<div>
 			<!-- <label for="file">Upload your file</label> -->

@@ -30,20 +30,6 @@
 		}
 		shopList = data;
 	});
-
-	async function handleClick(
-		event: MouseEvent & { currentTarget: EventTarget & HTMLButtonElement }
-	) {
-		const shopId = event.currentTarget.dataset.shopId;
-		if (shopId === undefined) {
-			return;
-		}
-		console.log(shopId);
-		const { error } = await supabase.from('shop').delete().eq('id', shopId);
-		if (error) {
-			console.error(error);
-		}
-	}
 </script>
 
 <div class="flex flex-col items-center gap-2">
@@ -71,7 +57,6 @@
 				<tr>
 					<td>店名</td>
 					<td class="w-20">抽成(%)</td>
-					<td class="w-10">刪除</td>
 				</tr>
 			</LeleThead>
 			<LeleTbody>
@@ -79,12 +64,6 @@
 					<LeleTbodyTr>
 						<td>{shop.shop_name}</td>
 						<td>{shop.commission}</td>
-						<td class="flex items-center justify-center">
-							<button
-								class="m-2 rounded-xl border-2 border-lele-line bg-lele-bg px-2 text-lg font-medium text-red-600"
-								on:click={handleClick}>x</button
-							>
-						</td>
 					</LeleTbodyTr>
 				{/each}
 			</LeleTbody>
