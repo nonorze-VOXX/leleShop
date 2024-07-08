@@ -66,13 +66,21 @@ export const GetNewArtistList = (
 	}
 	return newArtistList;
 };
+const GetShopTrueName = (shopName: string) => {
+	const shopWord = shopName.split(' ');
+	if (shopWord.length === 2 && shopWord[0] === 'The創') {
+		return shopWord[1];
+	} else {
+		return shopName;
+	}
+};
 
 export const GetNewShopNameList = async (
-	FilteredBodyHead: { dataHeader: string[]; body: string[][] }[]
+	FilteredBodyHead: { dataHeader: string[]; body: string[][] }[],
+	shopList: { commission: number; id: number; shop_name: string }[] | null
 ) => {
 	const shopSet = new Set<ShopRow>();
-	const { data } = await db.GetShopList();
-	data?.forEach((shop: ShopRow) => {
+	shopList?.forEach((shop: ShopRow) => {
 		shopSet.add(shop);
 	});
 
@@ -80,12 +88,7 @@ export const GetNewShopNameList = async (
 	for (const { dataHeader, body } of FilteredBodyHead) {
 		body.forEach((row) => {
 			const shopName = row[GetShopIndex(dataHeader)];
-			const shopWord = shopName.split(' ');
-			if (shopWord.length === 2 && shopWord[0] === 'The創') {
-				importShopNameList.add(shopWord[1]);
-			} else {
-				importShopNameList.add(shopName);
-			}
+			importShopNameList.add(GetShopTrueName(shopName));
 		});
 	}
 	const newShopList: string[] = [];
@@ -156,7 +159,7 @@ export const GetStoreData = (
 	groupByIndex: Record<string, string[][]>,
 	timezoneOffset: string,
 	dataHeader: string[],
-	shop_id: number
+	shopList: { commission: number; id: number; shop_name: string }[]
 ) => {
 	const { error } = CheckDataHeader(dataHeader);
 	if (error) {
@@ -184,6 +187,17 @@ export const GetStoreData = (
 			susTradeIdList.push(key);
 			continue;
 		}
+		const shop_name = element[0][GetShopIndex(dataHeader)];
+		const shop_id = shopList.find((shop) => shop.shop_name === GetShopTrueName(shop_name))?.id;
+		if (shop_id === undefined) {
+			return {
+				tradeBodyList: [],
+				tradeHeadList: [],
+				susTradeIdList: [],
+				error: { message: 'shop not found' }
+			};
+		}
+
 		tradeHeadList.push({
 			trade_date: date.toISOString(),
 			trade_id: element[0][tradeIdIndex(dataHeader)],

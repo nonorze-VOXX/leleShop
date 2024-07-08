@@ -49,10 +49,12 @@
 				};
 			})
 		);
-
+		let shopList: ShopRow[] = [];
 		{
 			// todo new shop on ui
-			const newShopList = await GetNewShopNameList(FilteredBodyHead);
+			const { data } = await db.GetShopList();
+			shopList = data ?? [];
+			const newShopList = await GetNewShopNameList(FilteredBodyHead, data);
 			if (newShopList.length !== 0) {
 				const { data: newShop, error } = await supabase
 					.from('shop')
@@ -60,6 +62,10 @@
 					.select();
 				console.log('newSHOP!!!!');
 				console.log(newShop, error);
+				newShop?.forEach((shop) => {
+					const row: ShopRow = shop;
+					shopList?.push(row);
+				});
 			}
 		}
 		const {
@@ -67,10 +73,9 @@
 			newTradeBodys: newTradeBody,
 			newTradeHeads: newTradeHead,
 			susTradeIdLists
-		} = await f2(FilteredBodyHead, timeZoneOffsetToHHMM(new Date().getTimezoneOffset()));
+		} = await f2(FilteredBodyHead, timeZoneOffsetToHHMM(new Date().getTimezoneOffset()), shopList);
 
 		if (!error) {
-			// submitLog = result.data?.error;
 			newTradeLength = {
 				body: (newTradeBody ?? []).length,
 				head: (newTradeHead ?? []).length
@@ -108,7 +113,8 @@
 			body: string[][];
 			dataHeader: string[];
 		}[],
-		timezoneOffset: string
+		timezoneOffset: string,
+		shopList: ShopRow[]
 	) => {
 		const shop_id = 1;
 		let susTradeIdLists: string[] = [];
@@ -147,7 +153,7 @@
 					groupAndHeaderAndDateRange[index].groupByOrder,
 					timezoneOffset,
 					groupAndHeaderAndDateRange[index].dataHeader,
-					shop_id
+					shopList
 				);
 			})
 			.filter((e) => e.error === null)
