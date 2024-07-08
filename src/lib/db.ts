@@ -20,6 +20,7 @@ export type ArtistWithTradeRow = Database['public']['Views']['artist_trade']['Ro
 export type ArtistWithTradeWithShopRow =
 	Database['public']['Views']['artist_trade_with_shop']['Row'];
 export type ShopInsert = Database['public']['Tables']['shop']['Insert'];
+export type ShopUpdate = Database['public']['Tables']['shop']['Update'];
 export type ShopRow = Database['public']['Tables']['shop']['Row'];
 export type SalesTotalData = {
 	sales_total: number;
