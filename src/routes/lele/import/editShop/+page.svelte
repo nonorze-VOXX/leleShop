@@ -1,7 +1,6 @@
 <script lang="ts">
-	import { page } from '$app/stores';
 	import { LeleTable, LeleTbody, LeleTbodyTr, LeleThead } from '$lib/Component/htmlWrapper';
-	import { supabase, type ShopInsert, type ShopRow } from '$lib/db';
+	import { supabase, type ShopInsert, type ShopRow, type ShopUpdate } from '$lib/db';
 	import { onMount } from 'svelte';
 
 	async function handleSubmit(event: { currentTarget: EventTarget & HTMLFormElement }) {
@@ -30,6 +29,34 @@
 		}
 		shopList = data;
 	});
+	async function handleShopUpdate(
+		event: { currentTarget: EventTarget & HTMLFormElement },
+		originalData: ShopRow
+	) {
+		const formData = new FormData(event.currentTarget);
+		const newName = formData.get('shop_name') as string;
+		const newData: ShopUpdate = {};
+		if (newName && newName !== originalData.shop_name) {
+			newData.shop_name = newName;
+		}
+
+		const newCommissionStr = formData.get('commission')?.toString();
+		if (newCommissionStr && newCommissionStr !== originalData.commission.toString()) {
+			newData.commission = parseFloat(newCommissionStr);
+		}
+		if (Object.keys(newData).length === 0) {
+			return;
+		}
+		const { error } = await supabase
+			.from('shop')
+			.update(newData)
+			.eq('id', originalData.id)
+			.select();
+		if (error) {
+			console.error(error);
+			return;
+		}
+	}
 </script>
 
 <div class="flex flex-col items-center gap-2">
@@ -62,8 +89,38 @@
 			<LeleTbody>
 				{#each shopList as shop}
 					<LeleTbodyTr>
-						<td>{shop.shop_name}</td>
-						<td>{shop.commission}</td>
+						<td>
+							<form
+								on:submit|preventDefault={async (e) => {
+									await handleShopUpdate(e, shop);
+								}}
+							>
+								<input
+									class=" w-1/2 bg-lele-bg focus:bg-gray-400 focus:text-white"
+									type="text"
+									name="shop_name"
+									value={shop.shop_name}
+								/>
+								<button type="submit">V</button>
+							</form>
+						</td>
+						<td>
+							<form
+								on:submit|preventDefault={async (e) => {
+									await handleShopUpdate(e, shop);
+								}}
+							>
+								<input
+									class=" w-1/2 bg-lele-bg focus:bg-gray-400 focus:text-white"
+									type="number"
+									name="commission"
+									value={shop.commission}
+									min="0"
+									max="100"
+								/>
+								<button type="submit">V</button>
+							</form>
+						</td>
 					</LeleTbodyTr>
 				{/each}
 			</LeleTbody>
