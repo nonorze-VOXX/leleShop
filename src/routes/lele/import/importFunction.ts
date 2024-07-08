@@ -70,6 +70,8 @@ const GetShopTrueName = (shopName: string) => {
 	const shopWord = shopName.split(' ');
 	if (shopWord.length === 2 && shopWord[0] === 'The創') {
 		return shopWord[1];
+	} else if (shopName === '') {
+		return '一中';
 	} else {
 		return shopName;
 	}
@@ -188,7 +190,7 @@ export const GetStoreData = (
 			continue;
 		}
 		const shop_name = element[0][GetShopIndex(dataHeader)];
-		const shop_id = shopList.find((shop) => shop.shop_name === GetShopTrueName(shop_name))?.id;
+		let shop_id = shopList.find((shop) => shop.shop_name === GetShopTrueName(shop_name))?.id;
 		if (shop_id === undefined) {
 			return {
 				tradeBodyList: [],
