@@ -1,4 +1,12 @@
-import type { Artist, ArtistRow, TradeBody, TradeBodyRow, TradeHead, TradeHeadRow } from '$lib/db';
+import type {
+	Artist,
+	ArtistRow,
+	ShopRow,
+	TradeBody,
+	TradeBodyRow,
+	TradeHead,
+	TradeHeadRow
+} from '$lib/db';
 import db, { supabase } from '$lib/db';
 import { groupBy } from '$lib/function/Utils';
 
@@ -33,6 +41,10 @@ export const stateIndex = (dataHeader: string[]) => {
 export const dateIndex = (dataHeader: string[]) => {
 	return findIndex(dataHeader, '日期');
 };
+export const GetShopIndex = (dataHeader: string[]) => {
+	return findIndex(dataHeader, '商店');
+};
+
 export const GetNewArtistList = (
 	artistList: ArtistRow[],
 	groupByIndex: Record<string, string[][]>,
@@ -55,6 +67,42 @@ export const GetNewArtistList = (
 	return newArtistList;
 };
 
+export const GetNewShopNameList = async (
+	FilteredBodyHead: { dataHeader: string[]; body: string[][] }[]
+) => {
+	const shopSet = new Set<ShopRow>();
+	const { data } = await db.GetShopList();
+	data?.forEach((shop: ShopRow) => {
+		shopSet.add(shop);
+	});
+
+	const importShopNameList = new Set<string>();
+	for (const { dataHeader, body } of FilteredBodyHead) {
+		body.forEach((row) => {
+			const shopName = row[GetShopIndex(dataHeader)];
+			const shopWord = shopName.split(' ');
+			if (shopWord.length === 2 && shopWord[0] === 'The創') {
+				importShopNameList.add(shopWord[1]);
+			} else {
+				importShopNameList.add(shopName);
+			}
+		});
+	}
+	const newShopList: string[] = [];
+	importShopNameList.forEach((element) => {
+		let find = false;
+		for (const shop of shopSet) {
+			if (shop.shop_name === element) {
+				find = true;
+				break;
+			}
+		}
+		if (!find) {
+			newShopList.push(element);
+		}
+	});
+	return newShopList;
+};
 const CheckDataHeader = (dataHeader: string[]) => {
 	const shouldDataHeader = [
 		'收據號碼',
@@ -65,7 +113,8 @@ const CheckDataHeader = (dataHeader: string[]) => {
 		'折扣',
 		'淨銷售額',
 		// '狀態',
-		'日期'
+		'日期',
+		'商店'
 	];
 	const notFoundColumn: string[] = [];
 	shouldDataHeader.forEach((e) => {
