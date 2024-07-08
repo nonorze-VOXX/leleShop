@@ -5,11 +5,12 @@
 		GetDateRange,
 		GetNewArtistList,
 		GetStoreData,
-		fileToArray,
 		timeZoneOffsetToHHMM,
-		savePartToDb,
+		FileListToHeadAndBody,
+		HeaderAndBodyToGroupByOrderDataHeader,
+		GetInDbTradeIdList,
 		tradeIdIndex,
-		FileListToHeadAndBody
+		savePartToDb
 	} from './importFunction';
 	import { groupBy } from '$lib/function/Utils';
 	import db, { supabase } from '$lib/db';
@@ -46,12 +47,18 @@
 	async function handleSubmit(event: { currentTarget: EventTarget & HTMLFormElement }) {
 		const data = new FormData(event.currentTarget);
 		processed = ProcessedStatus.PROCESSING;
+		const { HeadAndBody } = await f(data);
+		if (HeadAndBody === undefined) {
+			processed = ProcessedStatus.ERROR;
+			submitLog = 'HeadAndBody or timezoneOffset is undefined';
+			return;
+		}
 		const {
 			error,
 			newTradeBodys: newTradeBody,
 			newTradeHeads: newTradeHead,
 			susTradeIdLists
-		} = await f(data, timeZoneOffsetToHHMM(new Date().getTimezoneOffset()));
+		} = await f2(HeadAndBody, timeZoneOffsetToHHMM(new Date().getTimezoneOffset()));
 
 		if (!error) {
 			// submitLog = result.data?.error;
@@ -68,7 +75,7 @@
 			console.error(error);
 		}
 	}
-	const f = async (formData: FormData, timezoneOffset: string) => {
+	const f = async (formData: FormData) => {
 		//todo: use for or some to speed up #performance
 		const files = formData.getAll('fileToUpload');
 		const shop_idStr = $page.url.searchParams.get('shop_id');
@@ -79,30 +86,38 @@
 		if (files.length === 0) {
 			return { error: 'You must provide a file to upload' };
 		}
-		let susTradeIdLists: string[] = [];
 		const HeadAndBody = await FileListToHeadAndBody(files);
+		const IdsInDb = await Promise.all(
+			HeadAndBody.map(async (e) => {
+				const idList = e.body.map((ee) => ee[tradeIdIndex(e.dataHeader)]);
+				return await GetInDbTradeIdList(idList);
+			})
+		);
+		HeadAndBody.forEach((e, index) => {
+			const tradeIdI = tradeIdIndex(e.dataHeader);
+			e.body = e.body.filter((e) => !IdsInDb[index].includes(e[tradeIdI]));
+		});
+		console.log(HeadAndBody);
+		return { error: null, HeadAndBody };
+	};
+
+	const f2 = async (
+		HeadAndBody: {
+			body: string[][];
+			dataHeader: string[];
+		}[],
+		timezoneOffset: string
+	) => {
+		let susTradeIdLists: string[] = [];
+		const groupByOrder_DataHeader = await HeaderAndBodyToGroupByOrderDataHeader(HeadAndBody);
 		const groupAndHeaderAndDateRange = await Promise.all(
-			HeadAndBody.map(async ({ groupByOrder, dataHeader }) => {
+			groupByOrder_DataHeader.map(async ({ groupByOrder, dataHeader }) => {
 				const dateRange = await GetDateRange(groupByOrder, dataHeader, timezoneOffset);
 				return { dateRange, dataHeader, groupByOrder };
 			})
 		);
-		const tradeIdList = await Promise.all(
-			groupAndHeaderAndDateRange.map(async ({ dateRange, dataHeader, groupByOrder }) => {
-				return (
-					(
-						await db.GetTradeIdList({
-							firstDate: dateRange.minDate,
-							lastDate: dateRange.maxDate
-						})
-					).data ?? []
-				);
-			})
-		);
 		const artistList = await Promise.all(
-			HeadAndBody.map(
-				async ({ groupByOrder, dataHeader }, index) => (await db.GetArtistDataList()).data ?? []
-			)
+			groupByOrder_DataHeader.map(async () => (await db.GetArtistDataList()).data ?? [])
 		);
 		const newArtistList = await Promise.all(
 			artistList
@@ -125,7 +140,6 @@
 		const storeDataList = artistList
 			.map((list, index) => {
 				return GetStoreData(
-					tradeIdList[index],
 					list,
 					groupAndHeaderAndDateRange[index].groupByOrder,
 					timezoneOffset,
@@ -144,6 +158,8 @@
 
 		await Promise.all(
 			storeDataList.map(async ({ tradeBodyList, tradeHeadList }) => {
+				console.log('data store to db start');
+				console.log(tradeBodyList, tradeHeadList);
 				const { error, newTradeBody, newTradeHead } = await savePartToDb(
 					tradeBodyList,
 					tradeHeadList
@@ -158,6 +174,8 @@
 			})
 		);
 
+		console.log('data store to db end');
+		console.log(newTradeBodys, newTradeHeads);
 		return {
 			error: errors.length ? null : errors[0],
 			newTradeBodys,

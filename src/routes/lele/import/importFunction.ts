@@ -88,8 +88,21 @@ export const timeZoneOffsetToHHMM = (timeZoneOffset: number) => {
 	return sign + (hour < 10 ? '0' : '') + hour + ':' + (minute < 10 ? '0' : '') + minute;
 };
 
+export const GetInDbTradeIdList = async (tradeIdList: string[]) => {
+	const { error, data } = await supabase
+		.from('trade_head')
+		.select('trade_id')
+		.in('trade_id', tradeIdList);
+	if (error !== null) {
+		console.log(error);
+	}
+	console.log(tradeIdList);
+	console.log('db say:');
+	console.log(data);
+	return (data ?? []).map((i) => i.trade_id);
+};
+
 export const GetStoreData = (
-	tradeIdList: { trade_id: string }[],
 	artistList: ArtistRow[],
 	groupByIndex: Record<string, string[][]>,
 	timezoneOffset: string,
@@ -111,9 +124,6 @@ export const GetStoreData = (
 
 	for (const key in groupByIndex) {
 		if (key === undefined || key === 'undefined') continue;
-		if (tradeIdList.findLastIndex((i) => i.trade_id === key) !== -1) {
-			continue;
-		}
 
 		const element = groupByIndex[key];
 		const date = GetDateWithTimeZone(element[0][dateIndex(dataHeader)], timezoneOffset);
@@ -249,6 +259,16 @@ export const savePartToDb = async (tradeBodyList: TradeBody[], tradeHeadList: Tr
 	}
 	return { error: null, newTradeHead, newTradeBody };
 };
+export async function HeaderAndBodyToGroupByOrderDataHeader(
+	notNullFileList: {
+		body: string[][];
+		dataHeader: string[];
+	}[]
+) {
+	return notNullFileList.map(({ body, dataHeader }) => {
+		return { groupByOrder: groupBy(body, (i) => i[tradeIdIndex(dataHeader)]), dataHeader };
+	});
+}
 export async function FileListToHeadAndBody(files: FormDataEntryValue[]) {
 	const fileList = await Promise.all(
 		files.map(async (tmpFile) => {
@@ -271,7 +291,5 @@ export async function FileListToHeadAndBody(files: FormDataEntryValue[]) {
 			notNullFileList.push(element);
 		}
 	});
-	return notNullFileList.map(({ body, dataHeader }) => {
-		return { groupByOrder: groupBy(body, (i) => i[tradeIdIndex(dataHeader)]), dataHeader };
-	});
+	return notNullFileList;
 }
