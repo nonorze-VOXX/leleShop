@@ -14,6 +14,7 @@
 	let artist_id: string = $page.params.id;
 	let showedLength = 0;
 	let shop_id: number | null | '*' = '*';
+	let shopRow: ShopRow | null;
 	let shopList: ShopRow[] = [];
 	let commission: number | null = null;
 
@@ -29,6 +30,7 @@
 			commission = null;
 		} else {
 			shop_id = parseInt(paramId);
+			shopRow = shopList.find((e) => e.id == shop_id) ?? null;
 			commission = shopList.find((e) => e.id == shop_id)?.commission ?? null;
 		}
 	});
@@ -42,6 +44,7 @@
 		} else {
 			param.set('shop_id', id);
 		}
+		shopRow = shopList.find((e) => e.id == parseInt(formData.get('shops') as string)) ?? null;
 		commission =
 			shopList.find((e) => e.id == parseInt(formData.get('shops') as string))?.commission ?? null;
 		goto(`?${param.toString()}`);
@@ -51,7 +54,7 @@
 <div class="flex flex-col items-center gap-3">
 	<div class="flex flex-col justify-center gap-4 text-center text-sm font-semibold">
 		<h1 class="rounded-xl bg-lele-line p-2 text-lele-bg">{artist_name}</h1>
-		<Commision bind:net_total></Commision>
+		<Commision bind:net_total bind:shopRow></Commision>
 		<TradeCount bind:showedLength></TradeCount>
 		<Remit bind:net_total bind:commission></Remit>
 		<form
