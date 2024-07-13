@@ -9,10 +9,9 @@
 	import db, { onePageLength, supabase } from '$lib/db';
 	import { ThisMonthFirstDate } from '$lib/function/Utils';
 	import MonthTab from './MonthTab.svelte';
-	import { invalidateAll } from '$app/navigation';
 
 	export let artist_id: string;
-	export let shop_id: number | '*';
+	export let shop_id: number | '*' = 1;
 	let tradeDataList: ArtistWithTradeWithShopRow[] = [];
 	let nowPage: string = '0';
 	let total: SalesTotalData = {
