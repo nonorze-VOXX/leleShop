@@ -13,7 +13,7 @@
 	let artist_name: string = '';
 	let artist_id: string = $page.params.id;
 	let showedLength = 0;
-	let shop_id: number | null | '*' = '*';
+	let shop_id: number | null | '*' = null;
 	let shopRow: ShopRow | null;
 	let shopList: ShopRow[] = [];
 	let commission: number | null = null;

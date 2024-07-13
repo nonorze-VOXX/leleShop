@@ -14,7 +14,7 @@
 		{/if}
 		<div>
 			{#if net_total !== null}
-				{Math.floor(net_total * 0.1)}
+				{Math.floor(net_total * ((shopRow?.commission ?? 0) / 100))}
 			{:else}
 				計算中
 			{/if}
