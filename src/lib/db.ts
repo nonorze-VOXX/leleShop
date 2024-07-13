@@ -19,6 +19,9 @@ export type PaymentStatusUpdate = Database['public']['Tables']['artist_payment_s
 export type ArtistWithTradeRow = Database['public']['Views']['artist_trade']['Row'];
 export type ArtistWithTradeWithShopRow =
 	Database['public']['Views']['artist_trade_with_shop']['Row'];
+export type AnonArtistListPaymentRow =
+	Database['public']['Views']['anon_artist_list_payment']['Row'];
+
 export type ShopInsert = Database['public']['Tables']['shop']['Insert'];
 export type ShopUpdate = Database['public']['Tables']['shop']['Update'];
 export type ShopRow = Database['public']['Tables']['shop']['Row'];

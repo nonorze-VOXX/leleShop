@@ -1,23 +1,19 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import type { PaymentStatusRow } from '$lib/db';
+	import type { AnonArtistListPaymentRow, PaymentStatusRow } from '$lib/db';
 	import LeleThead from '$lib/Component/htmlWrapper/LeleThead.svelte';
 	import LeleTbody from '$lib/Component/htmlWrapper/LeleTbody.svelte';
 	import LeleTable from '$lib/Component/htmlWrapper/LeleTable.svelte';
 	import LeleTbodyTr from '$lib/Component/htmlWrapper/LeleTbodyTr.svelte';
-	import db from '$lib/db';
+	import db, { supabase } from '$lib/db';
 	import { GetSeason } from '$lib/function/Utils';
-	let artistData: {
-		id: number;
-		artist_name: string;
-		visible: boolean;
-		artist_payment_status: PaymentStatusRow;
-	}[] = [];
+	let artistData: AnonArtistListPaymentRow[] = [];
 
 	onMount(async () => {
-		const { data, error } = await db.GetArtistDataWithPaymentStatus({
-			season: GetSeason(new Date())
-		});
+		const { data, error } = await supabase
+			.from('anon_artist_list_payment')
+			.select('*')
+			.eq('season', GetSeason(new Date()));
 		if (error) {
 			console.error(error);
 		}
@@ -41,9 +37,9 @@
 				</td>
 				<td class="text-center">
 					<div class="text-lg">
-						{#if artists.artist_payment_status}
+						{#if artists.state_by_season}
 							{#each { length: 3 } as _, i}
-								{#if artists.artist_payment_status.state_by_season == null || i >= artists.artist_payment_status.state_by_season}
+								{#if artists.state_by_season == null || i >= artists.state_by_season}
 									X
 								{:else}
 									✓
