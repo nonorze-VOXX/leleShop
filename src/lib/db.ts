@@ -362,11 +362,12 @@ export default {
 	async GetArtistDataWithPaymentStatus(option?: {
 		id?: string;
 		visible?: boolean | null;
-		season: number;
+		season: number | '*';
 	}) {
 		let { id, visible, season } = option ?? {};
 		id = id ?? '*';
 		visible = visible === undefined ? true : visible;
+		season = season ?? '*';
 
 		let query = supabase.from('artist').select('id, artist_name, visible,artist_payment_status(*)');
 		if (id !== '*') {
