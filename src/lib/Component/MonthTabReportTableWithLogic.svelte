@@ -1,18 +1,13 @@
 <script lang="ts">
 	import { createEventDispatcher, onMount } from 'svelte';
-	import type {
-		ArtistWithTradeWithShopRow,
-		QueryTradeBodyWithTradeHead,
-		SalesTotalData
-	} from '$lib/db';
+	import type { QueryTradeBodyWithTradeHead, SalesTotalData } from '$lib/db';
 	import MonthTabReportTable from '$lib/Component/MonthTabReportTable.svelte';
 	import db, { onePageLength, supabase } from '$lib/db';
 	import { ThisMonthFirstDate } from '$lib/function/Utils';
 	import MonthTab from './MonthTab.svelte';
 
 	export let artist_id: string;
-	export let shop_id: number | '*' = 1;
-	let tradeDataList: ArtistWithTradeWithShopRow[] = [];
+	let tradeDataList: QueryTradeBodyWithTradeHead = [];
 	let nowPage: string = '0';
 	let total: SalesTotalData = {
 		sales_total: 0,
@@ -27,7 +22,7 @@
 	});
 	const DateChange = async (firstDate: Date, lastDate: Date) => {
 		dateRange = { firstDate, lastDate };
-		const { count } = await db.GetTradeDataCount(artist_id, { firstDate, lastDate }, shop_id);
+		const { count } = await db.GetTradeDataCount(artist_id, { firstDate, lastDate });
 		console.log(count, artist_id, firstDate, lastDate);
 
 		pageIndex = [];
@@ -49,7 +44,7 @@
 		change: { net_total: number; firstDate: Date; lastDate: Date; showedLength: number };
 	}>();
 	const UpdateTradeData = async (firstDate: Date, lastDate: Date) => {
-		total = await db.GetTradeTotal(parseInt(artist_id), firstDate, lastDate, shop_id);
+		total = await db.GetTradeTotal(parseInt(artist_id), firstDate, lastDate);
 
 		const { data } = await db.GetTradeData(artist_id, dateRange, parseInt(nowPage) - 1);
 		return data;
@@ -58,10 +53,6 @@
 		const { data } = await db.GetTradeData(artist_id, dateRange, parseInt(nowPage) - 1);
 		return data;
 	};
-	$: {
-		shop_id;
-		if (dateRange) DateChange(dateRange.firstDate, dateRange.lastDate);
-	}
 </script>
 
 {#if tradeDataList}

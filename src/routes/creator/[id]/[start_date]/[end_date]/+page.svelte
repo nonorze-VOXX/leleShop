@@ -23,8 +23,8 @@
 		let encodeDataForDownload = '';
 		encodeDataForDownload = '日期,收據號碼,商品,數量,銷售總額,折扣,類別,狀態,淨銷售額\n';
 		data.forEach((element) => {
-			encodeDataForDownload += element.trade_date + ',';
-			encodeDataForDownload += element.trade_id + ',';
+			encodeDataForDownload += element.trade_head?.trade_date + ',';
+			encodeDataForDownload += element.trade_head?.trade_id + ',';
 			encodeDataForDownload += element.item_name + ',';
 			encodeDataForDownload += element.quantity + ',';
 			encodeDataForDownload += element.total_sales + ',';

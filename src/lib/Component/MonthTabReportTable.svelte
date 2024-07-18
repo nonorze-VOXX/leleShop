@@ -1,17 +1,13 @@
 <script lang="ts">
-	import type {
-		ArtistWithTradeWithShopRow,
-		QueryTradeBodyWithTradeHead,
-		SalesTotalData
-	} from '$lib/db';
+	import type { QueryTradeBodyWithTradeHead, SalesTotalData } from '$lib/db';
 	import { FormatNumberToTwoDigi, GetAllMonth, ThisMonthFirstDate } from '$lib/function/Utils';
 	import ReportTable from './ReportTable.svelte';
 	import { createEventDispatcher } from 'svelte';
 	import MonthTab from './MonthTab.svelte';
 
-	export let tradeDataList: ArtistWithTradeWithShopRow[];
+	export let tradeDataList: QueryTradeBodyWithTradeHead;
 	export let totalData: SalesTotalData;
-	let showedTradeDataList: ArtistWithTradeWithShopRow[];
+	let showedTradeDataList: QueryTradeBodyWithTradeHead;
 	let tabDataList: string[] = GetAllMonth();
 	let firstDay: Date = ThisMonthFirstDate(-1);
 	let showedMonth: string = FormatNumberToTwoDigi((firstDay.getMonth() + 1).toString());

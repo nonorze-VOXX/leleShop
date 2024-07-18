@@ -66,24 +66,6 @@ export type Database = {
           },
         ]
       }
-      shop: {
-        Row: {
-          commission: number
-          id: number
-          shop_name: string
-        }
-        Insert: {
-          commission?: number
-          id?: number
-          shop_name?: string
-        }
-        Update: {
-          commission?: number
-          id?: number
-          shop_name?: string
-        }
-        Relationships: []
-      }
       trade_body: {
         Row: {
           artist_id: number
@@ -141,36 +123,18 @@ export type Database = {
       }
       trade_head: {
         Row: {
-          shop_id: number
           trade_date: string
           trade_id: string
         }
         Insert: {
-          shop_id: number
           trade_date: string
           trade_id: string
         }
         Update: {
-          shop_id?: number
           trade_date?: string
           trade_id?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "public_trade_head_shop_id_fkey"
-            columns: ["shop_id"]
-            isOneToOne: false
-            referencedRelation: "artist_trade_with_shop"
-            referencedColumns: ["shop_id"]
-          },
-          {
-            foreignKeyName: "public_trade_head_shop_id_fkey"
-            columns: ["shop_id"]
-            isOneToOne: false
-            referencedRelation: "shop"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
     }
     Views: {
@@ -220,46 +184,6 @@ export type Database = {
           },
         ]
       }
-      artist_trade_with_shop: {
-        Row: {
-          artist_id: number | null
-          artist_name: string | null
-          commission: number | null
-          discount: number | null
-          id: number | null
-          item_name: string | null
-          net_sales: number | null
-          quantity: number | null
-          shop_id: number | null
-          shop_name: string | null
-          total_sales: number | null
-          trade_date: string | null
-          trade_id: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "trade_body_artist_id_fkey"
-            columns: ["artist_id"]
-            isOneToOne: false
-            referencedRelation: "artist"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "trade_body_artist_id_fkey"
-            columns: ["artist_id"]
-            isOneToOne: false
-            referencedRelation: "anon_artist_list_payment"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "trade_body_trade_id_fkey"
-            columns: ["trade_id"]
-            isOneToOne: false
-            referencedRelation: "trade_head"
-            referencedColumns: ["trade_id"]
-          },
-        ]
-      }
     }
     Functions: {
       get_total_trade: {
@@ -267,15 +191,6 @@ export type Database = {
           artist_id: number
           start_date: string
           end_date: string
-        }
-        Returns: Record<string, unknown>
-      }
-      get_total_trade_with_shop: {
-        Args: {
-          artist_id: number
-          start_date: string
-          end_date: string
-          shop_id: number
         }
         Returns: Record<string, unknown>
       }
