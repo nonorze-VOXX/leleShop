@@ -54,6 +54,13 @@ export type Database = {
             foreignKeyName: "artist_payment_status_artist_id_fkey"
             columns: ["artist_id"]
             isOneToOne: false
+            referencedRelation: "anon_artist_list_payment"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "artist_payment_status_artist_id_fkey"
+            columns: ["artist_id"]
+            isOneToOne: false
             referencedRelation: "artist"
             referencedColumns: ["id"]
           },
@@ -95,6 +102,13 @@ export type Database = {
             foreignKeyName: "trade_body_artist_id_fkey"
             columns: ["artist_id"]
             isOneToOne: false
+            referencedRelation: "anon_artist_list_payment"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "trade_body_artist_id_fkey"
+            columns: ["artist_id"]
+            isOneToOne: false
             referencedRelation: "artist"
             referencedColumns: ["id"]
           },
@@ -124,6 +138,15 @@ export type Database = {
       }
     }
     Views: {
+      anon_artist_list_payment: {
+        Row: {
+          artist_name: string | null
+          id: number | null
+          season: number | null
+          state_by_season: number | null
+        }
+        Relationships: []
+      }
       artist_trade: {
         Row: {
           artist_id: number | null
@@ -143,6 +166,13 @@ export type Database = {
             columns: ["artist_id"]
             isOneToOne: false
             referencedRelation: "artist"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "trade_body_artist_id_fkey"
+            columns: ["artist_id"]
+            isOneToOne: false
+            referencedRelation: "anon_artist_list_payment"
             referencedColumns: ["id"]
           },
           {
