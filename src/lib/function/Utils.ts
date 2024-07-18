@@ -1,6 +1,8 @@
 import type { PaymentStatusRow } from '$lib/db';
 
-export const FormatDate = (date: Date) => {
+export const FormatDate = (dateStr: string | null | undefined) => {
+	if (dateStr === null || dateStr === undefined) return '';
+	const date = new Date(dateStr);
 	return (
 		date.getFullYear() +
 		'-' +

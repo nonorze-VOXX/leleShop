@@ -1,14 +1,5 @@
-import type {
-	Artist,
-	ArtistRow,
-	ShopRow,
-	TradeBody,
-	TradeBodyRow,
-	TradeHead,
-	TradeHeadRow
-} from '$lib/db';
-import db, { supabase } from '$lib/db';
-import { groupBy } from '$lib/function/Utils';
+import type { Artist, ArtistRow, TradeBody, TradeBodyRow, TradeHead, TradeHeadRow } from '$lib/db';
+import db from '$lib/db';
 
 export const findIndex = (dataHeader: string[], target: string) => {
 	return dataHeader.findLastIndex((e) => e === target);
@@ -41,10 +32,6 @@ export const stateIndex = (dataHeader: string[]) => {
 export const dateIndex = (dataHeader: string[]) => {
 	return findIndex(dataHeader, '日期');
 };
-export const GetShopIndex = (dataHeader: string[]) => {
-	return findIndex(dataHeader, '商店');
-};
-
 export const GetNewArtistList = (
 	artistList: ArtistRow[],
 	groupByIndex: Record<string, string[][]>,
@@ -66,48 +53,7 @@ export const GetNewArtistList = (
 	}
 	return newArtistList;
 };
-const GetShopTrueName = (shopName: string) => {
-	const shopWord = shopName.split(' ');
-	if (shopWord.length === 2 && shopWord[0] === 'The創') {
-		return shopWord[1];
-	} else if (shopName === '') {
-		return '一中';
-	} else {
-		return shopName;
-	}
-};
 
-export const GetNewShopNameList = async (
-	FilteredBodyHead: { dataHeader: string[]; body: string[][] }[],
-	shopList: { commission: number; id: number; shop_name: string }[] | null
-) => {
-	const shopSet = new Set<ShopRow>();
-	shopList?.forEach((shop: ShopRow) => {
-		shopSet.add(shop);
-	});
-
-	const importShopNameList = new Set<string>();
-	for (const { dataHeader, body } of FilteredBodyHead) {
-		body.forEach((row) => {
-			const shopName = row[GetShopIndex(dataHeader)];
-			importShopNameList.add(GetShopTrueName(shopName));
-		});
-	}
-	const newShopList: string[] = [];
-	importShopNameList.forEach((element) => {
-		let find = false;
-		for (const shop of shopSet) {
-			if (shop.shop_name === element) {
-				find = true;
-				break;
-			}
-		}
-		if (!find) {
-			newShopList.push(element);
-		}
-	});
-	return newShopList;
-};
 const CheckDataHeader = (dataHeader: string[]) => {
 	const shouldDataHeader = [
 		'收據號碼',
@@ -118,8 +64,7 @@ const CheckDataHeader = (dataHeader: string[]) => {
 		'折扣',
 		'淨銷售額',
 		// '狀態',
-		'日期',
-		'商店'
+		'日期'
 	];
 	const notFoundColumn: string[] = [];
 	shouldDataHeader.forEach((e) => {
@@ -134,41 +79,19 @@ const CheckDataHeader = (dataHeader: string[]) => {
 	}
 	return { error: null };
 };
-export const timeZoneOffsetToHHMM = (timeZoneOffset: number) => {
-	const sign = timeZoneOffset < 0 ? '+' : '-';
-	const abs = Math.abs(timeZoneOffset);
-	const hour = Math.floor(abs / 60);
-	const minute = abs % 60;
-	return sign + (hour < 10 ? '0' : '') + hour + ':' + (minute < 10 ? '0' : '') + minute;
-};
-
-export const GetInDbTradeIdList = async (tradeIdList: string[]) => {
-	const { error, data } = await supabase
-		.from('trade_head')
-		.select('trade_id')
-		.in('trade_id', tradeIdList);
-	if (error !== null) {
-		console.log(error);
-	}
-	console.log(tradeIdList);
-	console.log('db say:');
-	console.log(data);
-	return (data ?? []).map((i) => i.trade_id);
-};
 
 export const GetStoreData = (
+	tradeIdList: { trade_id: string }[],
 	artistList: ArtistRow[],
 	groupByIndex: Record<string, string[][]>,
 	timezoneOffset: string,
-	dataHeader: string[],
-	shopList: { commission: number; id: number; shop_name: string }[]
+	dataHeader: string[]
 ) => {
 	const { error } = CheckDataHeader(dataHeader);
 	if (error) {
 		return {
 			tradeBodyList: [],
 			tradeHeadList: [],
-			susTradeIdList: [],
 			error
 		};
 	}
@@ -178,6 +101,9 @@ export const GetStoreData = (
 
 	for (const key in groupByIndex) {
 		if (key === undefined || key === 'undefined') continue;
+		if (tradeIdList.findLastIndex((i) => i.trade_id === key) !== -1) {
+			continue;
+		}
 
 		const element = groupByIndex[key];
 		const date = GetDateWithTimeZone(element[0][dateIndex(dataHeader)], timezoneOffset);
@@ -186,24 +112,13 @@ export const GetStoreData = (
 			state = element[0][stateIndex(dataHeader)];
 		}
 		if (state !== '關閉') {
+			// todo: return not close trade
 			susTradeIdList.push(key);
 			continue;
 		}
-		const shop_name = element[0][GetShopIndex(dataHeader)];
-		let shop_id = shopList.find((shop) => shop.shop_name === GetShopTrueName(shop_name))?.id;
-		if (shop_id === undefined) {
-			return {
-				tradeBodyList: [],
-				tradeHeadList: [],
-				susTradeIdList: [],
-				error: { message: 'shop not found' }
-			};
-		}
-
 		tradeHeadList.push({
 			trade_date: date.toISOString(),
-			trade_id: element[0][tradeIdIndex(dataHeader)],
-			shop_id
+			trade_id: element[0][tradeIdIndex(dataHeader)]
 		});
 
 		for (let i = 0; i < element.length; i++) {
@@ -213,12 +128,7 @@ export const GetStoreData = (
 			}
 			const artist_id = artistList.find((artist) => artist.artist_name === artist_name)?.id;
 			if (artist_id === undefined)
-				return {
-					error: 'artist not found',
-					tradeBodyList: [],
-					tradeHeadList: [],
-					susTradeIdList: []
-				};
+				return { error: 'artist not found', tradeBodyList: [], tradeHeadList: [] };
 
 			tradeBodyList.push({
 				item_name: element[i][itemNameIndex(dataHeader)],
@@ -231,7 +141,7 @@ export const GetStoreData = (
 			});
 		}
 	}
-	return { tradeBodyList, tradeHeadList, susTradeIdList, error: null };
+	return { tradeBodyList, tradeHeadList, susTradeIdList };
 };
 
 export const fileToArray = async (file: File) => {
@@ -262,7 +172,7 @@ export const GetDateWithTimeZone = (dateStr: string, timezoneOffset: string) => 
 		const date = new Date(dateStr);
 		return date;
 	}
-	const date = new Date(dateStr + timezoneOffset);
+	const date = new Date(dateStr.replace(/ /g, 'T') + timezoneOffset);
 	return date;
 };
 export const GetDateRange = async (
@@ -291,32 +201,20 @@ export const GetDateRange = async (
 	}
 	return { minDate, maxDate };
 };
-const SaveTradeHead = async (head: TradeHead[]) => {
-	const { data, error } = await supabase.from('trade_head').insert(head).select();
-	if (error !== null) {
-		console.log(error);
-	}
-	return { data, error };
-};
-const SaveTradeBody = async (body: TradeBody[]) => {
-	const { data, error } = await supabase.from('trade_body').insert(body).select();
-	if (error !== null) {
-		console.log(error);
-	}
-	return { data, error };
-};
 export const savePartToDb = async (tradeBodyList: TradeBody[], tradeHeadList: TradeHead[]) => {
+	console.log('tradeBodyList', tradeBodyList);
+	console.log('tradeHeadList', tradeHeadList);
 	let newTradeHead: TradeHeadRow[] = [];
 	let newTradeBody: TradeBodyRow[] = [];
 	{
-		const { error, data } = await SaveTradeHead(tradeHeadList);
+		const { error, data } = await db.SaveTradeHead(tradeHeadList);
 		if (error !== null) {
 			return { error, newTradeHead, newTradeBody };
 		}
 		newTradeHead = data ?? [];
 	}
 	{
-		const { error, data } = await SaveTradeBody(tradeBodyList);
+		const { error, data } = await db.SaveTradeBody(tradeBodyList);
 		if (error !== null) {
 			return { error, newTradeHead, newTradeBody };
 		}
@@ -324,37 +222,3 @@ export const savePartToDb = async (tradeBodyList: TradeBody[], tradeHeadList: Tr
 	}
 	return { error: null, newTradeHead, newTradeBody };
 };
-export async function HeaderAndBodyToGroupByOrderDataHeader(
-	notNullFileList: {
-		body: string[][];
-		dataHeader: string[];
-	}[]
-) {
-	return notNullFileList.map(({ body, dataHeader }) => {
-		return { groupByOrder: groupBy(body, (i) => i[tradeIdIndex(dataHeader)]), dataHeader };
-	});
-}
-export async function FileListToHeadAndBody(files: FormDataEntryValue[]) {
-	const fileList = await Promise.all(
-		files.map(async (tmpFile) => {
-			const file = tmpFile as File;
-			const fileArr2D = await fileToArray(file);
-			let dataHeader: string[] = [];
-			dataHeader = fileArr2D[0];
-			if (!dataHeader) {
-				return null;
-			}
-			return { body: fileArr2D.slice(1), dataHeader };
-		})
-	);
-	var notNullFileList: {
-		body: string[][];
-		dataHeader: string[];
-	}[] = [];
-	fileList.forEach((element) => {
-		if (element !== null) {
-			notNullFileList.push(element);
-		}
-	});
-	return notNullFileList;
-}

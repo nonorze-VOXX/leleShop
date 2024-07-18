@@ -5,52 +5,25 @@
 
 	import PasswordPanel from './PasswordPanel.svelte';
 	import { onMount } from 'svelte';
-	import db, { type ShopRow } from '$lib/db';
+	import db from '$lib/db';
 	import { page } from '$app/stores';
 	import TradeCount from '$lib/Component/reportComponent/TradeCount.svelte';
 	import Commision from '$lib/Component/reportComponent/Commision.svelte';
 	import Remit from '$lib/Component/reportComponent/Remit.svelte';
-	import { goto } from '$app/navigation';
-	import ShopChooser from '$lib/Component/ShopChooser.svelte';
 
 	let artist_name: string = '';
 	let net_total = -1;
 	let artist_id: string = '';
 	let admit = false;
 	let showedLength = 0;
-	let shop_id: number | null | '*' = '*';
-	let shopRow: ShopRow | null;
-	let shopList: ShopRow[] = [];
-	let commission: number | null = null;
 
 	onMount(async () => {
 		artist_id = $page.params.id;
 		const artist_data = (await db.GetArtistData(artist_id)).data ?? [];
 		artist_name = artist_data.length !== 0 ? artist_data[0].artist_name : 'not found this artist';
-		const { data } = await db.GetShopList();
-		shopList = data ?? [];
-		let paramId = $page.url.searchParams.get('shop_id');
-		if (paramId === null) {
-			shop_id = '*';
-			commission = null;
-		} else {
-			shop_id = parseInt(paramId);
-			shopRow = shopList.find((e) => e.id == shop_id) ?? null;
-			commission = shopList.find((e) => e.id == shop_id)?.commission ?? null;
-		}
 	});
 	let firstDate: Date | null;
 	let lastDate: Date | null;
-
-	async function handleShopChange(event: { currentTarget: EventTarget & HTMLFormElement }) {
-		const formData = new FormData(event.currentTarget);
-		const param = new URLSearchParams($page.url.searchParams);
-		param.set('shop_id', formData.get('shops') as string);
-		shopRow = shopList.find((e) => e.id == parseInt(formData.get('shops') as string)) ?? null;
-		commission =
-			shopList.find((e) => e.id == parseInt(formData.get('shops') as string))?.commission ?? null;
-		goto(`?${param.toString()}`);
-	}
 </script>
 
 <div class="flex flex-col items-center gap-3">
@@ -67,30 +40,20 @@
 			<h1 class="rounded-xl border-4 border-lele-line bg-lele-bg p-2 text-lele-line">
 				{artist_name}
 			</h1>
-
-			<Commision bind:net_total bind:shopRow></Commision>
+			<Commision bind:net_total></Commision>
 			<TradeCount bind:showedLength></TradeCount>
-			<Remit bind:net_total bind:commission></Remit>
-			<form
-				on:change|preventDefault={handleShopChange}
-				class="flex flex-col items-center gap-4 text-lg"
-			>
-				<ShopChooser bind:shopList bind:shop_id></ShopChooser>
-			</form>
+			<Remit bind:net_total></Remit>
 
 			<DownloadButton bind:firstDate bind:lastDate bind:artist_id></DownloadButton>
 		</div>
-		{#if shop_id}
-			<MonthTabReportTableWithLogic1
-				bind:shop_id
-				bind:artist_id
-				on:change={(e) => {
-					net_total = e.detail.net_total;
-					firstDate = e.detail.firstDate;
-					lastDate = e.detail.lastDate;
-					showedLength = e.detail.showedLength;
-				}}
-			></MonthTabReportTableWithLogic1>
-		{/if}
+		<MonthTabReportTableWithLogic1
+			bind:artist_id
+			on:change={(e) => {
+				net_total = e.detail.net_total;
+				firstDate = e.detail.firstDate;
+				lastDate = e.detail.lastDate;
+				showedLength = e.detail.showedLength;
+			}}
+		></MonthTabReportTableWithLogic1>
 	{/if}
 </div>
