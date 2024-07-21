@@ -1,5 +1,3 @@
-alter table "public"."artist" add column "payment" bigint not null default '0'::bigint;
-update artist set payment = (select state_by_season from artist_payment_status where season = 2);
 drop policy "Enable insert for authenticated users only" on "public"."artist_payment_status";
 
 drop policy "Enable read access for all users" on "public"."artist_payment_status";

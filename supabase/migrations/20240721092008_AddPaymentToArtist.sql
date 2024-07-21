@@ -1,0 +1,1 @@
+alter table "public"."artist" add column "payment" bigint not null default '0'::bigint;
