@@ -13,6 +13,7 @@ export type TradeBody = Database['public']['Tables']['trade_body']['Insert'];
 export type TradeBodyRow = Database['public']['Tables']['trade_body']['Row'];
 export type Artist = Database['public']['Tables']['artist']['Insert'];
 export type ArtistRow = Database['public']['Tables']['artist']['Row'];
+export type ArtistViewRow = Database['public']['Views']['default_artist_view']['Row'];
 export type ArtistUpdate = Database['public']['Tables']['artist']['Update'];
 export type ArtistWithTradeRow = Database['public']['Views']['artist_trade']['Row'];
 export type SalesTotalData = {

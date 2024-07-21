@@ -10,7 +10,7 @@
 	let seasonPaymentDataList: ArtistRow[] = [];
 
 	onMount(async () => {
-		const { data, error } = await supabase.from('artist').select('*');
+		const { data, error } = await supabase.from('artist').select('*').order('id');
 		if (error) {
 			console.error(error);
 		} else {
