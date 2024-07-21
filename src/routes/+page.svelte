@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { supabase, type ArtistRow, type ArtistViewRow } from '$lib/db';
+	import { supabase, type ArtistViewRow } from '$lib/db';
 	import LeleThead from '$lib/Component/htmlWrapper/LeleThead.svelte';
 	import LeleTbody from '$lib/Component/htmlWrapper/LeleTbody.svelte';
 	import LeleTable from '$lib/Component/htmlWrapper/LeleTable.svelte';

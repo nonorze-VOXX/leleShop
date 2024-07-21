@@ -2,7 +2,7 @@
 	import { createEventDispatcher, onMount } from 'svelte';
 	import type { QueryTradeBodyWithTradeHead, SalesTotalData } from '$lib/db';
 	import MonthTabReportTable from '$lib/Component/MonthTabReportTable.svelte';
-	import db, { onePageLength, supabase } from '$lib/db';
+	import db, { onePageLength } from '$lib/db';
 	import { ThisMonthFirstDate } from '$lib/function/Utils';
 	import MonthTab from './MonthTab.svelte';
 
@@ -67,7 +67,7 @@
 		bind:tabDataList={pageIndex}
 		bind:showedMonth={nowPage}
 		shape="full"
-		on:onTabChange={async (e) => {
+		on:onTabChange={async () => {
 			tradeDataList = await PageChange();
 		}}
 	></MonthTab>

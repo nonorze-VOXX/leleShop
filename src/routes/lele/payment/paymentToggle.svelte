@@ -1,6 +1,6 @@
 <script lang="ts">
 	import Toggle4 from '$lib/Component/Toggle4.svelte';
-	import db, { supabase, type ArtistRow, type ArtistUpdate } from '$lib/db';
+	import { supabase, type ArtistRow, type ArtistUpdate } from '$lib/db';
 
 	export let artistRow: ArtistRow;
 
