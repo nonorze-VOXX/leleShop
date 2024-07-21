@@ -73,6 +73,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "trade_body_artist_id_fkey"
+            columns: ["artist_id"]
+            isOneToOne: false
+            referencedRelation: "default_artist_view"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "trade_body_trade_id_fkey"
             columns: ["trade_id"]
             isOneToOne: false
@@ -120,6 +127,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "trade_body_artist_id_fkey"
+            columns: ["artist_id"]
+            isOneToOne: false
+            referencedRelation: "default_artist_view"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "trade_body_trade_id_fkey"
             columns: ["trade_id"]
             isOneToOne: false
@@ -127,6 +141,30 @@ export type Database = {
             referencedColumns: ["trade_id"]
           },
         ]
+      }
+      default_artist_view: {
+        Row: {
+          artist_name: string | null
+          id: number | null
+          payment: number | null
+          report_key: string | null
+          visible: boolean | null
+        }
+        Insert: {
+          artist_name?: string | null
+          id?: number | null
+          payment?: number | null
+          report_key?: string | null
+          visible?: boolean | null
+        }
+        Update: {
+          artist_name?: string | null
+          id?: number | null
+          payment?: number | null
+          report_key?: string | null
+          visible?: boolean | null
+        }
+        Relationships: []
       }
     }
     Functions: {
