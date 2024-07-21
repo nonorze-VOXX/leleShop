@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { createEventDispatcher, onMount } from 'svelte';
+	import { createEventDispatcher } from 'svelte';
 	import SmallButton from './SmallButton.svelte';
 
 	export let tabDataList: string[];

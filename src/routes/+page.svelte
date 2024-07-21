@@ -1,23 +1,14 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import type { PaymentStatusRow } from '$lib/db';
+	import { supabase, type ArtistViewRow } from '$lib/db';
 	import LeleThead from '$lib/Component/htmlWrapper/LeleThead.svelte';
 	import LeleTbody from '$lib/Component/htmlWrapper/LeleTbody.svelte';
 	import LeleTable from '$lib/Component/htmlWrapper/LeleTable.svelte';
 	import LeleTbodyTr from '$lib/Component/htmlWrapper/LeleTbodyTr.svelte';
-	import db from '$lib/db';
-	import { GetSeason } from '$lib/function/Utils';
-	let artistData: {
-		id: number;
-		artist_name: string;
-		visible: boolean;
-		artist_payment_status: PaymentStatusRow;
-	}[] = [];
+	let artistData: ArtistViewRow[] = [];
 
 	onMount(async () => {
-		const { data, error } = await db.GetArtistDataWithPaymentStatus({
-			season: GetSeason(new Date())
-		});
+		const { data, error } = await supabase.from('default_artist_view').select('*');
 		if (error) {
 			console.error(error);
 		}
@@ -41,17 +32,15 @@
 				</td>
 				<td class="text-center">
 					<div class="text-lg">
-						{#if artists.artist_payment_status}
-							{#each { length: 3 } as _, i}
-								{#if artists.artist_payment_status.state_by_season == null || i >= artists.artist_payment_status.state_by_season}
+						{#each { length: 3 } as _, i}
+							{#if artists.payment !== null}
+								{#if i >= artists.payment}
 									X
 								{:else}
 									✓
 								{/if}
-							{/each}
-						{:else}
-							data missing
-						{/if}
+							{/if}
+						{/each}
 					</div>
 				</td>
 				<td class="flex">

@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { type QueryTradeBodyWithTradeHead, type SalesTotalData } from '$lib/db';
-	import { FormatDate, add, arr_sum } from '$lib/function/Utils';
-	import { createEventDispatcher } from 'svelte';
+	import { FormatDate } from '$lib/function/Utils';
 	import LeleTable from './htmlWrapper/LeleTable.svelte';
 	import LeleTbody from './htmlWrapper/LeleTbody.svelte';
 	import LeleTbodyTr from './htmlWrapper/LeleTbodyTr.svelte';

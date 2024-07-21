@@ -13,9 +13,8 @@ export type TradeBody = Database['public']['Tables']['trade_body']['Insert'];
 export type TradeBodyRow = Database['public']['Tables']['trade_body']['Row'];
 export type Artist = Database['public']['Tables']['artist']['Insert'];
 export type ArtistRow = Database['public']['Tables']['artist']['Row'];
-export type PaymentStatusInsert = Database['public']['Tables']['artist_payment_status']['Insert'];
-export type PaymentStatusRow = Database['public']['Tables']['artist_payment_status']['Row'];
-export type PaymentStatusUpdate = Database['public']['Tables']['artist_payment_status']['Update'];
+export type ArtistViewRow = Database['public']['Views']['default_artist_view']['Row'];
+export type ArtistUpdate = Database['public']['Tables']['artist']['Update'];
 export type ArtistWithTradeRow = Database['public']['Views']['artist_trade']['Row'];
 export type SalesTotalData = {
 	sales_total: number;
@@ -92,53 +91,6 @@ export default {
 			result.push(...(data ?? []));
 		}
 		return { data: result, error: null };
-	},
-	async ChangePaymentStatus(update: PaymentStatusUpdate, id: number) {
-		if (!update.artist_id) {
-			return { error: 'artist_id is required' };
-		}
-		if (!update.season) {
-			return { error: 'season is required' };
-		}
-		const { error } = await supabase
-			.from('artist_payment_status')
-			.update(update)
-			.eq('id', id)
-			.select();
-		if (error !== null) {
-			console.error(error);
-		}
-		return { error };
-	},
-	async InsertPaymentStatus(paymentStatusList: PaymentStatusInsert[]) {
-		const { error, data } = await supabase
-			.from('artist_payment_status')
-			.insert(paymentStatusList)
-			.select();
-		if (error !== null) {
-			console.error(error);
-		}
-		return { data, error };
-	},
-	async GetPaymentStatus(
-		{ artist_id, year_month: year_month }: { artist_id?: string; year_month?: string },
-		ordered: boolean = true
-	) {
-		let query = supabase.from('artist_payment_status').select('*');
-		if (artist_id) {
-			query = query.eq('artist_id', artist_id);
-		}
-		if (year_month) {
-			query = query.eq('year_month', year_month);
-		}
-		if (ordered) {
-			query = query.order('id', { ascending: true });
-		}
-		const { error, data } = await query;
-		if (error !== null) {
-			console.error(error);
-		}
-		return { data, error };
 	},
 	async SaveArtistName(artist: Artist[]) {
 		const { error, data } = await supabase.from('artist').insert(artist).select();
@@ -334,52 +286,5 @@ export default {
 			// });
 		}
 		return { data: result };
-	},
-	async GetArtistDataWithPaymentStatus(option?: {
-		id?: string;
-		visible?: boolean | null;
-		season: number;
-	}) {
-		let { id, visible, season } = option ?? {};
-		id = id ?? '*';
-		visible = visible === undefined ? true : visible;
-
-		let query = supabase.from('artist').select('id, artist_name, visible,artist_payment_status(*)');
-		if (id !== '*') {
-			query = query.eq('id', id);
-		}
-
-		if (visible !== null) {
-			query = query.eq('visible', visible);
-		}
-		if (season) {
-			query = query.eq('artist_payment_status.season', season);
-		} else {
-			return { data: [], error: 'season is required' };
-		}
-
-		query = query.order('id', { ascending: true });
-		const { data, error } = await query;
-		if (error) {
-			console.error(error);
-		}
-		var value = data?.filter((e) => e.artist_payment_status.length > 0) ?? [];
-		var result: {
-			id: number;
-			artist_name: string;
-			visible: boolean;
-			artist_payment_status: PaymentStatusRow;
-		}[] = [];
-		for (let i = 0; i < value.length; i++) {
-			var e = value[i];
-			var single = e.artist_payment_status.at(0) as PaymentStatusRow;
-			result.push({
-				id: e.id,
-				artist_name: e.artist_name,
-				visible: e.visible,
-				artist_payment_status: single
-			});
-		}
-		return { data: result, error };
 	}
 };
