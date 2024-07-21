@@ -1,5 +1,3 @@
-import type { PaymentStatusRow } from '$lib/db';
-
 export const FormatDate = (dateStr: string | null | undefined) => {
 	if (dateStr === null || dateStr === undefined) return '';
 	const date = new Date(dateStr);
@@ -13,11 +11,6 @@ export const FormatDate = (dateStr: string | null | undefined) => {
 		.toString()
 		.replace(/-/g, '/');
 };
-export function GetSeason(date: Date) {
-	var month = date.getMonth() - 1 < 0 ? date.getMonth() - 3 : date.getMonth() - 1;
-	var season = Math.floor(month / 3) + 1;
-	return (date.getFullYear() - 2024) * 4 + season;
-}
 
 export function FormatNumberToTwoDigi(month: string) {
 	return month.length === 1 ? '0' + month : month;
