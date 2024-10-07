@@ -1,9 +1,5 @@
 <script lang="ts">
-	import {
-		type ArtistWithTradeRow,
-		type QueryTradeBodyWithTradeHead,
-		type SalesTotalData
-	} from '$lib/db';
+	import { type ArtistWithTradeRow, type SalesTotalData } from '$lib/db';
 	import { FormatDate } from '$lib/function/Utils';
 	import LeleTable from './htmlWrapper/LeleTable.svelte';
 	import LeleTbody from './htmlWrapper/LeleTbody.svelte';

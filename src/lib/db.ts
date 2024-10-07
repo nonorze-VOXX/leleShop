@@ -25,8 +25,6 @@ export type SalesTotalData = {
 };
 export const onePageLength = 100;
 
-const QueryTradeHeadAndBody = supabase.from('trade_body').select('*, trade_head(*)');
-export type QueryTradeBodyWithTradeHead = QueryData<typeof QueryTradeHeadAndBody>;
 const QueryArtistWithPaymentStatus = supabase.from('artist').select('*, artist_payment_status(*)');
 export type QueryArtistWithPaymentStatus = QueryData<typeof QueryArtistWithPaymentStatus>;
 
