@@ -3,6 +3,7 @@ import { PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_KEY } from '$env/static/public';
 import { type Database } from './db.types';
 // import { PRIVATE_SUPABASE_KEY, PRIVATE_SUPABASE_URL } from '$env/static/private';
 import { add } from './function/Utils';
+import DbArtistTrade from './db/DbArtistTrade';
 
 // export const supabase = createClient<Database>(PRIVATE_SUPABASE_URL, PRIVATE_SUPABASE_KEY);
 export const supabase = createClient<Database>(PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_KEY);
@@ -24,8 +25,6 @@ export type SalesTotalData = {
 };
 export const onePageLength = 100;
 
-const QueryTradeHeadAndBody = supabase.from('trade_body').select('*, trade_head(*)');
-export type QueryTradeBodyWithTradeHead = QueryData<typeof QueryTradeHeadAndBody>;
 const QueryArtistWithPaymentStatus = supabase.from('artist').select('*, artist_payment_status(*)');
 export type QueryArtistWithPaymentStatus = QueryData<typeof QueryArtistWithPaymentStatus>;
 
@@ -57,40 +56,6 @@ export default {
 			discount_sum = data.map((el) => el.discount ?? 0).reduce(add);
 		}
 		return { total_sales_sum, net_sales_sum, discount_sum, error: null };
-	},
-	async GetOriginalData(
-		id: string = '*',
-		date: { firstDate: Date | null; lastDate: Date | null } = { firstDate: null, lastDate: null }
-	) {
-		let query = supabase.from('artist_trade').select('*');
-		if (id !== '*') {
-			query = query.eq('artist_id', id);
-		}
-		let cq = supabase.from('artist_trade').select('*', { count: 'exact', head: true });
-		if (date.firstDate !== null && date.lastDate !== null) {
-			query = query
-				.gte('trade_date', date.firstDate.toISOString())
-				.lte('trade_date', date.lastDate.toISOString());
-			cq = cq
-				.gte('trade_date', date.firstDate.toISOString())
-				.lte('trade_date', date.lastDate.toISOString());
-		}
-
-		const { count } = await cq;
-		if (count === null) {
-			console.error('count is null');
-			return { error: 'count is null', data: null };
-		}
-		const result: ArtistWithTradeRow[] = [];
-
-		for (let i = 0; i < count; i += 1000) {
-			const { data, error } = await query.range(i, i + 1000);
-			if (error) {
-				console.error(error);
-			}
-			result.push(...(data ?? []));
-		}
-		return { data: result, error: null };
 	},
 	async SaveArtistName(artist: Artist[]) {
 		const { error, data } = await supabase.from('artist').insert(artist).select();
@@ -223,68 +188,5 @@ export default {
 		};
 		return total;
 	},
-	async GetTradeData(
-		id: string,
-		date: { firstDate: Date | null; lastDate: Date | null } = { firstDate: null, lastDate: null },
-		page: number | null = null
-	) {
-		const count = (await this.GetTradeDataCount(id, date)).count as number;
-		let result: QueryTradeBodyWithTradeHead = [];
-		if (page !== null) {
-			let query = supabase.from('trade_body').select('*, trade_head!inner(trade_id, trade_date)');
-
-			if (id !== '*' && id !== '') {
-				query = query.eq('artist_id', id);
-			}
-			if (date.firstDate !== null && date.lastDate !== null) {
-				query = query
-					.gte('trade_head.trade_date', date.firstDate.toISOString())
-					.lte('trade_head.trade_date', date.lastDate.toISOString());
-			}
-			query.order('trade_head(trade_date)', { ascending: false });
-			const { data, error } = await query.range(
-				page * onePageLength,
-				(page + 1) * onePageLength - 1
-			);
-			if (error) {
-				console.error(error);
-			}
-
-			result = result.concat(data as QueryTradeBodyWithTradeHead);
-		} else {
-			for (let i = 0; i < count; i += 1000) {
-				let query = supabase.from('trade_body').select('*, trade_head!inner(trade_id, trade_date)');
-
-				if (id !== '*' && id !== '') {
-					query = query.eq('artist_id', id);
-				}
-				if (date.firstDate !== null && date.lastDate !== null) {
-					query = query
-						.gte('trade_head.trade_date', date.firstDate.toISOString())
-						.lte('trade_head.trade_date', date.lastDate.toISOString());
-				}
-				query.order('trade_head(trade_date)', { ascending: false });
-				const { data, error } = await query.range(i, i + 1000 - 1);
-				if (error) {
-					console.log(error);
-				}
-
-				result = result.concat(data as QueryTradeBodyWithTradeHead);
-			}
-
-			// sort by trade_date
-			// result.sort((a, b) => {
-			// 	if (a.trade_head && b.trade_head) {
-			// 		if (a.trade_head.trade_date < b.trade_head.trade_date) {
-			// 			return -1;
-			// 		}
-			// 		if (a.trade_head.trade_date > b.trade_head.trade_date) {
-			// 			return 1;
-			// 		}
-			// 	}
-			// 	return 0;
-			// });
-		}
-		return { data: result };
-	}
+	artistTrade: DbArtistTrade
 };

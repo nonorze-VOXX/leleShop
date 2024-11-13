@@ -178,7 +178,7 @@ export type Database = {
       }
     }
     Enums: {
-      processenum: "todo" | "doing" | "done"
+      [_ in never]: never
     }
     CompositeTypes: {
       [_ in never]: never
