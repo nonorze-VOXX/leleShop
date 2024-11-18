@@ -216,6 +216,22 @@ describe('importFunction', () => {
 });
 
 describe('new importFunction', () => {
+	it('string to object but header is broken', async () => {
+		// UTC timezone test
+		const context =
+			'期,據號碼,收據類型,類別,SKU,商品,變體,修飾符已应用的,數量,銷售總額,折扣,淨銷售額,銷售成本,毛利潤,稅務,POS,商店,收銀員名稱,客戶名稱,客戶聯繫電話,註釋,狀態\n' +
+			'2024-07-08 23:03+8,2-1022,銷售,artist_random_id artist_name,sku,item_name,,,1.000,150.00,0.00,150.00,0.00,150.00,0.00,POS 2,The shop2,,,,,關閉\n\n' +
+			'2024-07-08 23:03,2-1022,銷售,artist_random_id artist_name,sku,item_name,,,1.000,150.00,0.00,150.00,0.00,150.00,0.00,POS 2,The shop1,,,,,關閉\n\n';
+
+		let expectTradeRow: ImportedTrade[] = [];
+
+		const file = new File([context], 'filename');
+		const result = await fileToArray(file);
+		const dataHeader = result.shift() ?? [];
+		const body = result;
+		const res = Array2DToImportedTrade(dataHeader, body);
+		expect(res).toStrictEqual(expectTradeRow);
+	});
 	it('string to object', async () => {
 		// UTC timezone test
 		const context =

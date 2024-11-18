@@ -292,18 +292,44 @@ export const f = async (formData: FormData, timezoneOffset: string) => {
 
 export type ImportedTrade = Omit<ArtistWithTradeRow, 'id' | 'artist_id'>;
 export const Array2DToImportedTrade = (dataHeader: string[], data: string[][]) => {
-	return data.map((e) => {
-		const result: ImportedTrade = {
-			trade_id: e[tradeIdIndex(dataHeader)],
-			artist_name: e[artistIndex(dataHeader)],
-			item_name: e[itemNameIndex(dataHeader)],
-			quantity: parseInt(e[quantityIndex(dataHeader)]),
-			total_sales: parseFloat(e[totalIndex(dataHeader)]),
-			discount: parseFloat(e[discountIndex(dataHeader)]),
-			net_sales: parseFloat(e[netIndex(dataHeader)]),
-			trade_date: new Date(e[dateIndex(dataHeader)]).toISOString(),
-			store_name: e[storeIndex(dataHeader)]
-		};
-		return result;
-	});
+	return data
+		.map((e) => {
+			const tradeIdIdx = tradeIdIndex(dataHeader);
+			const artistIdx = artistIndex(dataHeader);
+			const itemNameIdx = itemNameIndex(dataHeader);
+			const quantityIdx = quantityIndex(dataHeader);
+			const totalIdx = totalIndex(dataHeader);
+			const discountIdx = discountIndex(dataHeader);
+			const netIdx = netIndex(dataHeader);
+			const dateIdx = dateIndex(dataHeader);
+			const storeIdx = storeIndex(dataHeader);
+
+			if (
+				tradeIdIdx === -1 ||
+				artistIdx === -1 ||
+				itemNameIdx === -1 ||
+				quantityIdx === -1 ||
+				totalIdx === -1 ||
+				discountIdx === -1 ||
+				netIdx === -1 ||
+				dateIdx === -1 ||
+				storeIdx === -1
+			) {
+				return undefined;
+			}
+
+			const result: ImportedTrade = {
+				trade_id: e[tradeIdIdx],
+				artist_name: e[artistIdx],
+				item_name: e[itemNameIdx],
+				quantity: parseInt(e[quantityIdx]),
+				total_sales: parseFloat(e[totalIdx]),
+				discount: parseFloat(e[discountIdx]),
+				net_sales: parseFloat(e[netIdx]),
+				trade_date: new Date(e[dateIdx]).toISOString(),
+				store_name: e[storeIdx]
+			};
+			return result;
+		})
+		.filter((e) => e !== undefined);
 };
