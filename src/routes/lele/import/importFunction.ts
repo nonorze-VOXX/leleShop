@@ -1,5 +1,14 @@
-import type { Artist, ArtistRow, TradeBody, TradeBodyRow, TradeHead, TradeHeadRow } from '$lib/db';
+import type {
+	Artist,
+	ArtistRow,
+	ArtistWithTradeRow,
+	TradeBody,
+	TradeBodyRow,
+	TradeHead,
+	TradeHeadRow
+} from '$lib/db';
 import db from '$lib/db';
+import { groupBy } from '$lib/function/Utils';
 
 export const findIndex = (dataHeader: string[], target: string) => {
 	return dataHeader.findLastIndex((e) => e === target);
@@ -31,6 +40,9 @@ export const stateIndex = (dataHeader: string[]) => {
 };
 export const dateIndex = (dataHeader: string[]) => {
 	return findIndex(dataHeader, '日期');
+};
+export const storeIndex = (dataHeader: string[]) => {
+	return findIndex(dataHeader, '商店');
 };
 export const GetNewArtistList = (
 	artistList: ArtistRow[],
@@ -221,4 +233,77 @@ export const savePartToDb = async (tradeBodyList: TradeBody[], tradeHeadList: Tr
 		newTradeBody = data ?? [];
 	}
 	return { error: null, newTradeHead, newTradeBody };
+};
+
+export const f = async (formData: FormData, timezoneOffset: string) => {
+	const files = formData.getAll('fileToUpload');
+	if (files.length === 0) {
+		return { error: 'You must provide a file to upload' };
+	}
+	let susTradeIdLists: string[] = [];
+
+	for (let i = 0; i < files.length; i++) {
+		const file = files[i] as File;
+		const fileArr2D = await fileToArray(file);
+		let dataHeader: string[] = [];
+		dataHeader = fileArr2D[0];
+		if (!dataHeader) {
+			continue;
+		}
+
+		const groupByOrder = groupBy(fileArr2D.slice(1), (i) => i[tradeIdIndex(dataHeader)]);
+		const { maxDate, minDate } = await GetDateRange(groupByOrder, dataHeader, timezoneOffset);
+
+		const tradeIdList =
+			(await db.GetTradeIdList({ firstDate: minDate, lastDate: maxDate })).data ?? [];
+		let artistList = (await db.GetArtistDataList()).data ?? [];
+		const newArtistList = GetNewArtistList(artistList, groupByOrder, dataHeader);
+		{
+			if (newArtistList.length > 0) {
+				const { data } = await db.SaveArtistName(newArtistList);
+				artistList = artistList.concat(data ?? []);
+			}
+		}
+
+		const { tradeBodyList, tradeHeadList, susTradeIdList, error } = GetStoreData(
+			tradeIdList,
+			artistList,
+			groupByOrder,
+			timezoneOffset,
+			dataHeader
+		);
+		if (error) {
+			return { error: error };
+		}
+		susTradeIdLists = susTradeIdLists.concat(susTradeIdList ?? []);
+		const {
+			error: saveError,
+			newTradeBody,
+			newTradeHead
+		} = await savePartToDb(tradeBodyList, tradeHeadList);
+		if (saveError) {
+			return { error: saveError };
+		} else {
+			return { error: null, newTradeBody, newTradeHead, susTradeIdLists };
+		}
+	}
+	return { error: null, newTradeBody: [], newTradeHead: [], susTradeIdLists };
+};
+
+export type ImportedTrade = Omit<ArtistWithTradeRow, 'id' | 'artist_id'>;
+export const Array2DToImportedTrade = (dataHeader: string[], data: string[][]) => {
+	return data.map((e) => {
+		const result: ImportedTrade = {
+			trade_id: e[tradeIdIndex(dataHeader)],
+			artist_name: e[artistIndex(dataHeader)],
+			item_name: e[itemNameIndex(dataHeader)],
+			quantity: parseInt(e[quantityIndex(dataHeader)]),
+			total_sales: parseFloat(e[totalIndex(dataHeader)]),
+			discount: parseFloat(e[discountIndex(dataHeader)]),
+			net_sales: parseFloat(e[netIndex(dataHeader)]),
+			trade_date: new Date(e[dateIndex(dataHeader)]).toISOString(),
+			store_name: e[storeIndex(dataHeader)]
+		};
+		return result;
+	});
 };
