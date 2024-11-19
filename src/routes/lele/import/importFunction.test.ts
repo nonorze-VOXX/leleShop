@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import {
 	Array2DToImportedTrade,
+	GetArtistNameSet,
 	GetDateWithTimeZone,
 	GetNewArtistList,
 	GetStoreData,
@@ -216,6 +217,32 @@ describe('importFunction', () => {
 });
 
 describe('new importFunction', () => {
+	const testTradeRow: ImportedTrade[] = [
+		{
+			artist_name: 'artist_random_id artist_name',
+
+			item_name: 'item_name',
+			quantity: 1,
+			total_sales: 150,
+			discount: 0,
+			net_sales: 150,
+			trade_date: '2024-07-08T15:03:00.000Z',
+			trade_id: '2-1022',
+			store_name: 'The shop2'
+		},
+		{
+			artist_name: 'artist_random_id artist_name',
+			item_name: 'item_name',
+			quantity: 1,
+			total_sales: 150,
+			discount: 0,
+			net_sales: 150,
+			trade_date: '2024-07-08T23:03:00.000Z',
+			trade_id: '2-1022',
+			store_name: 'The shop1'
+		}
+	];
+
 	it('string to object but header is broken', async () => {
 		// UTC timezone test
 		const context =
@@ -223,7 +250,7 @@ describe('new importFunction', () => {
 			'2024-07-08 23:03+8,2-1022,銷售,artist_random_id artist_name,sku,item_name,,,1.000,150.00,0.00,150.00,0.00,150.00,0.00,POS 2,The shop2,,,,,關閉\n\n' +
 			'2024-07-08 23:03,2-1022,銷售,artist_random_id artist_name,sku,item_name,,,1.000,150.00,0.00,150.00,0.00,150.00,0.00,POS 2,The shop1,,,,,關閉\n\n';
 
-		let expectTradeRow: ImportedTrade[] = [];
+		const expectTradeRow: ImportedTrade[] = [];
 
 		const file = new File([context], 'filename');
 		const result = await fileToArray(file);
@@ -239,37 +266,15 @@ describe('new importFunction', () => {
 			'2024-07-08 23:03+8,2-1022,銷售,artist_random_id artist_name,sku,item_name,,,1.000,150.00,0.00,150.00,0.00,150.00,0.00,POS 2,The shop2,,,,,關閉\n\n' +
 			'2024-07-08 23:03,2-1022,銷售,artist_random_id artist_name,sku,item_name,,,1.000,150.00,0.00,150.00,0.00,150.00,0.00,POS 2,The shop1,,,,,關閉\n\n';
 
-		const expectTradeRow: ImportedTrade[] = [
-			{
-				artist_name: 'artist_random_id artist_name',
-
-				item_name: 'item_name',
-				quantity: 1,
-				total_sales: 150,
-				discount: 0,
-				net_sales: 150,
-				trade_date: '2024-07-08T15:03:00.000Z',
-				trade_id: '2-1022',
-				store_name: 'The shop2'
-			},
-			{
-				artist_name: 'artist_random_id artist_name',
-				item_name: 'item_name',
-				quantity: 1,
-				total_sales: 150,
-				discount: 0,
-				net_sales: 150,
-				trade_date: '2024-07-08T23:03:00.000Z',
-				trade_id: '2-1022',
-				store_name: 'The shop1'
-			}
-		];
-
 		const file = new File([context], 'filename');
 		const result = await fileToArray(file);
 		const dataHeader = result.shift() ?? [];
 		const body = result;
 		const res = Array2DToImportedTrade(dataHeader, body);
-		expect(res).toStrictEqual(expectTradeRow);
+		expect(res).toStrictEqual(testTradeRow);
+	});
+	it('get artist name set in imported trade', async () => {
+		const artistSet = GetArtistNameSet(testTradeRow);
+		expect(artistSet).toStrictEqual(new Set(['artist_random_id artist_name']));
 	});
 });

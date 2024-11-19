@@ -290,7 +290,12 @@ export const f = async (formData: FormData, timezoneOffset: string) => {
 	return { error: null, newTradeBody: [], newTradeHead: [], susTradeIdLists };
 };
 
-export type ImportedTrade = Omit<ArtistWithTradeRow, 'id' | 'artist_id'>;
+export type ImportedTrade = Omit<
+	{
+		[K in keyof ArtistWithTradeRow]: NonNullable<ArtistWithTradeRow[K]>;
+	},
+	'id' | 'artist_id'
+>;
 export const Array2DToImportedTrade = (dataHeader: string[], data: string[][]) => {
 	return data
 		.map((e) => {
@@ -332,4 +337,12 @@ export const Array2DToImportedTrade = (dataHeader: string[], data: string[][]) =
 			return result;
 		})
 		.filter((e) => e !== undefined);
+};
+
+export const GetArtistNameSet = (data: ImportedTrade[]) => {
+	const artistNameSet = new Set<string>();
+	data.forEach((e) => {
+		artistNameSet.add(e.artist_name);
+	});
+	return artistNameSet;
 };
