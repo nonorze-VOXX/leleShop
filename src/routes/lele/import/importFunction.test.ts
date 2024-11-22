@@ -5,6 +5,7 @@ import {
 	GetDateWithTimeZone,
 	GetNewArtistList,
 	GetStoreData,
+	GetTradeHeadSet,
 	fileToArray,
 	type ImportedTrade
 } from './importFunction';
@@ -237,14 +238,14 @@ describe('new importFunction', () => {
 			total_sales: 150,
 			discount: 0,
 			net_sales: 150,
-			trade_date: '2024-07-08T23:03:00.000Z',
+			trade_date: '2024-07-08T15:03:00.000Z',
 			trade_id: '2-1022',
 			store_name: 'The shop1'
 		}
 	];
 
 	it('string to object but header is broken', async () => {
-		// UTC timezone test
+		// UTC+8 timezone test
 		const context =
 			'期,據號碼,收據類型,類別,SKU,商品,變體,修飾符已应用的,數量,銷售總額,折扣,淨銷售額,銷售成本,毛利潤,稅務,POS,商店,收銀員名稱,客戶名稱,客戶聯繫電話,註釋,狀態\n' +
 			'2024-07-08 23:03+8,2-1022,銷售,artist_random_id artist_name,sku,item_name,,,1.000,150.00,0.00,150.00,0.00,150.00,0.00,POS 2,The shop2,,,,,關閉\n\n' +
@@ -260,7 +261,7 @@ describe('new importFunction', () => {
 		expect(res).toStrictEqual(expectTradeRow);
 	});
 	it('string to object', async () => {
-		// UTC timezone test
+		// UTC+8 timezone test
 		const context =
 			'日期,收據號碼,收據類型,類別,SKU,商品,變體,修飾符已应用的,數量,銷售總額,折扣,淨銷售額,銷售成本,毛利潤,稅務,POS,商店,收銀員名稱,客戶名稱,客戶聯繫電話,註釋,狀態\n' +
 			'2024-07-08 23:03+8,2-1022,銷售,artist_random_id artist_name,sku,item_name,,,1.000,150.00,0.00,150.00,0.00,150.00,0.00,POS 2,The shop2,,,,,關閉\n\n' +
@@ -276,5 +277,17 @@ describe('new importFunction', () => {
 	it('get artist name set in imported trade', async () => {
 		const artistSet = GetArtistNameSet(testTradeRow);
 		expect(artistSet).toStrictEqual(new Set(['artist_random_id artist_name']));
+	});
+	it('get trade head in imported trade', () => {
+		const tradeHeadList = GetTradeHeadSet(testTradeRow);
+
+		expect(tradeHeadList).toStrictEqual(
+			new Set([
+				{
+					trade_date: '2024-07-08T15:03:00.000Z',
+					trade_id: '2-1022'
+				}
+			])
+		);
 	});
 });

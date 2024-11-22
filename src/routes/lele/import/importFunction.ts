@@ -322,6 +322,13 @@ export const Array2DToImportedTrade = (dataHeader: string[], data: string[][]) =
 			) {
 				return undefined;
 			}
+			const dateStr = e[dateIdx];
+			let date;
+			if (dateStr.split('+').length == 2) {
+				date = new Date(dateStr);
+			} else {
+				date = new Date(dateStr + '+08');
+			}
 
 			const result: ImportedTrade = {
 				trade_id: e[tradeIdIdx],
@@ -331,7 +338,7 @@ export const Array2DToImportedTrade = (dataHeader: string[], data: string[][]) =
 				total_sales: parseFloat(e[totalIdx]),
 				discount: parseFloat(e[discountIdx]),
 				net_sales: parseFloat(e[netIdx]),
-				trade_date: new Date(e[dateIdx]).toISOString(),
+				trade_date: date.toISOString(),
 				store_name: e[storeIdx]
 			};
 			return result;
@@ -345,4 +352,23 @@ export const GetArtistNameSet = (data: ImportedTrade[]) => {
 		artistNameSet.add(e.artist_name);
 	});
 	return artistNameSet;
+};
+
+export const GetTradeHeadSet = (data: ImportedTrade[]) => {
+	const tradeHeadSet = new Set<TradeHead>();
+
+	data.forEach((e) => {
+		const next = {
+			trade_id: e.trade_id,
+			trade_date: e.trade_date
+		};
+		if (
+			![...tradeHeadSet].some(
+				(tradeHead) =>
+					tradeHead.trade_id === next.trade_id && tradeHead.trade_date === next.trade_date
+			)
+		)
+			tradeHeadSet.add(next);
+	});
+	return tradeHeadSet;
 };
