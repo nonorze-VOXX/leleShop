@@ -5,9 +5,11 @@
 		GetDateRange,
 		GetNewArtistList,
 		GetStoreData,
+		f,
 		fileToArray,
 		savePartToDb,
-		tradeIdIndex
+		tradeIdIndex,
+		ProcessFile
 	} from './importFunction';
 	import { groupBy } from '$lib/function/Utils';
 	import db from '$lib/db';
@@ -31,24 +33,29 @@
 	let processed: ProcessedStatus = ProcessedStatus.NORMAL;
 	let submitLog: string = '';
 	async function handleSubmit(event: { currentTarget: EventTarget & HTMLFormElement }) {
-		const data = new FormData(event.currentTarget);
+		const formData = new FormData(event.currentTarget);
 		processed = ProcessedStatus.PROCESSING;
-		const { error, newTradeBody, newTradeHead, susTradeIdLists } = await f(
-			data,
-			timeZoneOffsetToHHMM(new Date().getTimezoneOffset())
-		);
 
-		if (!error) {
-			// submitLog = result.data?.error;
-			newTradeBodyList = newTradeBody ?? [];
-			newTradeHeadList = newTradeHead ?? [];
-			susTrade = susTradeIdLists ?? [];
-			processed = ProcessedStatus.PROCESSED;
-			await invalidateAll();
-		} else {
-			processed = ProcessedStatus.ERROR;
-			submitLog = error.toString();
-			console.error(error);
+		// const newF = async (formData: FormData) => {
+		const files = formData.getAll('fileToUpload');
+		if (files.length === 0) {
+			return { error: 'You must provide a file to upload' };
+		}
+
+		const fs = files.map((e) => {
+			return e as File;
+		});
+		for (let i = 0; i < fs.length; i++) {
+			await ProcessFile(fs[i])
+				.then(() => {
+					processed = ProcessedStatus.PROCESSED;
+					// todo : show imported data
+				})
+				.catch((e) => {
+					processed = ProcessedStatus.ERROR;
+					submitLog = e.toString();
+					console.error(e);
+				});
 		}
 	}
 </script>

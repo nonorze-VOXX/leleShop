@@ -7,7 +7,7 @@ import type {
 	TradeHead,
 	TradeHeadRow
 } from '$lib/db';
-import db from '$lib/db';
+import db, { supabase } from '$lib/db';
 import { groupBy } from '$lib/function/Utils';
 
 export const findIndex = (dataHeader: string[], target: string) => {
@@ -260,7 +260,7 @@ export const f = async (formData: FormData, timezoneOffset: string) => {
 		const newArtistList = GetNewArtistList(artistList, groupByOrder, dataHeader);
 		{
 			if (newArtistList.length > 0) {
-				const { data } = await db.SaveArtistName(newArtistList);
+				const { data } = await db.SaveArtist(newArtistList);
 				artistList = artistList.concat(data ?? []);
 			}
 		}
@@ -288,6 +288,93 @@ export const f = async (formData: FormData, timezoneOffset: string) => {
 		}
 	}
 	return { error: null, newTradeBody: [], newTradeHead: [], susTradeIdLists };
+};
+export const ProcessFile = async (file: File) => {
+	const headBody = await fileToArray(file).then((file) => {
+		return SplitToHeaderBody(file);
+	});
+	if (headBody.head === undefined) {
+		throw new Error('head format is wrong or file is empty');
+	}
+	const head = headBody.head;
+	const body = headBody.body;
+
+	const importedTrade = Array2DToImportedTrade(head, body);
+	const artistSet = GetArtistNameSet(importedTrade);
+	const exist_artist = await supabase
+		.from('artist')
+		.select()
+		.in('artist_name', [...artistSet]);
+
+	if (exist_artist.error) {
+		throw new Error('artist not found');
+	}
+
+	const not_exist_artist = importedTrade.filter((e) => {
+		return !exist_artist.data.some((artist) => artist.artist_name === e.artist_name);
+	});
+	const saveArtist = await db.SaveArtist(
+		not_exist_artist.map((e) => ({ artist_name: e.artist_name }))
+	);
+	if (saveArtist.error) {
+		throw new Error('artist save error');
+	}
+
+	const artistList = await db.GetArtistDataList();
+	if (artistList.error) {
+		throw new Error(artistList.error.message);
+	}
+
+	const tradeHeadSet = GetTradeHeadSet(importedTrade);
+	const existTradeHead = await supabase
+		.from('trade_head')
+		.select()
+		.in(
+			'trade_id',
+			[...tradeHeadSet].map((e) => {
+				return e.trade_id;
+			})
+		);
+	if (existTradeHead.error) {
+		throw new Error(existTradeHead.error.message);
+	}
+
+	const noDupTradeHead = [...tradeHeadSet].filter((e) => {
+		return !existTradeHead.data.some((tradeHead) => tradeHead.trade_id === e.trade_id);
+	});
+
+	const saveHead = await db.SaveTradeHead(noDupTradeHead);
+	if (saveHead.error) {
+		throw new Error(saveHead.error.message);
+	}
+	const tradeBodyList: TradeBody[] = importedTrade
+		.map((e) => {
+			const al = artistList.data ?? [];
+			const artist_id = al.find((artist) => artist.artist_name === e.artist_name)?.id;
+			if (artist_id === undefined) {
+				throw new Error('artist not found');
+			}
+			return {
+				artist_id: artist_id,
+				item_name: e.item_name,
+				quantity: e.quantity,
+				total_sales: e.total_sales,
+				discount: e.discount,
+				net_sales: e.net_sales,
+				trade_id: e.trade_id
+			};
+		})
+		.filter((e) => noDupTradeHead.some((h) => h.trade_id === e.trade_id));
+	const saveBody = await db.SaveTradeBody(tradeBodyList);
+	if (saveBody.error) {
+		throw new Error(saveBody.error.message);
+	}
+};
+
+const SplitToHeaderBody = (context: string[][]) => {
+	const b = context;
+	const head = b.shift();
+	return { head, body: b };
 };
 
 export type ImportedTrade = Omit<
@@ -320,7 +407,7 @@ export const Array2DToImportedTrade = (dataHeader: string[], data: string[][]) =
 				dateIdx === -1 ||
 				storeIdx === -1
 			) {
-				return undefined;
+				return undefined; // todo error
 			}
 			const dateStr = e[dateIdx];
 			let date;
