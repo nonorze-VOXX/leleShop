@@ -59,5 +59,4 @@ grant truncate on table "public"."store" to "service_role";
 
 grant update on table "public"."store" to "service_role";
 
-
-
+insert into store (store_name) values ('The創 一中');
