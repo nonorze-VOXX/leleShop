@@ -4,10 +4,11 @@ create table "public"."store" (
     "store_name" text
 );
 
+insert into store (store_name) values ('The創 一中');
 
 alter table "public"."store" enable row level security;
 
-alter table "public"."trade_head" add column "store_id" bigint;
+alter table "public"."trade_head" add column "store_id" bigint not null default '1'::bigint;
 
 CREATE UNIQUE INDEX store_pkey ON public.store USING btree (id);
 
@@ -16,6 +17,23 @@ alter table "public"."store" add constraint "store_pkey" PRIMARY KEY using index
 alter table "public"."trade_head" add constraint "trade_head_store_id_fkey" FOREIGN KEY (store_id) REFERENCES store(id) ON UPDATE CASCADE ON DELETE CASCADE not valid;
 
 alter table "public"."trade_head" validate constraint "trade_head_store_id_fkey";
+
+create or replace view "public"."artist_trade" as  SELECT a.artist_name,
+    b.id,
+    b.trade_id,
+    b.item_name,
+    b.quantity,
+    b.total_sales,
+    b.discount,
+    b.net_sales,
+    b.artist_id,
+    h.trade_date,
+    s.store_name
+   FROM (((artist a
+     JOIN trade_body b ON ((a.id = b.artist_id)))
+     JOIN trade_head h ON ((b.trade_id = h.trade_id)))
+     LEFT JOIN store s ON ((s.id = h.store_id)));
+
 
 grant delete on table "public"."store" to "anon";
 
@@ -59,24 +77,5 @@ grant truncate on table "public"."store" to "service_role";
 
 grant update on table "public"."store" to "service_role";
 
-insert into store (store_name) values ('The創 一中');
 
-create or replace  view 
-  public.artist_trade  WITH ("security_invoker"='on')  as
-select
-  a.artist_name,
-  b.id,
-  b.trade_id,
-  b.item_name,
-  b.quantity,
-  b.total_sales,
-  b.discount,
-  b.net_sales,
-  b.artist_id,
-  h.trade_date,
-  s.store_name
-from
-  artist a
-  join trade_body b on a.id = b.artist_id
-  join trade_head h on b.trade_id = h.trade_id
-  left join store s on s.id = h.store_id;
+
