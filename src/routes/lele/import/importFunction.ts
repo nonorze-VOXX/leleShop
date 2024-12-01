@@ -317,6 +317,7 @@ export const ProcessFile = async (file: File) => {
 		not_exist_artist.map((e) => ({ artist_name: e.artist_name }))
 	);
 	if (saveArtist.error) {
+		console.log(not_exist_artist);
 		throw new Error('artist save error');
 	}
 
@@ -324,8 +325,34 @@ export const ProcessFile = async (file: File) => {
 	if (artistList.error) {
 		throw new Error(artistList.error.message);
 	}
+	{
+		const storePreData = await supabase.from('store').select();
+		if (storePreData.error) {
+			throw new Error(storePreData.error.message);
+		}
 
-	const tradeHeadSet = GetTradeHeadSet(importedTrade);
+		const storeSet = GetStoreSet(importedTrade);
+		const notExistStore = [...storeSet].filter((e) => {
+			return !storePreData.data.some((store) => store.store_name === e);
+		});
+		const saveStore = await supabase
+			.from('store')
+			.insert(
+				notExistStore.map((e) => {
+					return { store_name: e };
+				})
+			)
+			.select();
+		if (saveStore.error) {
+			throw new Error(saveStore.error.message);
+		}
+	}
+	const storeData = await supabase.from('store').select();
+	if (storeData.error) {
+		throw new Error(storeData.error.message);
+	}
+
+	const tradeHeadSet = GetTradeHeadSet(importedTrade, storeData.data ?? []);
 	const existTradeHead = await supabase
 		.from('trade_head')
 		.select()
@@ -441,13 +468,17 @@ export const GetArtistNameSet = (data: ImportedTrade[]) => {
 	return artistNameSet;
 };
 
-export const GetTradeHeadSet = (data: ImportedTrade[]) => {
-	const tradeHeadSet = new Set<TradeHead>();
+export const GetTradeHeadSet = (
+	data: ImportedTrade[],
+	storeData: { id: number; store_name: string }[]
+) => {
+	const tradeHeadSet = new Set<TradeHeadRow>();
 
 	data.forEach((e) => {
 		const next = {
 			trade_id: e.trade_id,
-			trade_date: e.trade_date
+			trade_date: e.trade_date,
+			store_id: GetStoreId(e.store_name, storeData)
 		};
 		if (
 			![...tradeHeadSet].some(
@@ -458,4 +489,21 @@ export const GetTradeHeadSet = (data: ImportedTrade[]) => {
 			tradeHeadSet.add(next);
 	});
 	return tradeHeadSet;
+};
+
+const GetStoreId = (store_name: string, storeData: { id: number; store_name: string }[]) => {
+	const store = storeData.find((e) => e.store_name === store_name);
+	if (store === undefined) {
+		throw new Error('store not found');
+	}
+	return store.id;
+};
+
+export const GetStoreSet = (data: ImportedTrade[]) => {
+	const storeSet = new Set<string>();
+
+	data.forEach((e) => {
+		storeSet.add(e.store_name);
+	});
+	return storeSet;
 };

@@ -37,17 +37,17 @@ export type Database = {
         Row: {
           created_at: string
           id: number
-          store_name: string | null
+          store_name: string
         }
         Insert: {
           created_at?: string
           id?: number
-          store_name?: string | null
+          store_name: string
         }
         Update: {
           created_at?: string
           id?: number
-          store_name?: string | null
+          store_name?: string
         }
         Relationships: []
       }
@@ -108,17 +108,17 @@ export type Database = {
       }
       trade_head: {
         Row: {
-          store_id: number | null
+          store_id: number
           trade_date: string
           trade_id: string
         }
         Insert: {
-          store_id?: number | null
+          store_id?: number
           trade_date: string
           trade_id: string
         }
         Update: {
-          store_id?: number | null
+          store_id?: number
           trade_date?: string
           trade_id?: string
         }
