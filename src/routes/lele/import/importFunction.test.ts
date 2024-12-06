@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import {
 	Array2DToImportedTrade,
-	GetArtistNameSet,
+	GetArtistNameList,
 	GetDateWithTimeZone,
 	GetNewArtistList,
 	GetStoreData,
@@ -9,7 +9,7 @@ import {
 	fileToArray,
 	type ImportedTrade
 } from './importFunction';
-import type { ArtistRow, ArtistViewRow, ArtistWithTradeRow, TradeBodyRow } from '$lib/db';
+import type { ArtistRow } from '$lib/db';
 
 describe('importFunction', () => {
 	it.each([
@@ -243,6 +243,16 @@ describe('new importFunction', () => {
 			store_name: 'The shop1'
 		}
 	];
+	const storeData: { id: number; store_name: string }[] = [
+		{
+			id: 1,
+			store_name: 'The shop1'
+		},
+		{
+			id: 2,
+			store_name: 'The shop2'
+		}
+	];
 
 	it('string to object but header is broken', async () => {
 		// UTC+8 timezone test
@@ -275,15 +285,16 @@ describe('new importFunction', () => {
 		expect(res).toStrictEqual(testTradeRow);
 	});
 	it('get artist name set in imported trade', async () => {
-		const artistSet = GetArtistNameSet(testTradeRow);
-		expect(artistSet).toStrictEqual(new Set(['artist_random_id artist_name']));
+		const artistSet = GetArtistNameList(testTradeRow);
+		expect(artistSet).toStrictEqual(['artist_random_id artist_name']);
 	});
 	it('get trade head in imported trade', () => {
-		const tradeHeadList = GetTradeHeadSet(testTradeRow);
+		const tradeHeadList = GetTradeHeadSet(testTradeRow, storeData);
 
 		expect(tradeHeadList).toStrictEqual(
 			new Set([
 				{
+					store_id: 2,
 					trade_date: '2024-07-08T15:03:00.000Z',
 					trade_id: '2-1022'
 				}

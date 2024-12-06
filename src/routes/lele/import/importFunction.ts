@@ -300,19 +300,29 @@ export const ProcessFile = async (file: File) => {
 	const body = headBody.body;
 
 	const importedTrade = Array2DToImportedTrade(head, body);
-	const artistSet = GetArtistNameSet(importedTrade);
-	const exist_artist = await supabase
-		.from('artist')
-		.select()
-		.in('artist_name', [...artistSet]);
+	const importedArtist = GetArtistNameList(importedTrade);
+	const exist_artist = await supabase.from('artist').select().in('artist_name', importedArtist);
+	console.log('exist_artist', exist_artist);
 
 	if (exist_artist.error) {
 		throw new Error('artist not found');
 	}
 
-	const not_exist_artist = importedTrade.filter((e) => {
-		return !exist_artist.data.some((artist) => artist.artist_name === e.artist_name);
-	});
+	// const not_exist_artist = importedTrade.filter((e) => {
+	// 	return !exist_artist.data.some((artist) => artist.artist_name === e.artist_name);
+	// });
+	const not_exist_artist: ImportedTrade[] = [];
+	for (let i = 0; i < importedTrade.length; i++) {
+		const e = importedTrade[i];
+		if (
+			!exist_artist.data.some((artist) => artist.artist_name === e.artist_name) &&
+			!not_exist_artist.some((artist) => artist.artist_name === e.artist_name)
+		) {
+			not_exist_artist.push(e);
+		}
+	}
+
+	console.log('not_exist_artist', not_exist_artist);
 	const saveArtist = await db.SaveArtist(
 		not_exist_artist.map((e) => ({ artist_name: e.artist_name }))
 	);
@@ -325,6 +335,7 @@ export const ProcessFile = async (file: File) => {
 	if (artistList.error) {
 		throw new Error(artistList.error.message);
 	}
+	console.log('artistList', artistList);
 	{
 		const storePreData = await supabase.from('store').select();
 		if (storePreData.error) {
@@ -460,10 +471,13 @@ export const Array2DToImportedTrade = (dataHeader: string[], data: string[][]) =
 		.filter((e) => e !== undefined);
 };
 
-export const GetArtistNameSet = (data: ImportedTrade[]) => {
-	const artistNameSet = new Set<string>();
+export const GetArtistNameList = (data: ImportedTrade[]) => {
+	const artistNameSet: string[] = [];
 	data.forEach((e) => {
-		artistNameSet.add(e.artist_name);
+		if (artistNameSet.some((artistName) => artistName === e.artist_name)) {
+			return;
+		}
+		artistNameSet.push(e.artist_name);
 	});
 	return artistNameSet;
 };
