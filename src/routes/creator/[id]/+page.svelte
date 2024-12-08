@@ -1,7 +1,7 @@
 <script lang="ts">
 	import DownloadButton from './DownloadButton.svelte';
 
-	import MonthTabReportTableWithLogic1 from '$lib/Component/MonthTabReportTableWithLogic.svelte';
+	import MonthTabReportTableWithLogic from '$lib/Component/MonthTabReportTableWithLogic.svelte';
 
 	import PasswordPanel from './PasswordPanel.svelte';
 	import { onMount } from 'svelte';
@@ -106,7 +106,7 @@
 
 			<DownloadButton bind:firstDate bind:lastDate bind:artist_id></DownloadButton>
 		</div>
-		<MonthTabReportTableWithLogic1
+		<MonthTabReportTableWithLogic
 			bind:artist_id
 			on:change={(e) => {
 				net_total = e.detail.net_total;
@@ -114,6 +114,6 @@
 				lastDate = e.detail.lastDate;
 				showedLength = e.detail.showedLength;
 			}}
-		></MonthTabReportTableWithLogic1>
+		></MonthTabReportTableWithLogic>
 	{/if}
 </div>
