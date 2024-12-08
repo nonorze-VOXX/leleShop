@@ -86,8 +86,8 @@
 		</div>
 	{:else if panelState === PasswordPanelState.NotAdmit}
 		<div class="flex flex-wrap gap-2 text-2xl font-bold">
-			<InfoBox title={artist_name}></InfoBox>
 			<InfoBox title={store_name}></InfoBox>
+			<InfoBox title={artist_name}></InfoBox>
 		</div>
 		<PasswordPanel
 			bind:artist_id
@@ -97,9 +97,7 @@
 		></PasswordPanel>
 	{:else if panelState === PasswordPanelState.Admit}
 		<div class="flex flex-wrap justify-center gap-4 text-center text-sm font-semibold">
-			<h1 class="rounded-xl border-4 border-lele-line bg-lele-bg p-2 text-lele-line">
-				{artist_name}
-			</h1>
+			<InfoBox title={artist_name}></InfoBox>
 			<Commision bind:net_total></Commision>
 			<TradeCount bind:showedLength></TradeCount>
 			<Remit bind:net_total></Remit>
