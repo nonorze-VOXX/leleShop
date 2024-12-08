@@ -96,7 +96,7 @@
 			}}
 		></PasswordPanel>
 	{:else if panelState === PasswordPanelState.Admit}
-		<div class="flex flex-col justify-center gap-4 text-center text-sm font-semibold">
+		<div class="flex flex-wrap justify-center gap-4 text-center text-sm font-semibold">
 			<h1 class="rounded-xl border-4 border-lele-line bg-lele-bg p-2 text-lele-line">
 				{artist_name}
 			</h1>
