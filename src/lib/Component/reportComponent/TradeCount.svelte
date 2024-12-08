@@ -1,4 +1,6 @@
 <script lang="ts">
+	import InfoBox from '../InfoBox.svelte';
+
 	export let showedLength;
 </script>
 
@@ -8,3 +10,5 @@
 		{showedLength}
 	</div>
 </div>
+
+<InfoBox title="交易次數" value={showedLength}></InfoBox>
