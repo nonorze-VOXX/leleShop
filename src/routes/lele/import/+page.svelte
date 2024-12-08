@@ -5,9 +5,11 @@
 		GetDateRange,
 		GetNewArtistList,
 		GetStoreData,
+		f,
 		fileToArray,
 		savePartToDb,
-		tradeIdIndex
+		tradeIdIndex,
+		ProcessFile
 	} from './importFunction';
 	import { groupBy } from '$lib/function/Utils';
 	import db from '$lib/db';
@@ -31,80 +33,31 @@
 	let processed: ProcessedStatus = ProcessedStatus.NORMAL;
 	let submitLog: string = '';
 	async function handleSubmit(event: { currentTarget: EventTarget & HTMLFormElement }) {
-		const data = new FormData(event.currentTarget);
+		const formData = new FormData(event.currentTarget);
 		processed = ProcessedStatus.PROCESSING;
-		const { error, newTradeBody, newTradeHead, susTradeIdLists } = await f(
-			data,
-			timeZoneOffsetToHHMM(new Date().getTimezoneOffset())
-		);
 
-		if (!error) {
-			// submitLog = result.data?.error;
-			newTradeBodyList = newTradeBody ?? [];
-			newTradeHeadList = newTradeHead ?? [];
-			susTrade = susTradeIdLists ?? [];
-			processed = ProcessedStatus.PROCESSED;
-			await invalidateAll();
-		} else {
-			processed = ProcessedStatus.ERROR;
-			submitLog = error.toString();
-			console.error(error);
-		}
-	}
-	const f = async (formData: FormData, timezoneOffset: string) => {
+		// const newF = async (formData: FormData) => {
 		const files = formData.getAll('fileToUpload');
 		if (files.length === 0) {
 			return { error: 'You must provide a file to upload' };
 		}
-		let susTradeIdLists: string[] = [];
 
-		for (let i = 0; i < files.length; i++) {
-			const file = files[i] as File;
-			const fileArr2D = await fileToArray(file);
-			let dataHeader: string[] = [];
-			dataHeader = fileArr2D[0];
-			if (!dataHeader) {
-				continue;
-			}
-
-			const groupByOrder = groupBy(fileArr2D.slice(1), (i) => i[tradeIdIndex(dataHeader)]);
-			const { maxDate, minDate } = await GetDateRange(groupByOrder, dataHeader, timezoneOffset);
-
-			const tradeIdList =
-				(await db.GetTradeIdList({ firstDate: minDate, lastDate: maxDate })).data ?? [];
-			let artistList = (await db.GetArtistDataList()).data ?? [];
-			const newArtistList = GetNewArtistList(artistList, groupByOrder, dataHeader);
-			{
-				if (newArtistList.length > 0) {
-					const { data } = await db.SaveArtistName(newArtistList);
-					artistList = artistList.concat(data ?? []);
-				}
-			}
-
-			const { tradeBodyList, tradeHeadList, susTradeIdList, error } = GetStoreData(
-				tradeIdList,
-				artistList,
-				groupByOrder,
-				timezoneOffset,
-				dataHeader
-			);
-			if (error) {
-				return { error: error };
-			}
-			susTradeIdLists = susTradeIdLists.concat(susTradeIdList ?? []);
-			const {
-				error: saveError,
-				newTradeBody,
-				newTradeHead
-			} = await savePartToDb(tradeBodyList, tradeHeadList);
-			if (saveError) {
-				return { error: saveError };
-			} else {
-				return { error: null, newTradeBody, newTradeHead, susTradeIdLists };
-			}
+		const fs = files.map((e) => {
+			return e as File;
+		});
+		for (let i = 0; i < fs.length; i++) {
+			await ProcessFile(fs[i])
+				.then(() => {
+					processed = ProcessedStatus.PROCESSED;
+					// todo : show imported data
+				})
+				.catch((e) => {
+					processed = ProcessedStatus.ERROR;
+					submitLog = e.toString();
+					console.error(e);
+				});
 		}
-		return { error: null, newTradeBody: [], newTradeHead: [], susTradeIdLists };
-	};
+	}
 </script>
 
 <div class="flex flex-col items-center rounded-xl border-4 border-lele-line bg-lele-bg p-5">

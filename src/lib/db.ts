@@ -57,7 +57,7 @@ export default {
 		}
 		return { total_sales_sum, net_sales_sum, discount_sum, error: null };
 	},
-	async SaveArtistName(artist: Artist[]) {
+	async SaveArtist(artist: Artist[]) {
 		const { error, data } = await supabase.from('artist').insert(artist).select();
 		if (error !== null) {
 			console.error(error);
@@ -101,7 +101,7 @@ export default {
 		if (error) {
 			console.error(error);
 		}
-		return { data };
+		return { data, error };
 	},
 	async GetTradeIdListCount(
 		date: { firstDate: Date | null; lastDate: Date | null } = { firstDate: null, lastDate: null }
