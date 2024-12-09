@@ -433,6 +433,7 @@ export const Array2DToImportedTrade = (dataHeader: string[], data: string[][]) =
 			const netIdx = netIndex(dataHeader);
 			const dateIdx = dateIndex(dataHeader);
 			const storeIdx = storeIndex(dataHeader);
+			const stateIdx = stateIndex(dataHeader);
 
 			if (
 				tradeIdIdx === -1 ||
@@ -446,6 +447,11 @@ export const Array2DToImportedTrade = (dataHeader: string[], data: string[][]) =
 				storeIdx === -1
 			) {
 				return undefined; // todo error
+			}
+			if (stateIdx !== -1) {
+				if (e[stateIdx] !== '關閉') {
+					return undefined; // todo : make return sus trade
+				}
 			}
 			const dateStr = e[dateIdx];
 			let date;
