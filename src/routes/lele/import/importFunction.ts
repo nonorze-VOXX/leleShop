@@ -8,7 +8,6 @@ import type {
 	TradeHeadRow
 } from '$lib/db';
 import db, { supabase } from '$lib/db';
-import { groupBy } from '$lib/function/Utils';
 
 export const findIndex = (dataHeader: string[], target: string) => {
 	return dataHeader.findLastIndex((e) => e === target);
@@ -235,60 +234,6 @@ export const savePartToDb = async (tradeBodyList: TradeBody[], tradeHeadList: Tr
 	return { error: null, newTradeHead, newTradeBody };
 };
 
-export const f = async (formData: FormData, timezoneOffset: string) => {
-	const files = formData.getAll('fileToUpload');
-	if (files.length === 0) {
-		return { error: 'You must provide a file to upload' };
-	}
-	let susTradeIdLists: string[] = [];
-
-	for (let i = 0; i < files.length; i++) {
-		const file = files[i] as File;
-		const fileArr2D = await fileToArray(file);
-		let dataHeader: string[] = [];
-		dataHeader = fileArr2D[0];
-		if (!dataHeader) {
-			continue;
-		}
-
-		const groupByOrder = groupBy(fileArr2D.slice(1), (i) => i[tradeIdIndex(dataHeader)]);
-		const { maxDate, minDate } = await GetDateRange(groupByOrder, dataHeader, timezoneOffset);
-
-		const tradeIdList =
-			(await db.GetTradeIdList({ firstDate: minDate, lastDate: maxDate })).data ?? [];
-		let artistList = (await db.GetArtistDataList()).data ?? [];
-		const newArtistList = GetNewArtistList(artistList, groupByOrder, dataHeader);
-		{
-			if (newArtistList.length > 0) {
-				const { data } = await db.SaveArtist(newArtistList);
-				artistList = artistList.concat(data ?? []);
-			}
-		}
-
-		const { tradeBodyList, tradeHeadList, susTradeIdList, error } = GetStoreData(
-			tradeIdList,
-			artistList,
-			groupByOrder,
-			timezoneOffset,
-			dataHeader
-		);
-		if (error) {
-			return { error: error };
-		}
-		susTradeIdLists = susTradeIdLists.concat(susTradeIdList ?? []);
-		const {
-			error: saveError,
-			newTradeBody,
-			newTradeHead
-		} = await savePartToDb(tradeBodyList, tradeHeadList);
-		if (saveError) {
-			return { error: saveError };
-		} else {
-			return { error: null, newTradeBody, newTradeHead, susTradeIdLists };
-		}
-	}
-	return { error: null, newTradeBody: [], newTradeHead: [], susTradeIdLists };
-};
 export const ProcessFile = async (file: File) => {
 	const headBody = await fileToArray(file).then((file) => {
 		return SplitToHeaderBody(file);
@@ -302,15 +247,11 @@ export const ProcessFile = async (file: File) => {
 	const importedTrade = Array2DToImportedTrade(head, body);
 	const importedArtist = GetArtistNameList(importedTrade);
 	const exist_artist = await supabase.from('artist').select().in('artist_name', importedArtist);
-	console.log('exist_artist', exist_artist);
 
 	if (exist_artist.error) {
 		throw new Error('artist not found');
 	}
 
-	// const not_exist_artist = importedTrade.filter((e) => {
-	// 	return !exist_artist.data.some((artist) => artist.artist_name === e.artist_name);
-	// });
 	const not_exist_artist: ImportedTrade[] = [];
 	for (let i = 0; i < importedTrade.length; i++) {
 		const e = importedTrade[i];
