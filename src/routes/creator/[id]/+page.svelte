@@ -20,8 +20,8 @@
 	let artist_name: string = '';
 	let net_total = -1;
 	let artist_id: string = '';
-	let store_id: number | '*';
-	let store_name: string = '';
+	let store_id: number | '*' | null = null;
+	let store_name: string;
 	let panelState: PasswordPanelState = PasswordPanelState.Loading;
 	let showedLength = 0;
 	let logText: string = '';
@@ -106,6 +106,7 @@
 		</div>
 		<MonthTabReportTableWithLogic
 			bind:artist_id
+			bind:store_name
 			on:change={(e) => {
 				net_total = e.detail.net_total;
 				firstDate = e.detail.firstDate;

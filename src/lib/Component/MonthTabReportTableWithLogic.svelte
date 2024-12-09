@@ -7,6 +7,7 @@
 	import MonthTab from './MonthTab.svelte';
 
 	export let artist_id: string;
+	export let store_name: string | '*';
 	let tradeDataList: ArtistWithTradeRow[] = [];
 	let nowPage: string = '0';
 	let total: SalesTotalData = {
@@ -48,7 +49,8 @@
 		const { data } = await db.artistTrade.GetTradeDataWithPage({
 			id: parseInt(artist_id),
 			date: dateRange,
-			page: parseInt(nowPage) - 1
+			page: parseInt(nowPage) - 1,
+			store_name
 		});
 		return data;
 	};
@@ -56,7 +58,8 @@
 		const { data } = await db.artistTrade.GetTradeDataWithPage({
 			id: parseInt(artist_id),
 			date: dateRange,
-			page: parseInt(nowPage) - 1
+			page: parseInt(nowPage) - 1,
+			store_name
 		});
 		return data;
 	};

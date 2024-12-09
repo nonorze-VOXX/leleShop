@@ -57,12 +57,14 @@ export default {
 		{
 			id,
 			date,
-			page
+			page,
+			store_name
 		}: {
 			id?: number;
 			date?: { firstDate: Date; lastDate: Date };
 			page: number;
-		} = { page: 0 }
+			store_name: string | '*';
+		} = { page: 0, store_name: '*' }
 	) {
 		let query = supabase.from('artist_trade').select('*');
 		if (id) {
@@ -72,6 +74,9 @@ export default {
 			query = query
 				.gte('trade_date', date.firstDate.toISOString())
 				.lte('trade_date', date.lastDate.toISOString());
+		}
+		if (store_name !== '*') {
+			query = query.eq('store_name', store_name);
 		}
 		query.order('trade_date', { ascending: false });
 		query = query.range(page * onePageLength, (page + 1) * onePageLength - 1);
