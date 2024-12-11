@@ -23,7 +23,7 @@
 	});
 	const DateChange = async (firstDate: Date, lastDate: Date) => {
 		dateRange = { firstDate, lastDate };
-		const { count } = await db.GetTradeDataCount(artist_id, { firstDate, lastDate });
+		const { count } = await db.GetTradeDataCount(artist_id, store_name, { firstDate, lastDate });
 		console.log(count, artist_id, firstDate, lastDate);
 
 		pageIndex = [];

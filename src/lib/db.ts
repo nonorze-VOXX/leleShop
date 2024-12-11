@@ -136,19 +136,21 @@ export default {
 	},
 	async GetTradeDataCount(
 		id: string,
+		store_name: string | '*',
 		date: { firstDate: Date | null; lastDate: Date | null } = { firstDate: null, lastDate: null }
 	) {
-		let query = supabase.from('trade_body').select('*, trade_head!inner(trade_id, trade_date)', {
-			count: 'exact',
-			head: true
-		});
+		let query = supabase.from('artist_trade').select('*', { count: 'exact', head: true });
 		if (id !== '*' && id !== '') {
 			query = query.eq('artist_id', id);
 		}
 		if (date.firstDate !== null && date.lastDate !== null) {
 			query = query
-				.gte('trade_head.trade_date', date.firstDate.toISOString())
-				.lte('trade_head.trade_date', date.lastDate.toISOString());
+				.gte('trade_date', date.firstDate.toISOString())
+				.lte('trade_date', date.lastDate.toISOString());
+		}
+
+		if (store_name !== '*') {
+			query = query.eq('store_name', store_name);
 		}
 		const { count, error } = await query;
 
@@ -156,6 +158,7 @@ export default {
 			console.log(error);
 		}
 
+		console.log(count);
 		return { count };
 	},
 	async GetArtistTradeTotal(
@@ -219,10 +222,10 @@ export default {
 		const quantity = await this.GetArtistTradeTotal('quantity', condition);
 
 		return {
-			sales_total: net_sales,
-			net_total: total_sales,
-			discount_total: discount,
-			total_quantity: quantity
+			sales_total: net_sales ?? 0,
+			net_total: total_sales ?? 0,
+			discount_total: discount ?? 0,
+			total_quantity: quantity ?? 0
 		};
 	},
 	artistTrade: DbArtistTrade
