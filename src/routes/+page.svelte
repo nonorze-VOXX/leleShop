@@ -46,7 +46,7 @@
 				<td class="flex">
 					<a
 						class="grow rounded-lg bg-lele-line p-2 text-center text-lele-bg"
-						href={'/creator/' + artists.id}
+						href={'/store/*/creator/' + artists.id}
 					>
 						報表
 					</a>

@@ -22,6 +22,7 @@
 	let artist_id: string = '';
 	let store_id: number | '*' | null = null;
 	let store_name: string;
+	let view_store_name: string;
 	let panelState: PasswordPanelState = PasswordPanelState.Loading;
 	let showedLength = 0;
 	let logText: string = '';
@@ -53,8 +54,7 @@
 			artist_name = data.artist_name;
 		}
 		{
-			// store_id = $page.params.store_id == '*' ? '*' : Number($page.params.store_id);
-			store_id = 1; // TODO:  make store id
+			store_id = $page.params.store_id === '*' ? '*' : Number($page.params.store_id);
 			if (store_id !== '*' && isNaN(store_id)) {
 				logText = 'store_id is not a number';
 				return;
@@ -68,10 +68,13 @@
 				logText = error.message;
 				return;
 			}
-			store_name = data.reduce(
-				(acc, cur) => (acc === '' ? acc + cur.store_name : acc + cur.store_name + ', '),
+			view_store_name = data.reduce(
+				(acc, cur) => (acc === '' ? acc + cur.store_name : acc + ', ' + cur.store_name),
 				''
 			);
+			if (data.length > 1) {
+				store_name = '*';
+			}
 		}
 		panelState = PasswordPanelState.NotAdmit;
 	});
@@ -86,7 +89,7 @@
 		</div>
 	{:else if panelState === PasswordPanelState.NotAdmit}
 		<div class="flex flex-wrap gap-2 text-2xl font-bold">
-			<InfoBox title={store_name}></InfoBox>
+			<InfoBox title={view_store_name}></InfoBox>
 			<InfoBox title={artist_name}></InfoBox>
 		</div>
 		<PasswordPanel
