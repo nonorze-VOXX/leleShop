@@ -136,19 +136,21 @@ export default {
 	},
 	async GetTradeDataCount(
 		id: string,
+		store_name: string | '*',
 		date: { firstDate: Date | null; lastDate: Date | null } = { firstDate: null, lastDate: null }
 	) {
-		let query = supabase.from('trade_body').select('*, trade_head!inner(trade_id, trade_date)', {
-			count: 'exact',
-			head: true
-		});
+		let query = supabase.from('artist_trade').select('*', { count: 'exact', head: true });
 		if (id !== '*' && id !== '') {
 			query = query.eq('artist_id', id);
 		}
 		if (date.firstDate !== null && date.lastDate !== null) {
 			query = query
-				.gte('trade_head.trade_date', date.firstDate.toISOString())
-				.lte('trade_head.trade_date', date.lastDate.toISOString());
+				.gte('trade_date', date.firstDate.toISOString())
+				.lte('trade_date', date.lastDate.toISOString());
+		}
+
+		if (store_name !== '*') {
+			query = query.eq('store_name', store_name);
 		}
 		const { count, error } = await query;
 
@@ -156,37 +158,75 @@ export default {
 			console.log(error);
 		}
 
+		console.log(count);
 		return { count };
 	},
-	async GetTradeTotal(artist_id: number, start_date: string | Date, end_date: string | Date) {
-		if (start_date instanceof Date) {
-			start_date = start_date.toISOString();
+	async GetArtistTradeTotal(
+		column: 'total_sales' | 'net_sales' | 'discount' | 'quantity',
+		condition: {
+			artist_id: number;
+			store_name: string | '*';
+			start_date: Date;
+			end_date: Date;
 		}
-		if (end_date instanceof Date) {
-			end_date = end_date.toISOString();
-		}
-		const { data, error } = await supabase.rpc('get_total_trade', {
-			artist_id,
-			start_date,
-			end_date
-		});
-		if (error) {
-			console.error(error);
-			return {
-				sales_total: -1,
-				net_total: -1,
-				discount_total: -1,
-				total_quantity: -1
-			};
+	) {
+		let out_data, out_error;
+		if (condition.store_name === '*') {
+			const { data, error } = await supabase
+				.from('artist_trade')
+				.select(column + '.sum()')
+				.eq('artist_id', condition.artist_id)
+				.gte('trade_date', condition.start_date.toISOString())
+				.lt('trade_date', condition.end_date.toISOString())
+				.single();
+			out_data = data;
+			out_error = error;
+		} else {
+			const { data, error } = await supabase
+				.from('artist_trade')
+				.select(column + '.sum()')
+				.eq('artist_id', condition.artist_id)
+				.gte('trade_date', condition.start_date.toISOString())
+				.lt('trade_date', condition.end_date.toISOString())
+				.eq('store_name', condition.store_name)
+				.single();
+			out_data = data;
+			out_error = error;
 		}
 
-		const total: SalesTotalData = {
-			sales_total: data.f1 as number,
-			net_total: data.f2 as number,
-			discount_total: data.f3 as number,
-			total_quantity: data.f4 as number
+		if (out_error) {
+			console.error(out_error);
+			alert(out_error.message);
+			return null;
+		}
+		const { sum } = out_data as unknown as { sum: number | null }; // supabase not support this type now
+		return sum ?? 0;
+	},
+	async GetTradeTotal(
+		artist_id: number,
+		store_name: string | '*',
+		start_date: Date,
+		end_date: Date
+	) {
+		// const columns = ['total_sales', 'net_sales', 'discount', 'quantity'];
+		const condition = {
+			artist_id,
+			store_name,
+			start_date,
+			end_date
 		};
-		return total;
+
+		const total_sales = await this.GetArtistTradeTotal('total_sales', condition);
+		const net_sales = await this.GetArtistTradeTotal('net_sales', condition);
+		const discount = await this.GetArtistTradeTotal('discount', condition);
+		const quantity = await this.GetArtistTradeTotal('quantity', condition);
+
+		return {
+			sales_total: net_sales ?? 0,
+			net_total: total_sales ?? 0,
+			discount_total: discount ?? 0,
+			total_quantity: quantity ?? 0
+		};
 	},
 	artistTrade: DbArtistTrade
 };

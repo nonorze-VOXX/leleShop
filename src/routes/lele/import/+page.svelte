@@ -1,31 +1,12 @@
 <script lang="ts">
-	import { invalidateAll } from '$app/navigation';
 	import type { TradeBodyRow, TradeHeadRow } from '$lib/db';
-	import {
-		GetDateRange,
-		GetNewArtistList,
-		GetStoreData,
-		f,
-		fileToArray,
-		savePartToDb,
-		tradeIdIndex,
-		ProcessFile
-	} from './importFunction';
-	import { groupBy } from '$lib/function/Utils';
-	import db from '$lib/db';
+	import { ProcessFile } from './importFunction';
 	enum ProcessedStatus {
 		NORMAL,
 		PROCESSING,
 		ERROR,
 		PROCESSED
 	}
-	const timeZoneOffsetToHHMM = (timeZoneOffset: number) => {
-		const sign = timeZoneOffset < 0 ? '+' : '-';
-		const abs = Math.abs(timeZoneOffset);
-		const hour = Math.floor(abs / 60);
-		const minute = abs % 60;
-		return sign + (hour < 10 ? '0' : '') + hour + ':' + (minute < 10 ? '0' : '') + minute;
-	};
 
 	let newTradeHeadList: TradeHeadRow[] = [];
 	let newTradeBodyList: TradeBodyRow[] = [];
