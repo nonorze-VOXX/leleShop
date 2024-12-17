@@ -58,13 +58,3 @@ test('js ? check', () => {
 		expect(result).toBe(true);
 	}
 });
-
-test('tmp', async () => {
-	// const { data, count, csv } = await DbArtistTrade.GetTradeFullData({
-	// 	id: 1,
-	// 	csv: true
-	// });
-	// expect(count).toBeDefined();
-	// expect(data).toBe(null);
-	// expect(csv?.split('\n').at(0)).toBe('');
-});
