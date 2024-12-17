@@ -27,7 +27,6 @@ export default {
 				store_name = storeData.store_name;
 			}
 		}
-		console.log(store_name);
 
 		const query = supabase
 			.from('artist_trade')

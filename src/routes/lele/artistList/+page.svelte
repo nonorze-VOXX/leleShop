@@ -40,7 +40,7 @@
 					<td class="p-2">
 						<a
 							class="rounded-lg bg-lele-line p-2 text-lele-bg"
-							href={'/lele/creator/' + artists.id}
+							href={'/lele/store/*/creator/' + artists.id}
 						>
 							報表
 						</a>
