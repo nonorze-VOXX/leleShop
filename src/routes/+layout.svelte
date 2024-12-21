@@ -9,59 +9,39 @@
 	let store_list: StoreRow[] = [];
 	let selectState: boolean[] = [];
 	function UpdateSelectState() {
-		for (let i = 0; i < store_list.length; i++) {
-			if ($selectedStore === '*') {
-				selectState[i] = true;
-			} else {
-				selectState[i] = $selectedStore.lastIndexOf(store_list[i].store_name) !== -1;
-			}
-		}
+		store_list.forEach((store, i) => {
+			selectState[i] =
+				$selectedStore === '*' || $selectedStore.lastIndexOf(store.store_name) !== -1;
+		});
 	}
 	onMount(async () => {
-		console.log($selectedStore);
 		const { data, error } = await supabase.from('store').select('*');
 		if (error) {
 			console.error(error);
+			return;
+		}
+
+		if ($selectedStore !== '*') {
+			if (data) {
+				// filter exist store
+				const store_list = data.map((e) => e.store_name);
+				const selectedStoreList = $selectedStore;
+				const existStore = selectedStoreList.reduce((acc, cur) => {
+					const index = store_list.lastIndexOf(cur);
+					if (index !== -1) {
+						acc.push(cur);
+					}
+					return acc;
+				}, [] as string[]);
+				if (JSON.stringify(selectedStore) !== JSON.stringify(existStore)) {
+					selectedStore.set(existStore);
+				}
+			}
 		}
 
 		store_list = data ?? [];
 		selectState = new Array(store_list.length).fill(true);
 		UpdateSelectState();
-
-		{
-			let { data, error } = await supabase.from('store').select('*');
-			if (error) {
-				console.error(error);
-				return;
-			}
-			if ($selectedStore !== '*') {
-				if (data) {
-					// filter exist store
-					const store_list = data.map((e) => e.store_name);
-					const selectedStoreList = $selectedStore;
-					const existStore = selectedStoreList.reduce((acc, cur) => {
-						const index = store_list.lastIndexOf(cur);
-						if (index !== -1) {
-							acc.push(cur);
-						}
-						return acc;
-					}, [] as string[]);
-					if (JSON.stringify(selectedStore) !== JSON.stringify(existStore)) {
-						selectedStore.set(existStore);
-					}
-				}
-			} else {
-				// if (data) {
-				// 	const newSelected = data.reduce((acc, cur) => {
-				// 		acc.push(cur.store_name);
-				// 		return acc;
-				// 	}, [] as string[]);
-				// 	if (JSON.stringify(newSelected) !== JSON.stringify($selectedStore)) {
-				// 		selectedStore.set(newSelected);
-				// 	}
-				// }
-			}
-		}
 	});
 </script>
 
