@@ -3,7 +3,7 @@
 	import LeleBox from '$lib/Component/LeleBox.svelte';
 	import { createEventDispatcher } from 'svelte';
 
-	export let artist_id: string;
+	export let artist_id: number;
 	let admit_fail = false;
 
 	const dispatch = createEventDispatcher<{

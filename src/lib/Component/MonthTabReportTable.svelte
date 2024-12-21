@@ -19,7 +19,7 @@
 		const date = new Date();
 		let firstDay = new Date(date.getFullYear(), parseInt(tabData) - 1, 1);
 		let lastDay = new Date(date.getFullYear(), parseInt(tabData), 1);
-		console.log('dispatch');
+		// console.log('dispatch');
 		dispatch('changeShowedDataList', {
 			firstDay: firstDay,
 			lastDay: lastDay

@@ -7,7 +7,6 @@
 	onMount(async () => {
 		const access_token = (await supabase.auth.getSession()).data.session?.access_token;
 		if (access_token === undefined || access_token === '') {
-			console.log('access token ', access_token);
 			goto('/login', { replaceState: true });
 		}
 	});
@@ -17,7 +16,6 @@
 		if (error) {
 			console.error(error);
 		} else {
-			console.log('succ');
 			goto('/');
 		}
 	}

@@ -24,7 +24,7 @@ export const randomNumber = (length: number) => {
 	return number;
 };
 
-export const add = (a: number, b: number) => a + b;
+export const add = (a: number | null, b: number | null) => (a ?? 0) + (b ?? 0);
 
 export const arr_sum = (arr: number[]) => arr.reduce(add, 0);
 

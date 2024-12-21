@@ -17,6 +17,7 @@ export type ArtistRow = Database['public']['Tables']['artist']['Row'];
 export type ArtistViewRow = Database['public']['Views']['default_artist_view']['Row'];
 export type ArtistUpdate = Database['public']['Tables']['artist']['Update'];
 export type ArtistWithTradeRow = Database['public']['Views']['artist_trade']['Row'];
+export type StoreRow = Database['public']['Tables']['store']['Row'];
 export type SalesTotalData = {
 	sales_total: number;
 	net_total: number;
@@ -66,19 +67,19 @@ export default {
 	},
 	async SaveTradeBody(body: TradeBody[]) {
 		const { data, error } = await supabase.from('trade_body').insert(body).select();
-		if (error !== null) {
-			console.log(error);
+		if (error) {
+			console.error(error);
 		}
 		return { data, error };
 	},
 	async SaveTradeHead(head: TradeHead[]) {
 		const { data, error } = await supabase.from('trade_head').insert(head).select();
-		if (error !== null) {
-			console.log(error);
+		if (error) {
+			console.error(error);
 		}
 		return { data, error };
 	},
-	async GetArtistData(id: string = '*') {
+	async GetArtistData(id: number | '*' = '*') {
 		let query = supabase.from('artist').select();
 		if (id !== '*') {
 			query = query.eq('id', id);
@@ -127,91 +128,74 @@ export default {
 					.lte('trade_date', date.lastDate.toISOString());
 			}
 			const { data, error } = await query.range(i, i + 1000);
-			if (error !== null) {
-				console.log('fetch head fail');
+			if (error) {
+				console.error(error);
 			}
 			result = result.concat(data ?? []);
 		}
 		return { data: result };
 	},
 	async GetTradeDataCount(
-		id: string,
-		store_name: string | '*',
+		id: number,
+		store_name_list: string[] | '*',
 		date: { firstDate: Date | null; lastDate: Date | null } = { firstDate: null, lastDate: null }
 	) {
 		let query = supabase.from('artist_trade').select('*', { count: 'exact', head: true });
-		if (id !== '*' && id !== '') {
-			query = query.eq('artist_id', id);
-		}
+		query = query.eq('artist_id', id);
+
 		if (date.firstDate !== null && date.lastDate !== null) {
 			query = query
 				.gte('trade_date', date.firstDate.toISOString())
 				.lte('trade_date', date.lastDate.toISOString());
 		}
-
-		if (store_name !== '*') {
-			query = query.eq('store_name', store_name);
+		if (store_name_list !== '*') {
+			query = query.in('store_name', store_name_list);
 		}
 		const { count, error } = await query;
-
 		if (error) {
-			console.log(error);
+			console.error(error);
 		}
-
-		console.log(count);
 		return { count };
 	},
 	async GetArtistTradeTotal(
 		column: 'total_sales' | 'net_sales' | 'discount' | 'quantity',
 		condition: {
 			artist_id: number;
-			store_name: string | '*';
+			store_list: string[] | '*';
 			start_date: Date;
 			end_date: Date;
 		}
 	) {
-		let out_data, out_error;
-		if (condition.store_name === '*') {
-			const { data, error } = await supabase
-				.from('artist_trade')
-				.select(column + '.sum()')
-				.eq('artist_id', condition.artist_id)
-				.gte('trade_date', condition.start_date.toISOString())
-				.lt('trade_date', condition.end_date.toISOString())
-				.single();
-			out_data = data;
-			out_error = error;
-		} else {
-			const { data, error } = await supabase
-				.from('artist_trade')
-				.select(column + '.sum()')
-				.eq('artist_id', condition.artist_id)
-				.gte('trade_date', condition.start_date.toISOString())
-				.lt('trade_date', condition.end_date.toISOString())
-				.eq('store_name', condition.store_name)
-				.single();
-			out_data = data;
-			out_error = error;
+		let preQurey = supabase
+			.from('artist_trade')
+			.select(column + '.sum()')
+			.eq('artist_id', condition.artist_id)
+			.gte('trade_date', condition.start_date.toISOString())
+			.lt('trade_date', condition.end_date.toISOString());
+
+		if (condition.store_list !== '*') {
+			preQurey = preQurey.in('store_name', condition.store_list);
 		}
 
-		if (out_error) {
-			console.error(out_error);
-			alert(out_error.message);
+		const { data, error } = await preQurey.single();
+		if (error) {
+			console.error(error);
+			alert(error.message);
 			return null;
 		}
-		const { sum } = out_data as unknown as { sum: number | null }; // supabase not support this type now
+		const { sum } = data as unknown as { sum: number | null }; // supabase not support this type now
 		return sum ?? 0;
 	},
 	async GetTradeTotal(
 		artist_id: number,
-		store_name: string | '*',
+		store_list: string[] | '*',
 		start_date: Date,
 		end_date: Date
 	) {
 		// const columns = ['total_sales', 'net_sales', 'discount', 'quantity'];
 		const condition = {
 			artist_id,
-			store_name,
+			store_list,
 			start_date,
 			end_date
 		};
