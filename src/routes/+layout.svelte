@@ -5,6 +5,7 @@
 	import { supabase } from '$lib/db';
 	import type { StoreRow } from '$lib/db';
 	import { findIndex } from './lele/import/importFunction';
+	import LeleButton from '$lib/Component/LeleButton.svelte';
 	let store_list: StoreRow[] = [];
 	onMount(async () => {
 		const { data, error } = await supabase.from('store').select('*');
@@ -35,15 +36,14 @@
 				<img src="/thecreateicon.png" alt="no icon" />
 			</a>
 		</div>
-		<div class="h-36 w-36">
+		<div class="flex flex-wrap gap-3">
 			{#if store_list.length === 0}
 				<div>loading...</div>
 			{:else}
 				{#each store_list as store}
-					<!-- todo: fix this css 	 -->
-					<button
-						class:bg-lele-line={selectState[store_list.indexOf(store)]}
-						class:bg-lele-bg={!selectState[store_list.indexOf(store)]}
+					<LeleButton
+						bind:text={store.store_name}
+						bind:choosing={selectState[store_list.indexOf(store)]}
 						on:click={() => {
 							if ($selectedStore === '*') {
 								selectedStore.set([store.store_name]);
@@ -59,8 +59,8 @@
 								}
 							}
 							UpdateSelectState();
-						}}>{store.store_name}</button
-					>
+						}}
+					></LeleButton>
 				{/each}
 			{/if}
 		</div>
