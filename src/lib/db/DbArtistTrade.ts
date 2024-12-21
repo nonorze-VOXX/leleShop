@@ -6,28 +6,13 @@ export default {
 		{
 			id,
 			date,
-			store_id
+			store_list
 		}: {
 			id?: number;
 			date?: { firstDate: Date; lastDate: Date };
-			store_id: number | '*';
-		} = { store_id: '*' }
+			store_list: string[] | '*';
+		} = { store_list: '*' }
 	) {
-		let store_name = '*';
-		if (store_id !== '*') {
-			const { data: storeData, error: storeError } = await supabase
-				.from('store')
-				.select('store_name')
-				.eq('id', store_id)
-				.single();
-			if (storeError) {
-				console.error(storeError);
-			}
-			if (storeData) {
-				store_name = storeData.store_name;
-			}
-		}
-
 		const query = supabase
 			.from('artist_trade')
 			.select(
@@ -42,8 +27,9 @@ export default {
 				.gte('trade_date', date.firstDate.toISOString())
 				.lte('trade_date', date.lastDate.toISOString());
 		}
-		if (store_name !== '*') {
-			query.eq('store_name', store_name);
+
+		if (store_list !== '*') {
+			query.in('store_name', store_list);
 		}
 		const { data, error } = await query.csv();
 		if (error) {
