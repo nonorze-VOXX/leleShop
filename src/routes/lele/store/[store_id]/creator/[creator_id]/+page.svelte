@@ -10,7 +10,7 @@
 	import InfoBox from '$lib/Component/InfoBox.svelte';
 
 	let artist_name: string = '';
-	let artist_id: string = $page.params.creator_id;
+	let artist_id: number = Number($page.params.creator_id);
 	let showedLength = 0;
 	let store_name: string = '*';
 	let view_store_name: string = '';
@@ -58,7 +58,6 @@
 	</div>
 	<MonthTabReportTableWithLogic
 		bind:artist_id
-		bind:store_name
 		on:change={(e) => {
 			net_total = e.detail.net_total;
 			showedLength = e.detail.showedLength;
