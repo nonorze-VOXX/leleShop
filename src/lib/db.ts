@@ -67,15 +67,15 @@ export default {
 	},
 	async SaveTradeBody(body: TradeBody[]) {
 		const { data, error } = await supabase.from('trade_body').insert(body).select();
-		if (error !== null) {
-			console.log(error);
+		if (error) {
+			console.error(error);
 		}
 		return { data, error };
 	},
 	async SaveTradeHead(head: TradeHead[]) {
 		const { data, error } = await supabase.from('trade_head').insert(head).select();
-		if (error !== null) {
-			console.log(error);
+		if (error) {
+			console.error(error);
 		}
 		return { data, error };
 	},
@@ -128,8 +128,8 @@ export default {
 					.lte('trade_date', date.lastDate.toISOString());
 			}
 			const { data, error } = await query.range(i, i + 1000);
-			if (error !== null) {
-				console.log('fetch head fail');
+			if (error) {
+				console.error(error);
 			}
 			result = result.concat(data ?? []);
 		}
@@ -153,7 +153,7 @@ export default {
 		}
 		const { count, error } = await query;
 		if (error) {
-			console.log(error);
+			console.error(error);
 		}
 		return { count };
 	},

@@ -66,7 +66,6 @@
 			page: parseInt(nowPage) - 1,
 			store_list
 		});
-		console.log(data);
 		return data;
 	};
 	const PageChange = async () => {

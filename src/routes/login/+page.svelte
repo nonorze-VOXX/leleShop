@@ -14,7 +14,6 @@
 			loginFailed = true;
 			return;
 		}
-		console.log('login success');
 		goto('/lele', { replaceState: true });
 	}
 </script>

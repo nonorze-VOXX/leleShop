@@ -213,8 +213,6 @@ export const GetDateRange = async (
 	return { minDate, maxDate };
 };
 export const savePartToDb = async (tradeBodyList: TradeBody[], tradeHeadList: TradeHead[]) => {
-	console.log('tradeBodyList', tradeBodyList);
-	console.log('tradeHeadList', tradeHeadList);
 	let newTradeHead: TradeHeadRow[] = [];
 	let newTradeBody: TradeBodyRow[] = [];
 	{
@@ -263,12 +261,10 @@ export const ProcessFile = async (file: File) => {
 		}
 	}
 
-	console.log('not_exist_artist', not_exist_artist);
 	const saveArtist = await db.SaveArtist(
 		not_exist_artist.map((e) => ({ artist_name: e.artist_name }))
 	);
 	if (saveArtist.error) {
-		console.log(not_exist_artist);
 		throw new Error('artist save error');
 	}
 
@@ -276,7 +272,6 @@ export const ProcessFile = async (file: File) => {
 	if (artistList.error) {
 		throw new Error(artistList.error.message);
 	}
-	console.log('artistList', artistList);
 	{
 		const storePreData = await supabase.from('store').select();
 		if (storePreData.error) {

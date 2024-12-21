@@ -61,8 +61,6 @@ export default {
 		}
 
 		if (store_list !== '*') {
-			console.log('store_list');
-			console.log(store_list);
 			query = query.in('store_name', store_list);
 		}
 		query.order('trade_date', { ascending: false });
@@ -71,8 +69,6 @@ export default {
 		if (error) {
 			console.error(error);
 		}
-		console.log('query data');
-		console.log(data);
 		return { data };
 	}
 };
