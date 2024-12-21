@@ -7,15 +7,6 @@
 	import { findIndex } from './lele/import/importFunction';
 	import LeleButton from '$lib/Component/LeleButton.svelte';
 	let store_list: StoreRow[] = [];
-	onMount(async () => {
-		const { data, error } = await supabase.from('store').select('*');
-		if (error) {
-			console.error(error);
-		}
-
-		store_list = data ?? [];
-		selectState = new Array(store_list.length).fill(true);
-	});
 	let selectState: boolean[] = [];
 	function UpdateSelectState() {
 		for (let i = 0; i < store_list.length; i++) {
@@ -25,8 +16,53 @@
 				selectState[i] = $selectedStore.lastIndexOf(store_list[i].store_name) !== -1;
 			}
 		}
-		console.log(selectState);
 	}
+	onMount(async () => {
+		console.log($selectedStore);
+		const { data, error } = await supabase.from('store').select('*');
+		if (error) {
+			console.error(error);
+		}
+
+		store_list = data ?? [];
+		selectState = new Array(store_list.length).fill(true);
+		UpdateSelectState();
+
+		{
+			let { data, error } = await supabase.from('store').select('*');
+			if (error) {
+				console.error(error);
+				return;
+			}
+			if ($selectedStore !== '*') {
+				if (data) {
+					// filter exist store
+					const store_list = data.map((e) => e.store_name);
+					const selectedStoreList = $selectedStore;
+					const existStore = selectedStoreList.reduce((acc, cur) => {
+						const index = store_list.lastIndexOf(cur);
+						if (index !== -1) {
+							acc.push(cur);
+						}
+						return acc;
+					}, [] as string[]);
+					if (JSON.stringify(selectedStore) !== JSON.stringify(existStore)) {
+						selectedStore.set(existStore);
+					}
+				}
+			} else {
+				// if (data) {
+				// 	const newSelected = data.reduce((acc, cur) => {
+				// 		acc.push(cur.store_name);
+				// 		return acc;
+				// 	}, [] as string[]);
+				// 	if (JSON.stringify(newSelected) !== JSON.stringify($selectedStore)) {
+				// 		selectedStore.set(newSelected);
+				// 	}
+				// }
+			}
+		}
+	});
 </script>
 
 <div class="flex min-h-screen flex-col justify-between bg-lele-bg text-red-950">
@@ -47,6 +83,8 @@
 						on:click={() => {
 							if ($selectedStore === '*') {
 								selectedStore.set([store.store_name]);
+							} else if (!Array.isArray($selectedStore)) {
+								$selectedStore = [];
 							} else if ($selectedStore.lastIndexOf(store.store_name) === -1) {
 								selectedStore.set([...$selectedStore, store.store_name]);
 							} else {

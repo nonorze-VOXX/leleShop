@@ -56,13 +56,13 @@ export default {
 			id,
 			date,
 			page,
-			store_name
+			store_list
 		}: {
 			id?: number;
 			date?: { firstDate: Date; lastDate: Date };
 			page: number;
-			store_name: string | '*';
-		} = { page: 0, store_name: '*' }
+			store_list: string[] | '*';
+		} = { page: 0, store_list: '*' }
 	) {
 		let query = supabase.from('artist_trade').select('*');
 		if (id) {
@@ -73,8 +73,11 @@ export default {
 				.gte('trade_date', date.firstDate.toISOString())
 				.lte('trade_date', date.lastDate.toISOString());
 		}
-		if (store_name !== '*') {
-			query = query.eq('store_name', store_name);
+
+		if (store_list !== '*') {
+			console.log('store_list');
+			console.log(store_list);
+			query = query.in('store_name', store_list);
 		}
 		query.order('trade_date', { ascending: false });
 		query = query.range(page * onePageLength, (page + 1) * onePageLength - 1);
@@ -82,6 +85,8 @@ export default {
 		if (error) {
 			console.error(error);
 		}
+		console.log('query data');
+		console.log(data);
 		return { data };
 	}
 };

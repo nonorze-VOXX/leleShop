@@ -1,13 +1,14 @@
 <script lang="ts">
-	import { createEventDispatcher, onMount } from 'svelte';
+	import { createEventDispatcher, onDestroy, onMount } from 'svelte';
 	import type { ArtistWithTradeRow, SalesTotalData } from '$lib/db';
 	import MonthTabReportTable from '$lib/Component/MonthTabReportTable.svelte';
 	import db, { onePageLength } from '$lib/db';
 	import { ThisMonthFirstDate } from '$lib/function/Utils';
 	import MonthTab from './MonthTab.svelte';
+	import { selectedStore } from '$lib/store/choosing';
 
-	export let artist_id: string;
-	export let store_name: string | '*';
+	export let artist_id: number;
+	let store_list: string[] | '*';
 	let tradeDataList: ArtistWithTradeRow[] = [];
 	let nowPage: string = '0';
 	let total: SalesTotalData = {
@@ -18,13 +19,23 @@
 	};
 	let pageIndex: string[] = [];
 	let dateRange: { firstDate: Date; lastDate: Date };
+	let unsubscribe = selectedStore.subscribe(async (e) => {
+		store_list = $selectedStore;
+		await refreshByStoreList();
+	});
+	onDestroy(() => {
+		unsubscribe();
+	});
 	onMount(async () => {
+		store_list = $selectedStore;
 		await DateChange(ThisMonthFirstDate(-1), ThisMonthFirstDate());
 	});
+	async function refreshByStoreList() {
+		if (dateRange) await DateChange(dateRange.firstDate, dateRange.lastDate);
+	}
 	const DateChange = async (firstDate: Date, lastDate: Date) => {
 		dateRange = { firstDate, lastDate };
-		const { count } = await db.GetTradeDataCount(artist_id, store_name, { firstDate, lastDate });
-		console.log(count, artist_id, firstDate, lastDate);
+		const { count } = await db.GetTradeDataCount(artist_id, store_list, { firstDate, lastDate });
 
 		pageIndex = [];
 		for (let i = 1; i <= Math.ceil((count ?? 0) / onePageLength); i++) {
@@ -43,34 +54,34 @@
 	};
 
 	async function UpdateTotalData(dateRange: { firstDate: Date; lastDate: Date }) {
-		total = await db.GetTradeTotal(
-			parseInt(artist_id),
-			store_name,
-			dateRange.firstDate,
-			dateRange.lastDate
-		);
+		total = await db.GetTradeTotal(artist_id, store_list, dateRange.firstDate, dateRange.lastDate);
 	}
 	const dispatch = createEventDispatcher<{
 		change: { net_total: number; firstDate: Date; lastDate: Date; showedLength: number };
 	}>();
 	const UpdateTradeData = async () => {
 		const { data } = await db.artistTrade.GetTradeDataWithPage({
-			id: parseInt(artist_id),
+			id: artist_id,
 			date: dateRange,
 			page: parseInt(nowPage) - 1,
-			store_name
+			store_list
 		});
+		console.log(data);
 		return data;
 	};
 	const PageChange = async () => {
 		const { data } = await db.artistTrade.GetTradeDataWithPage({
-			id: parseInt(artist_id),
+			id: artist_id,
 			date: dateRange,
 			page: parseInt(nowPage) - 1,
-			store_name
+			store_list
 		});
 		return data;
 	};
+	// store_list = store_list;
+	async function onTabChange() {
+		tradeDataList = (await PageChange()) ?? [];
+	}
 </script>
 
 {#if tradeDataList}
@@ -85,8 +96,6 @@
 		bind:tabDataList={pageIndex}
 		bind:showedMonth={nowPage}
 		shape="full"
-		on:onTabChange={async () => {
-			tradeDataList = (await PageChange()) ?? [];
-		}}
+		on:onTabChange={onTabChange}
 	></MonthTab>
 {/if}

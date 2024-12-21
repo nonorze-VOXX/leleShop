@@ -4,13 +4,15 @@
 	import MonthTabReportTableWithLogic from '$lib/Component/MonthTabReportTableWithLogic.svelte';
 
 	import PasswordPanel from './PasswordPanel.svelte';
-	import { onMount } from 'svelte';
+	import { onDestroy, onMount } from 'svelte';
 	import db, { supabase } from '$lib/db';
 	import { page } from '$app/stores';
 	import TradeCount from '$lib/Component/reportComponent/TradeCount.svelte';
 	import Commision from '$lib/Component/reportComponent/Commision.svelte';
 	import Remit from '$lib/Component/reportComponent/Remit.svelte';
 	import InfoBox from '$lib/Component/InfoBox.svelte';
+	import { selectedStore } from '$lib/store/choosing';
+	import { browser } from '$app/environment';
 
 	enum PasswordPanelState {
 		Loading,
@@ -19,23 +21,16 @@
 	}
 	let artist_name: string = '';
 	let net_total = -1;
-	let artist_id: string = '';
-	let store_id: number | '*' | null = null;
-	let store_name: string;
-	let view_store_name: string;
+	let artist_id: number = 0;
 	let panelState: PasswordPanelState = PasswordPanelState.Loading;
 	let showedLength = 0;
 	let logText: string = '';
 
 	let firstDate: Date | null;
 	let lastDate: Date | null;
-	onMount(async () => {
-		// artist_id = $page.params.id;
-		// const artist_data = (await db.GetArtistData(artist_id)).data ?? [];
-		// artist_name = artist_data.length !== 0 ? artist_data[0].artist_name : 'not found this artist';
-
-		artist_id = $page.params.id;
-		if (isNaN(Number(artist_id))) {
+	const PageQueryData = async () => {
+		artist_id = Number($page.params.id);
+		if (isNaN(artist_id)) {
 			logText = 'artist_id is not a number';
 			return;
 		}
@@ -53,31 +48,17 @@
 
 			artist_name = data.artist_name;
 		}
-		{
-			store_id = $page.params.store_id === '*' ? '*' : Number($page.params.store_id);
-			if (store_id !== '*' && isNaN(store_id)) {
-				logText = 'store_id is not a number';
-				return;
-			}
-			let query = supabase.from('store').select('*');
-			if (store_id !== '*') {
-				query = query.eq('id', store_id);
-			}
-			const { data, error } = await query;
-			if (error) {
-				logText = error.message;
-				return;
-			}
-			view_store_name = data.reduce(
-				(acc, cur) => (acc === '' ? acc + cur.store_name : acc + ', ' + cur.store_name),
-				''
-			);
-			if (data.length > 1) {
-				store_name = '*';
-			}
-		}
+	};
+	onMount(() => {
 		panelState = PasswordPanelState.NotAdmit;
+	}); // use selectedStore will init
+	const unsubscribe = selectedStore.subscribe(async (e) => {
+		if (browser) {
+			await PageQueryData();
+		}
 	});
+	//
+	onDestroy(unsubscribe);
 </script>
 
 <div class="flex flex-col items-center gap-3">
@@ -89,7 +70,6 @@
 		</div>
 	{:else if panelState === PasswordPanelState.NotAdmit}
 		<div class="flex flex-wrap gap-2 text-2xl font-bold">
-			<InfoBox title={view_store_name}></InfoBox>
 			<InfoBox title={artist_name}></InfoBox>
 		</div>
 		<PasswordPanel
@@ -109,7 +89,6 @@
 		</div>
 		<MonthTabReportTableWithLogic
 			bind:artist_id
-			bind:store_name
 			on:change={(e) => {
 				net_total = e.detail.net_total;
 				firstDate = e.detail.firstDate;
