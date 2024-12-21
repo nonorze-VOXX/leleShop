@@ -79,9 +79,6 @@
 		return data;
 	};
 	// store_list = store_list;
-	async function onTabChange() {
-		tradeDataList = (await PageChange()) ?? [];
-	}
 </script>
 
 {#if tradeDataList}
@@ -96,6 +93,8 @@
 		bind:tabDataList={pageIndex}
 		bind:showedMonth={nowPage}
 		shape="full"
-		on:onTabChange={onTabChange}
+		on:onTabChange={async () => {
+			tradeDataList = (await PageChange()) ?? [];
+		}}
 	></MonthTab>
 {/if}
