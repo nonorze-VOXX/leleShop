@@ -5,7 +5,7 @@
 	import { supabase } from '$lib/db';
 	import type { StoreRow } from '$lib/db';
 	import { findIndex } from './lele/import/importFunction';
-	import LeleButton from '$lib/Component/LeleButton.svelte';
+	import LeleButton from '$lib/Component/LeleStoreButton.svelte';
 	let store_list: StoreRow[] = [];
 	let selectState: boolean[] = [];
 	function UpdateSelectState() {
@@ -21,6 +21,7 @@
 			return;
 		}
 
+		// todo: remove '*' from selectedStore
 		if ($selectedStore !== '*') {
 			if (data) {
 				// filter exist store
