@@ -299,21 +299,43 @@ export const ProcessFile = async (file: File) => {
 	}
 
 	const tradeHeadSet = GetTradeHeadSet(importedTrade, storeData.data ?? []);
-	const existTradeHead = await supabase
+	console.log([...tradeHeadSet].map((e) => {
+				return e.trade_id;
+			}).length)
+	const existTradeHead:{
+    store_id: number;
+    trade_date: string;
+    trade_id: string;
+}[] = []
+const tradeHeadList = [...tradeHeadSet].map((e) => {
+				return e.trade_id;
+			});
+
+	
+			const partLen = 300;
+			for (let i = 0; i < tradeHeadList.length; i+=partLen) {
+	const existTradeHeadPart = await supabase
 		.from('trade_head')
 		.select()
 		.in(
 			'trade_id',
-			[...tradeHeadSet].map((e) => {
-				return e.trade_id;
-			})
+			tradeHeadList.slice(i, i + partLen)
 		);
-	if (existTradeHead.error) {
-		throw new Error(existTradeHead.error.message);
+	if (existTradeHeadPart.error) {
+		throw new Error(existTradeHeadPart.error.message);
+	}else{
+		// existTradeHead += existTradeHeadPart.data??[];
+		existTradeHeadPart.data?.forEach((e)=>{
+			existTradeHead.push(e)
+		})
+	}
+
+
+
 	}
 
 	const noDupTradeHead = [...tradeHeadSet].filter((e) => {
-		return !existTradeHead.data.some((tradeHead) => tradeHead.trade_id === e.trade_id);
+		return !existTradeHead.some((tradeHead) => tradeHead.trade_id === e.trade_id);
 	});
 
 	const saveHead = await db.SaveTradeHead(noDupTradeHead);
