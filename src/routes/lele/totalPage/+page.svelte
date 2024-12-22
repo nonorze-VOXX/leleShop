@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
+	import { onDestroy, onMount } from 'svelte';
 	import LeleTable from '$lib/Component/htmlWrapper/LeleTable.svelte';
 	import LeleThead from '$lib/Component/htmlWrapper/LeleThead.svelte';
 	import LeleTbody from '$lib/Component/htmlWrapper/LeleTbody.svelte';
@@ -12,12 +12,14 @@
 	} from '$lib/function/Utils';
 	import LeleTbodyTr from '$lib/Component/htmlWrapper/LeleTbodyTr.svelte';
 	import MonthTab from '$lib/Component/MonthTab.svelte';
+	import { selectedStore } from '$lib/store/choosing';
+	import { browser } from '$app/environment';
 
 	let totalData: {
-		name: string;
-		total_sales_sum: number;
-		net_sales_sum: number;
-		discount_sum: number;
+		artist_name: string | null;
+		total_sales: number;
+		net_sales: number;
+		discount: number;
 	}[] = [];
 
 	let realTotal: number[] = [];
@@ -27,23 +29,24 @@
 		real_sales_sum: number;
 		real_sales_90_sum: number;
 	};
-	onMount(async () => {
-		await FetchData(ThisMonthFirstDate(-1), NextMonthFirstDate(-1));
-	});
 	let showedMonth: string;
-	const FetchData = async (firstDate: Date, lastDate: Date) => {
-		const { result, error } = await GetTradeTotalDataEachOne(firstDate, lastDate);
-		showedMonth = FormatNumberToTwoDigi((firstDate.getMonth() + 1).toString());
+	const FetchData = async (dateRange: { firstDate: Date; lastDate: Date }) => {
+		const { data, error } = await GetTradeTotalDataEachOne(
+			dateRange.firstDate,
+			dateRange.lastDate,
+			$selectedStore
+		);
+		showedMonth = FormatNumberToTwoDigi((dateRange.firstDate.getMonth() + 1).toString());
 		if (error) {
 			console.error(error);
 			return;
 		}
-		totalData = result;
+		totalData = data ?? [];
 		realTotal = [];
 		totalData90 = [];
 		totalData.map((data) => {
-			realTotal.push(data.total_sales_sum - data.discount_sum);
-			totalData90.push(Math.ceil(data.net_sales_sum * 0.9));
+			realTotal.push(data.total_sales - data.discount);
+			totalData90.push(Math.ceil(data.net_sales * 0.9));
 		});
 		sumTotalData = {
 			real_sales_sum: realTotal.reduce((a, b) => a + b, 0),
@@ -51,14 +54,22 @@
 		};
 	};
 
+	let dateRange = { firstDate: ThisMonthFirstDate(-1), lastDate: NextMonthFirstDate(-1) };
 	let tabDataList: string[] = GetAllMonth();
 	const ClickTab = async (tabData: string) => {
 		showedMonth = tabData;
 		const date = new Date();
 		let firstDay = new Date(date.getFullYear(), parseInt(tabData) - 1, 1);
 		let lastDay = new Date(date.getFullYear(), parseInt(tabData), 1);
-		await FetchData(firstDay, lastDay);
+		dateRange = { firstDate: firstDay, lastDate: lastDay };
+		await FetchData(dateRange);
 	};
+	// onMount
+	onDestroy(
+		selectedStore.subscribe(async () => {
+			if (browser) await FetchData(dateRange);
+		})
+	);
 </script>
 
 {#if showedMonth}
@@ -88,7 +99,7 @@
 		{/if}
 		{#each totalData as data, index}
 			<LeleTbodyTr>
-				<td class="p-2">{data.name}</td>
+				<td class="p-2">{data.artist_name}</td>
 				<td class="p-2">{realTotal[index]}</td>
 				<td class="p-2">
 					{totalData90[index]}
