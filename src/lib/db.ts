@@ -157,53 +157,34 @@ export default {
 		}
 		return { count };
 	},
-	async GetArtistTradeTotal(
-		column: 'total_sales' | 'net_sales' | 'discount' | 'quantity',
-		condition: {
-			artist_id: number;
-			store_list: string[] | '*';
-			start_date: Date;
-			end_date: Date;
-		}
-	) {
-		let preQurey = supabase
-			.from('artist_trade')
-			.select(column + '.sum()')
-			.eq('artist_id', condition.artist_id)
-			.gte('trade_date', condition.start_date.toISOString())
-			.lt('trade_date', condition.end_date.toISOString());
-
-		if (condition.store_list !== '*') {
-			preQurey = preQurey.in('store_name', condition.store_list);
-		}
-
-		const { data, error } = await preQurey.single();
-		if (error) {
-			console.error(error);
-			alert(error.message);
-			return null;
-		}
-		const { sum } = data as unknown as { sum: number | null }; // supabase not support this type now
-		return sum ?? 0;
-	},
 	async GetTradeTotal(
 		artist_id: number,
 		store_list: string[] | '*',
 		start_date: Date,
 		end_date: Date
 	) {
-		// const columns = ['total_sales', 'net_sales', 'discount', 'quantity'];
-		const condition = {
-			artist_id,
-			store_list,
-			start_date,
-			end_date
-		};
+		let preQurey = supabase .from('artist_trade')
+		.select('total_sales:total_sales.sum(), net_sales:net_sales.sum(), discount:discount.sum(), quantity:quantity.sum()')
+			.eq('artist_id', artist_id)
+			.gte('trade_date', start_date.toISOString())
+			.lt('trade_date', end_date.toISOString());
 
-		const total_sales = await this.GetArtistTradeTotal('total_sales', condition);
-		const net_sales = await this.GetArtistTradeTotal('net_sales', condition);
-		const discount = await this.GetArtistTradeTotal('discount', condition);
-		const quantity = await this.GetArtistTradeTotal('quantity', condition);
+		if (store_list !== '*') {
+			preQurey = preQurey.in('store_name', store_list);
+		}
+
+		const { data,error } = await preQurey.single();
+		if (error) {
+			console.error(error);
+			alert(error.message);
+			return {
+				sales_total:   0,
+				net_total:  0,
+				discount_total:   0,
+				total_quantity:   0
+			};
+		}
+		const {total_sales, net_sales , discount , quantity } = data;
 
 		return {
 			sales_total: net_sales ?? 0,

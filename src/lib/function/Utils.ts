@@ -26,8 +26,6 @@ export const randomNumber = (length: number) => {
 
 export const add = (a: number | null, b: number | null) => (a ?? 0) + (b ?? 0);
 
-export const arr_sum = (arr: number[]) => arr.reduce(add, 0);
-
 export const ThisMonthFirstDate = (offset: number = 0) => {
 	const date = new Date();
 	return new Date(date.getFullYear(), date.getMonth() + offset, 1);
