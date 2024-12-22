@@ -187,8 +187,8 @@ export default {
 		const {total_sales, net_sales , discount , quantity } = data;
 
 		return {
-			sales_total: net_sales ?? 0,
-			net_total: total_sales ?? 0,
+			sales_total: total_sales ?? 0,
+			net_total: net_sales ?? 0,
 			discount_total: discount ?? 0,
 			total_quantity: quantity ?? 0
 		};
