@@ -241,7 +241,7 @@ export const ProcessFile = async (file: File) => {
 	const head = headBody.head;
 	const body = headBody.body;
 
-	const {importedTrade ,susTradeIdList} =  Array2DToImportedTrade(head, body)
+	const { importedTrade, susTradeIdList } = Array2DToImportedTrade(head, body);
 	const importedArtist = GetArtistNameList(importedTrade);
 	const exist_artist = await supabase.from('artist').select().in('artist_name', importedArtist);
 
@@ -299,21 +299,33 @@ export const ProcessFile = async (file: File) => {
 	}
 
 	const tradeHeadSet = GetTradeHeadSet(importedTrade, storeData.data ?? []);
-	const existTradeHead = await supabase
-		.from('trade_head')
-		.select()
-		.in(
-			'trade_id',
-			[...tradeHeadSet].map((e) => {
-				return e.trade_id;
-			})
-		);
-	if (existTradeHead.error) {
-		throw new Error(existTradeHead.error.message);
+	const existTradeHead: {
+		store_id: number;
+		trade_date: string;
+		trade_id: string;
+	}[] = [];
+	const tradeHeadList = [...tradeHeadSet].map((e) => {
+		return e.trade_id;
+	});
+
+	const partLen = 300;
+	for (let i = 0; i < tradeHeadList.length; i += partLen) {
+		const existTradeHeadPart = await supabase
+			.from('trade_head')
+			.select()
+			.in('trade_id', tradeHeadList.slice(i, i + partLen));
+		if (existTradeHeadPart.error) {
+			throw new Error(existTradeHeadPart.error.message);
+		} else {
+			// existTradeHead += existTradeHeadPart.data??[];
+			existTradeHeadPart.data?.forEach((e) => {
+				existTradeHead.push(e);
+			});
+		}
 	}
 
 	const noDupTradeHead = [...tradeHeadSet].filter((e) => {
-		return !existTradeHead.data.some((tradeHead) => tradeHead.trade_id === e.trade_id);
+		return !existTradeHead.some((tradeHead) => tradeHead.trade_id === e.trade_id);
 	});
 
 	const saveHead = await db.SaveTradeHead(noDupTradeHead);
@@ -342,7 +354,11 @@ export const ProcessFile = async (file: File) => {
 	if (saveBody.error) {
 		throw new Error(saveBody.error.message);
 	}
-	return {newHeadCount: (saveHead.data??[]).length, newBodyCount: (saveBody.data??[]).length, susTradeIdList};
+	return {
+		newHeadCount: (saveHead.data ?? []).length,
+		newBodyCount: (saveBody.data ?? []).length,
+		susTradeIdList
+	};
 };
 
 const SplitToHeaderBody = (context: string[][]) => {
@@ -359,7 +375,7 @@ export type ImportedTrade = Omit<
 >;
 export const Array2DToImportedTrade = (dataHeader: string[], data: string[][]) => {
 	const susTradeIdList: string[] = [];
-const importedTrade=	data
+	const importedTrade = data
 		.map((e) => {
 			const tradeIdIdx = tradeIdIndex(dataHeader);
 			const artistIdx = artistIndex(dataHeader);
@@ -388,7 +404,7 @@ const importedTrade=	data
 			if (stateIdx !== -1) {
 				if (e[stateIdx] !== '關閉') {
 					susTradeIdList.push(e[tradeIdIdx]);
-					return 
+					return;
 				}
 			}
 			const dateStr = e[dateIdx];
@@ -413,8 +429,8 @@ const importedTrade=	data
 			return result;
 		})
 		.filter((e) => e !== undefined);
-		
-	return {importedTrade, susTradeIdList: Array.of(...(new Set(susTradeIdList)))};
+
+	return { importedTrade, susTradeIdList: Array.of(...new Set(susTradeIdList)) };
 };
 
 export const GetArtistNameList = (data: ImportedTrade[]) => {
