@@ -37,16 +37,19 @@ export type Database = {
         Row: {
           created_at: string
           id: number
+          remit: number
           store_name: string
         }
         Insert: {
           created_at?: string
           id?: number
+          remit?: number
           store_name: string
         }
         Update: {
           created_at?: string
           id?: number
+          remit?: number
           store_name?: string
         }
         Relationships: []
