@@ -299,11 +299,6 @@ export const ProcessFile = async (file: File) => {
 	}
 
 	const tradeHeadSet = GetTradeHeadSet(importedTrade, storeData.data ?? []);
-	console.log(
-		[...tradeHeadSet].map((e) => {
-			return e.trade_id;
-		}).length
-	);
 	const existTradeHead: {
 		store_id: number;
 		trade_date: string;

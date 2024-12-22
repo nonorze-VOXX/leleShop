@@ -50,7 +50,7 @@
 >
 	<form
 		on:submit|preventDefault={handleSubmit}
-		class="flex w-full flex-col flex-wrap items-center gap-4 text-lg"
+		class="flex w-full flex-col items-center gap-4 text-lg"
 	>
 		<div>
 			<!-- <label for="file">Upload your file</label> -->
