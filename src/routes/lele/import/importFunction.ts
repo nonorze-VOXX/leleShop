@@ -242,7 +242,7 @@ export const ProcessFile = async (file: File) => {
 	const head = headBody.head;
 	const body = headBody.body;
 
-	const importedTrade = Array2DToImportedTrade(head, body);
+	const {importedTrade ,susTradeIdList} =  Array2DToImportedTrade(head, body)
 	const importedArtist = GetArtistNameList(importedTrade);
 	const exist_artist = await supabase.from('artist').select().in('artist_name', importedArtist);
 
@@ -343,6 +343,7 @@ export const ProcessFile = async (file: File) => {
 	if (saveBody.error) {
 		throw new Error(saveBody.error.message);
 	}
+	return {newHeadCount: (saveHead.data??[]).length, newBodyCount: (saveBody.data??[]).length, susTradeIdList};
 };
 
 const SplitToHeaderBody = (context: string[][]) => {
@@ -358,7 +359,8 @@ export type ImportedTrade = Omit<
 	'id' | 'artist_id'
 >;
 export const Array2DToImportedTrade = (dataHeader: string[], data: string[][]) => {
-	return data
+	const susTradeIdList: string[] = [];
+const importedTrade=	data
 		.map((e) => {
 			const tradeIdIdx = tradeIdIndex(dataHeader);
 			const artistIdx = artistIndex(dataHeader);
@@ -382,11 +384,11 @@ export const Array2DToImportedTrade = (dataHeader: string[], data: string[][]) =
 				dateIdx === -1 ||
 				storeIdx === -1
 			) {
-				return undefined; // todo error
+				throw new Error('header is wrong');
 			}
 			if (stateIdx !== -1) {
 				if (e[stateIdx] !== '關閉') {
-					return undefined; // todo : make return sus trade
+					susTradeIdList.push(e[tradeIdIdx]);
 				}
 			}
 			const dateStr = e[dateIdx];
@@ -411,6 +413,8 @@ export const Array2DToImportedTrade = (dataHeader: string[], data: string[][]) =
 			return result;
 		})
 		.filter((e) => e !== undefined);
+		
+	return {importedTrade, susTradeIdList: Array.of(...(new Set(susTradeIdList)))};
 };
 
 export const GetArtistNameList = (data: ImportedTrade[]) => {
