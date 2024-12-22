@@ -261,14 +261,14 @@ describe('new importFunction', () => {
 			'2024-07-08 23:03+8,2-1022,銷售,artist_random_id artist_name,sku,item_name,,,1.000,150.00,0.00,150.00,0.00,150.00,0.00,POS 2,The shop2,,,,,關閉\n\n' +
 			'2024-07-08 23:03,2-1022,銷售,artist_random_id artist_name,sku,item_name,,,1.000,150.00,0.00,150.00,0.00,150.00,0.00,POS 2,The shop1,,,,,關閉\n\n';
 
-		const expectTradeRow: ImportedTrade[] = [];
-
 		const file = new File([context], 'filename');
 		const result = await fileToArray(file);
 		const dataHeader = result.shift() ?? [];
 		const body = result;
-		const res = Array2DToImportedTrade(dataHeader, body);
-		expect(res).toStrictEqual(expectTradeRow);
+
+		// const {importedTrade, susTradeIdList} = 
+		expect(() => Array2DToImportedTrade(dataHeader, body)).toThrowError()
+		// expect(res).toStrictEqual(expectTradeRow);
 	});
 	describe('test Array2DToImportedTrade', () => {
 		it('string to object with diff id', async () => {
@@ -282,7 +282,7 @@ describe('new importFunction', () => {
 			const result = await fileToArray(file);
 			const dataHeader = result.shift() ?? [];
 			const body = result;
-			const res = Array2DToImportedTrade(dataHeader, body);
+			const {importedTrade,susTradeIdList} = Array2DToImportedTrade(dataHeader, body);
 			const testTradeRowWithDiffId: ImportedTrade[] = [
 				{
 					artist_name: 'artist_random_id artist_name',
@@ -308,7 +308,8 @@ describe('new importFunction', () => {
 					store_name: 'The shop1'
 				}
 			];
-			expect(res).toStrictEqual(testTradeRowWithDiffId);
+			expect( importedTrade ).toStrictEqual(testTradeRowWithDiffId);
+			expect(susTradeIdList).toStrictEqual([]);
 		});
 		it('string to object with same id', async () => {
 			// UTC+8 timezone test
@@ -321,8 +322,9 @@ describe('new importFunction', () => {
 			const result = await fileToArray(file);
 			const dataHeader = result.shift() ?? [];
 			const body = result;
-			const res = Array2DToImportedTrade(dataHeader, body);
-			expect(res).toStrictEqual(testTradeRow);
+			const {importedTrade, susTradeIdList} = Array2DToImportedTrade(dataHeader, body);
+			expect(importedTrade).toStrictEqual(testTradeRow);
+			expect(susTradeIdList).toStrictEqual([]);
 		});
 		it('string to object with not 關閉', async () => {
 			// UTC+8 timezone test
@@ -336,8 +338,9 @@ describe('new importFunction', () => {
 			const result = await fileToArray(file);
 			const dataHeader = result.shift() ?? [];
 			const body = result;
-			const res = Array2DToImportedTrade(dataHeader, body);
-			expect(res).toStrictEqual(testTradeRow);
+			const {importedTrade, susTradeIdList} = Array2DToImportedTrade(dataHeader, body);
+			expect(importedTrade).toStrictEqual(testTradeRow);
+			expect(susTradeIdList).toStrictEqual(['2-1023']);
 		});
 	});
 	it('get artist name set in imported trade', async () => {

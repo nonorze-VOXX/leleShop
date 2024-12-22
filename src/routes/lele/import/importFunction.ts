@@ -123,7 +123,6 @@ export const GetStoreData = (
 			state = element[0][stateIndex(dataHeader)];
 		}
 		if (state !== '關閉') {
-			// todo: return not close trade
 			susTradeIdList.push(key);
 			continue;
 		}
@@ -389,6 +388,7 @@ const importedTrade=	data
 			if (stateIdx !== -1) {
 				if (e[stateIdx] !== '關閉') {
 					susTradeIdList.push(e[tradeIdIdx]);
+					return 
 				}
 			}
 			const dateStr = e[dateIdx];

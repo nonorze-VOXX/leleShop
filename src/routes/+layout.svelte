@@ -21,7 +21,6 @@
 			return;
 		}
 
-		// todo: remove '*' from selectedStore
 		if ($selectedStore !== '*') {
 			if (data) {
 				// filter exist store
