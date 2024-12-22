@@ -6,7 +6,8 @@
 		report_key,
 		payment,
 		total,
-		import
+		import,
+		store
 	}
 	let tabType: TabEnum = TabEnum.artist_list;
 </script>
@@ -46,5 +47,12 @@
 			tabType = TabEnum.total;
 			goto('/lele/totalPage');
 		}}>Total</button
+	>
+	<button
+		class="flex rounded-xl bg-lele-line p-2 font-semibold text-lele-bg"
+		on:click={() => {
+			tabType = TabEnum.store;
+			goto('/lele/store');
+		}}>Store</button
 	>
 </div>
