@@ -163,8 +163,11 @@ export default {
 		start_date: Date,
 		end_date: Date
 	) {
-		let preQurey = supabase .from('artist_trade')
-		.select('total_sales:total_sales.sum(), net_sales:net_sales.sum(), discount:discount.sum(), quantity:quantity.sum()')
+		let preQurey = supabase
+			.from('artist_trade')
+			.select(
+				'total_sales:total_sales.sum(), net_sales:net_sales.sum(), discount:discount.sum(), quantity:quantity.sum()'
+			)
 			.eq('artist_id', artist_id)
 			.gte('trade_date', start_date.toISOString())
 			.lt('trade_date', end_date.toISOString());
@@ -173,18 +176,18 @@ export default {
 			preQurey = preQurey.in('store_name', store_list);
 		}
 
-		const { data,error } = await preQurey.single();
+		const { data, error } = await preQurey.single();
 		if (error) {
 			console.error(error);
 			alert(error.message);
 			return {
-				sales_total:   0,
-				net_total:  0,
-				discount_total:   0,
-				total_quantity:   0
+				sales_total: 0,
+				net_total: 0,
+				discount_total: 0,
+				total_quantity: 0
 			};
 		}
-		const {total_sales, net_sales , discount , quantity } = data;
+		const { total_sales, net_sales, discount, quantity } = data;
 
 		return {
 			sales_total: total_sales ?? 0,

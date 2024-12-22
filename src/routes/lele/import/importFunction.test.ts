@@ -266,8 +266,8 @@ describe('new importFunction', () => {
 		const dataHeader = result.shift() ?? [];
 		const body = result;
 
-		// const {importedTrade, susTradeIdList} = 
-		expect(() => Array2DToImportedTrade(dataHeader, body)).toThrowError()
+		// const {importedTrade, susTradeIdList} =
+		expect(() => Array2DToImportedTrade(dataHeader, body)).toThrowError();
 		// expect(res).toStrictEqual(expectTradeRow);
 	});
 	describe('test Array2DToImportedTrade', () => {
@@ -282,7 +282,7 @@ describe('new importFunction', () => {
 			const result = await fileToArray(file);
 			const dataHeader = result.shift() ?? [];
 			const body = result;
-			const {importedTrade,susTradeIdList} = Array2DToImportedTrade(dataHeader, body);
+			const { importedTrade, susTradeIdList } = Array2DToImportedTrade(dataHeader, body);
 			const testTradeRowWithDiffId: ImportedTrade[] = [
 				{
 					artist_name: 'artist_random_id artist_name',
@@ -308,7 +308,7 @@ describe('new importFunction', () => {
 					store_name: 'The shop1'
 				}
 			];
-			expect( importedTrade ).toStrictEqual(testTradeRowWithDiffId);
+			expect(importedTrade).toStrictEqual(testTradeRowWithDiffId);
 			expect(susTradeIdList).toStrictEqual([]);
 		});
 		it('string to object with same id', async () => {
@@ -322,7 +322,7 @@ describe('new importFunction', () => {
 			const result = await fileToArray(file);
 			const dataHeader = result.shift() ?? [];
 			const body = result;
-			const {importedTrade, susTradeIdList} = Array2DToImportedTrade(dataHeader, body);
+			const { importedTrade, susTradeIdList } = Array2DToImportedTrade(dataHeader, body);
 			expect(importedTrade).toStrictEqual(testTradeRow);
 			expect(susTradeIdList).toStrictEqual([]);
 		});
@@ -338,7 +338,7 @@ describe('new importFunction', () => {
 			const result = await fileToArray(file);
 			const dataHeader = result.shift() ?? [];
 			const body = result;
-			const {importedTrade, susTradeIdList} = Array2DToImportedTrade(dataHeader, body);
+			const { importedTrade, susTradeIdList } = Array2DToImportedTrade(dataHeader, body);
 			expect(importedTrade).toStrictEqual(testTradeRow);
 			expect(susTradeIdList).toStrictEqual(['2-1023']);
 		});
