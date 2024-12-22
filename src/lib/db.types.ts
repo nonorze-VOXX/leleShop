@@ -178,21 +178,8 @@ export type Database = {
           id: number | null
           payment: number | null
           report_key: string | null
+          store_name: string | null
           visible: boolean | null
-        }
-        Insert: {
-          artist_name?: string | null
-          id?: number | null
-          payment?: number | null
-          report_key?: string | null
-          visible?: boolean | null
-        }
-        Update: {
-          artist_name?: string | null
-          id?: number | null
-          payment?: number | null
-          report_key?: string | null
-          visible?: boolean | null
         }
         Relationships: []
       }
