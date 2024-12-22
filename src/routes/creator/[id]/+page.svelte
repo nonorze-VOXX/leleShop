@@ -57,7 +57,7 @@
 			await PageQueryData();
 		}
 	});
-	//
+
 	onDestroy(unsubscribe);
 </script>
 

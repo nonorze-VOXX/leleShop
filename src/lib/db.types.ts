@@ -35,21 +35,21 @@ export type Database = {
       }
       store: {
         Row: {
+          commision: number
           created_at: string
           id: number
-          remit: number
           store_name: string
         }
         Insert: {
+          commision?: number
           created_at?: string
           id?: number
-          remit?: number
           store_name: string
         }
         Update: {
+          commision?: number
           created_at?: string
           id?: number
-          remit?: number
           store_name?: string
         }
         Relationships: []
