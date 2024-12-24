@@ -6,7 +6,7 @@
 	import InfoBox from '../InfoBox.svelte';
 
 	export let net_total: number | null;
-	let commision: number | null = null;
+	let commission: number | null = null;
 
 	const unsubscribe = selectedStore.subscribe(async (e) => {
 		if (browser) {
@@ -18,12 +18,12 @@
 					.single();
 				if (error) {
 					console.log(error);
-					commision = null;
+					commission = null;
 					return;
 				}
-				commision = data.commision;
+				commission = data.default_commission;
 			} else {
-				commision = null;
+				commission = null;
 			}
 		}
 	});
@@ -32,8 +32,8 @@
 </script>
 
 {#if net_total != -1 && net_total !== null}
-	{#if commision}
-		<InfoBox title="匯款金額" value={Math.ceil(net_total * ((100 - commision) / 100))}></InfoBox>
+	{#if commission}
+		<InfoBox title="匯款金額" value={Math.ceil(net_total * ((100 - commission) / 100))}></InfoBox>
 	{:else}
 		<!-- <InfoBox title="匯款金額" value={'only support one store for this'}></InfoBox> -->
 	{/if}

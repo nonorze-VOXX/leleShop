@@ -22,7 +22,7 @@
 					commision = null;
 					return;
 				}
-				commision = data.commision;
+				commision = data.default_commission;
 			} else {
 				commision = null;
 			}

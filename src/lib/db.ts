@@ -1,4 +1,4 @@
-import { createClient, type QueryData } from '@supabase/supabase-js';
+import { createClient } from '@supabase/supabase-js';
 import { PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_KEY } from '$env/static/public';
 import { type Database } from './db.types';
 // import { PRIVATE_SUPABASE_KEY, PRIVATE_SUPABASE_URL } from '$env/static/private';
@@ -26,8 +26,6 @@ export type SalesTotalData = {
 };
 export const onePageLength = 100;
 
-const QueryArtistWithPaymentStatus = supabase.from('artist').select('*, artist_payment_status(*)');
-export type QueryArtistWithPaymentStatus = QueryData<typeof QueryArtistWithPaymentStatus>;
 
 export default {
 	async GetTradeTotalData(
