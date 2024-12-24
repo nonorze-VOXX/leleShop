@@ -4,7 +4,7 @@ create table "public"."store" (
     "store_name" text not null
 );
 
-insert into store (store_name) values ('The創 一中');
+insert into store (store_name) values ('The創');
 
 alter table "public"."store" enable row level security;
 

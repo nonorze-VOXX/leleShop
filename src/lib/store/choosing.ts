@@ -4,7 +4,12 @@ import { browser } from '$app/environment';
 // Get the value out of storage on load.
 let stored: string[] | '*' = '*';
 if (browser) {
-	stored = localStorage !== undefined ? JSON.parse(localStorage.selectedStore) : '*';
+	stored =
+		localStorage !== undefined
+			? localStorage.selectedStore
+				? JSON.parse(localStorage.selectedStore)
+				: '*'
+			: '*';
 }
 
 export const selectedStore = writable(stored || '[]');

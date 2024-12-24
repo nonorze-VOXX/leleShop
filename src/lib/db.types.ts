@@ -35,16 +35,19 @@ export type Database = {
       }
       store: {
         Row: {
+          commision: number
           created_at: string
           id: number
           store_name: string
         }
         Insert: {
+          commision?: number
           created_at?: string
           id?: number
           store_name: string
         }
         Update: {
+          commision?: number
           created_at?: string
           id?: number
           store_name?: string
@@ -178,21 +181,8 @@ export type Database = {
           id: number | null
           payment: number | null
           report_key: string | null
+          store_name: string | null
           visible: boolean | null
-        }
-        Insert: {
-          artist_name?: string | null
-          id?: number | null
-          payment?: number | null
-          report_key?: string | null
-          visible?: boolean | null
-        }
-        Update: {
-          artist_name?: string | null
-          id?: number | null
-          payment?: number | null
-          report_key?: string | null
-          visible?: boolean | null
         }
         Relationships: []
       }

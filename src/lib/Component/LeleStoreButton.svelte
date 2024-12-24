@@ -12,5 +12,9 @@
 	on:click
 	class="flex justify-between rounded-xl border-4 border-lele-line p-2 font-bold"
 >
-	<p>{text}</p>
+	{#if text === 'The創'}
+		<p>The創 一中</p>
+	{:else}
+		<p>{text}</p>
+	{/if}
 </button>

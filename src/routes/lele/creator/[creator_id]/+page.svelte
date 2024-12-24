@@ -22,9 +22,9 @@
 <div class="flex flex-col items-center gap-3">
 	<div class="flex flex-wrap justify-center gap-4 text-center text-sm font-semibold">
 		<InfoBox title={artist_name}></InfoBox>
-		<Commision bind:net_total></Commision>
+		<!-- <Commision bind:net_total></Commision> -->
 		<TradeCount bind:showedLength></TradeCount>
-		<Remit bind:net_total></Remit>
+		<!-- <Remit bind:net_total></Remit> -->
 
 		<!-- <DownloadButton bind:firstDate bind:lastDate bind:artist_id></DownloadButton> -->
 	</div>
