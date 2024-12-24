@@ -16,12 +16,12 @@
 		console.log(data);
 		storeData = data ?? [];
 	});
-	let newCommision: number;
-	async function updateRemit(id: number, commision: number) {
-		console.log(Number(commision));
+	let newCommission: number;
+	async function updateRemit(id: number, commission: number) {
+		console.log(Number(commission));
 		const { data, error } = await supabase
 			.from('store')
-			.update({ commision: commision })
+			.update({ default_commission: commission })
 			.eq('id', id)
 			.select()
 			.single();
@@ -41,7 +41,7 @@
 
 {#if storeData}
 	<form
-		on:submit={async () => await updateRemit(selectedStoreId, newCommision)}
+		on:submit={async () => await updateRemit(selectedStoreId, newCommission)}
 		class="m-2 flex w-fit justify-start gap-4 rounded-lg border-4 border-lele-line p-2 font-bold"
 	>
 		<select
@@ -57,8 +57,8 @@
 		<input
 			type="number"
 			required
-			bind:value={newCommision}
-			placeholder="Enter new remit"
+			bind:value={newCommission}
+			placeholder="Enter new commission"
 			class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
 		/>
 		<div class="justify-end">(%)</div>
@@ -71,7 +71,7 @@
 		<LeleThead>
 			<tr>
 				<th scope="col" class="w-auto p-2"> name </th>
-				<th scope="col" class="w-20 p-2">remit(%)</th>
+				<th scope="col" class="w-20 p-2">defaule_commission(%)</th>
 			</tr>
 		</LeleThead>
 		<LeleTbody>
@@ -81,7 +81,7 @@
 						{store.store_name}
 					</td>
 					<td>
-						{store.commision}
+						{store.default_commission}
 					</td>
 				</LeleTbodyTr>
 			{/each}

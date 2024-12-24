@@ -76,19 +76,19 @@ export type Database = {
       store: {
         Row: {
           created_at: string
-          default_commision: number
+          default_commission: number
           id: number
           store_name: string
         }
         Insert: {
           created_at?: string
-          default_commision?: number
+          default_commission?: number
           id?: number
           store_name: string
         }
         Update: {
           created_at?: string
-          default_commision?: number
+          default_commission?: number
           id?: number
           store_name?: string
         }

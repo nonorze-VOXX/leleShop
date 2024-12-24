@@ -1,3 +1,7 @@
+drop view if exists "public"."default_artist_view";
+
+drop view if exists "public"."artist_trade";
+
 create table "public"."artist_commission" (
     "artist_id" integer not null,
     "store_id" bigint not null,
@@ -6,6 +10,10 @@ create table "public"."artist_commission" (
 
 
 alter table "public"."artist_commission" enable row level security;
+
+alter table "public"."store" drop column "default_commision";
+
+alter table "public"."store" add column "default_commission" real not null default '10'::real;
 
 CREATE UNIQUE INDEX artist_commision_pkey ON public.artist_commission USING btree (artist_id, store_id);
 
@@ -18,6 +26,35 @@ alter table "public"."artist_commission" validate constraint "artist_commision_a
 alter table "public"."artist_commission" add constraint "artist_commision_store_id_fkey" FOREIGN KEY (store_id) REFERENCES store(id) ON UPDATE CASCADE ON DELETE CASCADE not valid;
 
 alter table "public"."artist_commission" validate constraint "artist_commision_store_id_fkey";
+
+create or replace view "public"."artist_trade" as  SELECT a.artist_name,
+    b.id,
+    b.trade_id,
+    b.item_name,
+    b.quantity,
+    b.total_sales,
+    b.discount,
+    b.net_sales,
+    b.artist_id,
+    h.trade_date,
+    s.store_name
+   FROM (((artist a
+     JOIN trade_body b ON ((a.id = b.artist_id)))
+     JOIN trade_head h ON ((b.trade_id = h.trade_id)))
+     LEFT JOIN store s ON ((s.id = h.store_id)));
+
+
+create or replace view "public"."default_artist_view" as  SELECT DISTINCT artist.id,
+    artist.artist_name,
+    artist.report_key,
+    artist.visible,
+    artist.payment,
+    artist_trade.store_name
+   FROM (artist
+     LEFT JOIN artist_trade ON ((artist_trade.artist_id = artist.id)))
+  WHERE artist.visible
+  ORDER BY artist.id;
+
 
 grant delete on table "public"."artist_commission" to "anon";
 
@@ -83,7 +120,6 @@ as permissive
 for update
 to authenticated
 using (true);
-
 
 
 
