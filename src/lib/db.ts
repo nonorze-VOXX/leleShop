@@ -4,6 +4,7 @@ import { type Database } from './db.types';
 // import { PRIVATE_SUPABASE_KEY, PRIVATE_SUPABASE_URL } from '$env/static/private';
 import { add } from './function/Utils';
 import DbArtistTrade from './db/DbArtistTrade';
+import DbCommission from './db/DbCommission';
 
 // export const supabase = createClient<Database>(PRIVATE_SUPABASE_URL, PRIVATE_SUPABASE_KEY);
 export const supabase = createClient<Database>(PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_KEY);
@@ -25,7 +26,6 @@ export type SalesTotalData = {
 	total_quantity: number;
 };
 export const onePageLength = 100;
-
 
 export default {
 	async GetTradeTotalData(
@@ -194,5 +194,6 @@ export default {
 			total_quantity: quantity ?? 0
 		};
 	},
-	artistTrade: DbArtistTrade
+	artistTrade: DbArtistTrade,
+	commission: DbCommission
 };

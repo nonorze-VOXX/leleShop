@@ -17,7 +17,7 @@
 		storeData = data ?? [];
 	});
 	let newCommission: number;
-	async function updateRemit(id: number, commission: number) {
+	async function updateCommission(id: number, commission: number) {
 		console.log(Number(commission));
 		const { data, error } = await supabase
 			.from('store')
@@ -35,25 +35,49 @@
 		if (data) storeData = storeData.map((item) => (item.id === id ? data : item));
 	}
 	let selectedStoreId: number;
+	const GetFirstDayOfMonth = (date: Date) =>
+		date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + '01';
+	const GetLastDayOfMonth = (date: Date) =>
+		date.getFullYear() +
+		'-' +
+		(date.getMonth() + 1) +
+		'-' +
+		new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
+	// console.log();
+	let dateRange: { start: string; end: string } = {
+		start: GetFirstDayOfMonth(new Date()),
+		end: GetLastDayOfMonth(new Date())
+	};
 </script>
 
 <h1>店家列表</h1>
 
 {#if storeData}
 	<form
-		on:submit={async () => await updateRemit(selectedStoreId, newCommission)}
+		on:submit={async () => await updateCommission(selectedStoreId, newCommission)}
 		class="m-2 flex w-fit justify-start gap-4 rounded-lg border-4 border-lele-line p-2 font-bold"
 	>
-		<select
-			bind:value={selectedStoreId}
+		<div>show date range</div>
+		<input
+			type="date"
 			required
+			bind:value={dateRange.start}
 			class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-		>
-			<option value="" disabled selected>Select a store</option>
-			{#each storeData as store}
-				<option value={store.id}>{store.store_name}</option>
-			{/each}
-		</select>
+		/>
+		<input
+			type="date"
+			required
+			bind:value={dateRange.end}
+			class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+		/>
+		<button type="submit">
+			<InfoBox title={'Update'}></InfoBox>
+		</button>
+	</form>
+	<!-- <form
+		on:submit={async () => await updateCommission(selectedStoreId, newCommission)}
+		class="m-2 flex w-fit justify-start gap-4 rounded-lg border-4 border-lele-line p-2 font-bold"
+	>
 		<input
 			type="number"
 			required
@@ -65,9 +89,9 @@
 		<button type="submit">
 			<InfoBox title={'Update'}></InfoBox>
 		</button>
-	</form>
+	</form> -->
 
-	<LeleTable>
+	<!-- <LeleTable>
 		<LeleThead>
 			<tr>
 				<th scope="col" class="w-auto p-2"> name </th>
@@ -86,5 +110,5 @@
 				</LeleTbodyTr>
 			{/each}
 		</LeleTbody>
-	</LeleTable>
+	</LeleTable> -->
 {/if}
