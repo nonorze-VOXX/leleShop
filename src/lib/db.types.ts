@@ -33,22 +33,62 @@ export type Database = {
         }
         Relationships: []
       }
+      artist_commission: {
+        Row: {
+          artist_id: number
+          commission: number | null
+          store_id: number
+        }
+        Insert: {
+          artist_id: number
+          commission?: number | null
+          store_id: number
+        }
+        Update: {
+          artist_id?: number
+          commission?: number | null
+          store_id?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "artist_commision_artist_id_fkey"
+            columns: ["artist_id"]
+            isOneToOne: false
+            referencedRelation: "artist"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "artist_commision_artist_id_fkey"
+            columns: ["artist_id"]
+            isOneToOne: false
+            referencedRelation: "default_artist_view"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "artist_commision_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "store"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       store: {
         Row: {
-          commision: number
           created_at: string
+          default_commision: number
           id: number
           store_name: string
         }
         Insert: {
-          commision?: number
           created_at?: string
+          default_commision?: number
           id?: number
           store_name: string
         }
         Update: {
-          commision?: number
           created_at?: string
+          default_commision?: number
           id?: number
           store_name?: string
         }
