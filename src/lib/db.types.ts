@@ -233,6 +233,7 @@ export type Database = {
         Row: {
           artist_id: number | null
           artist_name: string | null
+          commission: number | null
           effect_from_date: string | null
           store_id: number | null
           store_name: string | null
