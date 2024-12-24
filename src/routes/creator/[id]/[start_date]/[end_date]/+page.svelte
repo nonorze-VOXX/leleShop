@@ -2,8 +2,7 @@
 	import { onMount } from 'svelte';
 	import { DownloadData } from '$lib/function/Utils';
 	import { page } from '$app/stores';
-	import db from '$lib/db'; // need by DbArtistTrade for init supabase
-	import DbArtistTrade from '$lib/db/DbArtistTrade';
+	import db from '$lib/db';
 	import { selectedStore } from '$lib/store/choosing';
 
 	let error_message: string = '';
@@ -11,7 +10,7 @@
 		const artist_id = $page.params.id;
 		const start_date = new Date($page.params.start_date);
 		const end_date = new Date($page.params.end_date);
-		const { csv, error } = await DbArtistTrade.GetTradeCsv({
+		const { csv, error } = await db.artistTrade.GetTradeCsv({
 			id: parseInt(artist_id),
 			date: {
 				firstDate: start_date,

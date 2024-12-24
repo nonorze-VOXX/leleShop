@@ -7,7 +7,7 @@
 
 	export let net_total: number | null = null;
 
-	let commision: number | null = null;
+	let commission: number | null = null;
 
 	const unsubscribe = selectedStore.subscribe(async (e) => {
 		if (browser) {
@@ -19,12 +19,12 @@
 					.single();
 				if (error) {
 					console.log(error);
-					commision = null;
+					commission = null;
 					return;
 				}
-				commision = data.default_commission;
+				commission = data.default_commission;
 			} else {
-				commision = null;
+				commission = null;
 			}
 		}
 	});
@@ -32,7 +32,7 @@
 	onDestroy(unsubscribe);
 </script>
 
-{#if net_total != -1 && net_total !== null && commision}
-	<InfoBox title={'抽成' + commision + '%'} value={Math.floor(net_total * (commision / 100))}
+{#if net_total != -1 && net_total !== null && commission}
+	<InfoBox title={'抽成' + commission + '%'} value={Math.floor(net_total * (commission / 100))}
 	></InfoBox>
 {/if}

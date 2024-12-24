@@ -8,7 +8,7 @@
 	import db, { supabase } from '$lib/db';
 	import { page } from '$app/stores';
 	import TradeCount from '$lib/Component/reportComponent/TradeCount.svelte';
-	import Commision from '$lib/Component/reportComponent/Commision.svelte';
+	import Commission from '$lib/Component/reportComponent/Commission.svelte';
 	import Remit from '$lib/Component/reportComponent/Remit.svelte';
 	import InfoBox from '$lib/Component/InfoBox.svelte';
 	import { selectedStore } from '$lib/store/choosing';
