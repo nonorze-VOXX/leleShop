@@ -4,66 +4,129 @@
 	import LeleTbodyTr from '$lib/Component/htmlWrapper/LeleTbodyTr.svelte';
 	import LeleThead from '$lib/Component/htmlWrapper/LeleThead.svelte';
 	import InfoBox from '$lib/Component/InfoBox.svelte';
-	import { supabase, type StoreRow } from '$lib/db';
-	import { onMount } from 'svelte';
+	import { supabase, type ArtistRow, type StoreRow } from '$lib/db';
+	import type { CommissionViewRow } from '$lib/db/DbCommission';
+	import {
+		DateStringToDate,
+		GetFirstDayOfMonth,
+		GetLastDayOfMonth,
+		ThisMonthFirstDate
+	} from '$lib/function/Utils';
+	import { selectedStore } from '$lib/store/choosing';
+	import { onDestroy, onMount } from 'svelte';
 
-	let storeData: StoreRow[] = [];
-	onMount(async () => {
-		const { data, error } = await supabase.from('store').select('*');
-		if (error) {
-			console.error(error);
+	let showStoreName: string[] = [];
+	let commissionData: CommissionViewRow[] = [];
+	let yearMonthOption: string[] = [];
+	let choosingArtist: number[] = [];
+	let choosingStoreName: string[] = [];
+	// let storeData: StoreRow[] = [];
+	let artistData: ArtistRow[] = [];
+
+	let choosingDate =
+		ThisMonthFirstDate().getFullYear() +
+		'-' +
+		(ThisMonthFirstDate().getMonth() + 1).toString().padStart(2, '0') +
+		'-01';
+	onDestroy(
+		selectedStore.subscribe(async () => {
+			await OnStoreChnage();
+		})
+	);
+	async function OnStoreChnage() {
+		{
+			if ($selectedStore === '*') {
+				const { data, error } = await supabase.from('store').select('*');
+				if (error) {
+					console.error(error);
+				}
+				// storeData = data ?? [];
+				showStoreName = (data ?? []).map((item) => item.store_name);
+				$selectedStore = showStoreName;
+			} else {
+				showStoreName = $selectedStore;
+			}
+			choosingStoreName = choosingStoreName.filter((item) => showStoreName.includes(item));
 		}
-		console.log(data);
-		storeData = data ?? [];
+		await QueryCommissionData();
+	}
+
+	async function QueryCommissionData() {
+		{
+			// YYYY-MM-DD to YYYY-MM
+			const f = choosingDate.split('-');
+			const yearMonth = f[0] + '-' + f[1];
+			let query = supabase.from('default_commission_view').select('*').eq('year_month', yearMonth);
+
+			//@ts-ignore
+			if ($selectedStore !== '*') query = query.in('store_name', $selectedStore);
+
+			const { data, error } = await query;
+			if (error) {
+				console.error(error);
+			}
+			commissionData = data ?? [];
+		}
+	}
+	onMount(async () => {
+		{
+			const { data, error } = await supabase
+				.from('default_commission_view')
+				//@ts-ignore
+				.select('year_month', { distinct: true })
+				.order('year_month', { ascending: false });
+			if (error) {
+				console.error(error);
+			}
+			console.log(data);
+			yearMonthOption = (data ?? []).map((item) => item.year_month ?? '');
+		}
+		{
+			const { data, error } = await supabase.from('artist').select('*');
+			if (error) {
+				console.error(error);
+			}
+			artistData = data ?? [];
+		}
+		choosingArtist = [];
+		// todo : get artist use store filter
+		choosingStoreName = [];
 	});
 	let newCommission: number;
 	async function updateCommission(id: number, commission: number) {
-		console.log(Number(commission));
-		const { data, error } = await supabase
-			.from('store')
-			.update({ default_commission: commission })
-			.eq('id', id)
-			.select()
-			.single();
-		console.log(error);
-		console.log(data);
-		if (error) {
-			console.error(error);
-			alert(error);
-			return;
-		}
-		if (data) storeData = storeData.map((item) => (item.id === id ? data : item));
+		// console.log(Number(commission));
+		// const { data, error } = await supabase
+		// 	.from('store')
+		// 	.update({ default_commission: commission })
+		// 	.eq('id', id)
+		// 	.select()
+		// 	.single();
+		// console.log(error);
+		// console.log(data);
+		// if (error) {
+		// 	console.error(error);
+		// 	alert(error);
+		// 	return;
+		// }
+		// if (data) commissionData = commissionData.map((item) => (item.id === id ? data : item));
 	}
-	let selectedStoreId: number;
-	const GetFirstDayOfMonth = (date: Date) =>
-		date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + '01';
-	const GetLastDayOfMonth = (date: Date) =>
-		date.getFullYear() +
-		'-' +
-		(date.getMonth() + 1) +
-		'-' +
-		new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
 	// console.log();
-	let dateRange: { start: string; end: string } = {
-		start: GetFirstDayOfMonth(new Date()),
-		end: GetLastDayOfMonth(new Date())
-	};
+
+	async function updateChoosingDate(e: Event) {
+		await QueryCommissionData();
+	}
 </script>
 
-<h1>店家列表</h1>
+<!-- todo: only show visible shop -->
+<input type="date" bind:value={choosingDate} on:change={updateChoosingDate} />
+<span>choose date only see year and month</span>
 
-{#if storeData}
-	<form
+{#if commissionData}
+	<!-- <form
 		on:submit={async () => await updateCommission(selectedStoreId, newCommission)}
 		class="m-2 flex w-fit justify-start gap-4 rounded-lg border-4 border-lele-line p-2 font-bold"
 	>
-		<div>show date range</div>
-		<input
-			type="date"
-			required
-			bind:value={dateRange.start}
-			class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-		/>
+		<div>show month</div>
 		<input
 			type="date"
 			required
@@ -73,7 +136,7 @@
 		<button type="submit">
 			<InfoBox title={'Update'}></InfoBox>
 		</button>
-	</form>
+	</form> -->
 	<!-- <form
 		on:submit={async () => await updateCommission(selectedStoreId, newCommission)}
 		class="m-2 flex w-fit justify-start gap-4 rounded-lg border-4 border-lele-line p-2 font-bold"
@@ -91,24 +154,66 @@
 		</button>
 	</form> -->
 
-	<!-- <LeleTable>
+	<LeleTable>
 		<LeleThead>
 			<tr>
 				<th scope="col" class="w-auto p-2"> name </th>
-				<th scope="col" class="w-20 p-2">defaule_commission(%)</th>
+				{#each showStoreName as s}
+					<th scope="col" class="w-20 p-2">
+						<input
+							type="checkbox"
+							on:click={(e) => {
+								//@ts-ignore
+								if (e?.target?.checked) {
+									choosingStoreName = [...choosingStoreName, s];
+								} else {
+									choosingStoreName = choosingStoreName.filter((item) => item !== s);
+								}
+							}}
+							checked={choosingStoreName.includes(s)}
+						/>
+						<span>
+							{s.split(' ').length !== 1 ? s.split(' ')[1] : s}
+						</span>
+					</th>
+				{/each}
 			</tr>
 		</LeleThead>
 		<LeleTbody>
-			{#each storeData as store}
+			{#each artistData as artist}
 				<LeleTbodyTr>
 					<td>
-						{store.store_name}
+						<input
+							type="checkbox"
+							on:click={(e) => {
+								//@ts-ignore
+								if (e?.target?.checked) {
+									choosingArtist = [...choosingArtist, artist.id];
+								} else {
+									choosingArtist = choosingArtist.filter((item) => item !== artist.id);
+								}
+							}}
+							checked={choosingArtist.includes(artist.id)}
+						/>
+						<span>
+							{artist.artist_name}
+						</span>
 					</td>
-					<td>
-						{store.default_commission}
-					</td>
+					{#if showStoreName}
+						{#each showStoreName as s}
+							<td>
+								{commissionData.find(
+									(item) => item.store_name === s && item.artist_id === artist.id
+								)
+									? commissionData.find(
+											(item) => item.store_name === s && item.artist_id === artist.id
+										)?.commission
+									: 10}
+							</td>
+						{/each}
+					{/if}
 				</LeleTbodyTr>
 			{/each}
 		</LeleTbody>
-	</LeleTable> -->
+	</LeleTable>
 {/if}

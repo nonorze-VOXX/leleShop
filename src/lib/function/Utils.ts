@@ -12,8 +12,8 @@ export const FormatDate = (dateStr: string | null | undefined) => {
 		.replace(/-/g, '/');
 };
 
-export function FormatNumberToTwoDigi(month: string) {
-	return month.length === 1 ? '0' + month : month;
+export function FormatNumberToTwoDigi(n: string) {
+	return n.padStart(2, '0');
 }
 
 export const randomNumber = (length: number) => {

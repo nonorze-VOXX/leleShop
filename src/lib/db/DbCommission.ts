@@ -4,18 +4,16 @@ import type { Database } from '$lib/db.types';
 export type CommissionRow = Database['public']['Tables']['artist_commission']['Row'];
 export type CommissionInsert = Database['public']['Tables']['artist_commission']['Insert'];
 export type CommissionUpdate = Database['public']['Tables']['artist_commission']['Update'];
+export type CommissionViewRow = Database['public']['Views']['default_commission_view']['Row'];
 export default {
 	async GetCommissionDataByDateMax({
 		artist_id,
 		store_id,
-		dateRange
+		year_month
 	}: {
 		artist_id?: number;
 		store_id?: number;
-		dateRange?: {
-			start?: Date;
-			end?: Date;
-		};
+		year_month?: string;
 	}) {
 		// limit use one artist one store one time can get single commission
 
@@ -31,13 +29,8 @@ export default {
 		if (store_id) {
 			query = query.eq('store_id', store_id);
 		}
-		if (dateRange) {
-			if (dateRange.start) {
-				query = query.gte('effect_from_date', dateRange.start.toISOString());
-			}
-			if (dateRange.end) {
-				query = query.lt('effect_from_date', dateRange.end.toISOString());
-			}
+		if (year_month) {
+			query = query.gte('year_month', year_month);
 		}
 
 		const { data, error } = await query;
@@ -48,7 +41,10 @@ export default {
 		return { data, error };
 	},
 	async Save(insert: CommissionInsert) {
-		const { data: commission, error } = await supabase.from('artist_commission').insert(insert);
+		const { data: commission, error } = await supabase
+			.from('artist_commission')
+			.insert(insert)
+			.select();
 		if (error) {
 			console.error(error);
 		}
