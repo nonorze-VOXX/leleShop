@@ -20,7 +20,7 @@
 	let yearMonthOption: string[] = [];
 	let choosingArtist: number[] = [];
 	let choosingStoreName: string[] = [];
-	// let storeData: StoreRow[] = [];
+	let storeData: StoreRow[] = [];
 	let artistData: ArtistRow[] = [];
 
 	let choosingDate =
@@ -40,7 +40,7 @@
 				if (error) {
 					console.error(error);
 				}
-				// storeData = data ?? [];
+				storeData = data ?? [];
 				showStoreName = (data ?? []).map((item) => item.store_name);
 				$selectedStore = showStoreName;
 			} else {
@@ -88,29 +88,78 @@
 			}
 			artistData = data ?? [];
 		}
+		{
+			const { data, error } = await supabase.from('store').select('*');
+			if (error) {
+				console.error(error);
+			}
+			storeData = data ?? [];
+		}
 		choosingArtist = [];
 		// todo : get artist use store filter
 		choosingStoreName = [];
 	});
 	let newCommission: number;
-	async function updateCommission(id: number, commission: number) {
-		// console.log(Number(commission));
-		// const { data, error } = await supabase
-		// 	.from('store')
-		// 	.update({ default_commission: commission })
-		// 	.eq('id', id)
-		// 	.select()
-		// 	.single();
-		// console.log(error);
-		// console.log(data);
-		// if (error) {
-		// 	console.error(error);
-		// 	alert(error);
-		// 	return;
-		// }
-		// if (data) commissionData = commissionData.map((item) => (item.id === id ? data : item));
+	async function updateCommission() {
+		const toInsert = [];
+		// const toUpdate = [];
+
+		for (const artistId of choosingArtist) {
+			for (const storeName of choosingStoreName) {
+				const storeId = storeData.find((item) => item.store_name === storeName)?.id;
+				if (!storeId) continue;
+
+				const existingCommission = commissionData.find(
+					(item) => item.artist_id === artistId && item.store_name === storeName
+				);
+
+				if (existingCommission) {
+					// toUpdate.push({ artist_id: artistId, store_id: storeId, commission: newCommission });
+				} else {
+					toInsert.push({
+						artist_id: artistId,
+						store_id: storeId,
+						commission: newCommission,
+						year_month: choosingDate.split('-').slice(0, 2).join('-')
+					});
+				}
+			}
+		}
+
+		const { data, error } = await supabase
+			.from('artist_commission')
+			.update({ commission: newCommission })
+			.eq('year_month', choosingDate.split('-').slice(0, 2).join('-'))
+			.in(
+				'store_id',
+				storeData
+					.filter((item) => choosingStoreName.includes(item.store_name))
+					.map((item) => item.id)
+			)
+			.in('artist_id', choosingArtist)
+			.select();
+		console.log(data);
+
+		if (error) {
+			console.error(error);
+			alert(`Error updating commissions: ${error.message}`);
+			return;
+		}
+
+		if (toInsert.length > 0) {
+			const { data, error } = await supabase.from('artist_commission').insert(toInsert).select();
+
+			if (error) {
+				console.error(error);
+				alert(`Error inserting commissions: ${error.message}`);
+				return;
+			}
+			console.log(data);
+		}
+
+		alert('Commission updated successfully');
+		await QueryCommissionData();
 	}
-	// console.log();
 
 	async function updateChoosingDate(e: Event) {
 		await QueryCommissionData();
@@ -122,23 +171,11 @@
 <span>choose date only see year and month</span>
 
 {#if commissionData}
-	<!-- <form
-		on:submit={async () => await updateCommission(selectedStoreId, newCommission)}
-		class="m-2 flex w-fit justify-start gap-4 rounded-lg border-4 border-lele-line p-2 font-bold"
-	>
-		<div>show month</div>
-		<input
-			type="date"
-			required
-			bind:value={dateRange.end}
-			class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-		/>
-		<button type="submit">
-			<InfoBox title={'Update'}></InfoBox>
-		</button>
-	</form> -->
-	<!-- <form
-		on:submit={async () => await updateCommission(selectedStoreId, newCommission)}
+	<form
+		on:submit={async () => {
+			alert('update');
+			await updateCommission();
+		}}
 		class="m-2 flex w-fit justify-start gap-4 rounded-lg border-4 border-lele-line p-2 font-bold"
 	>
 		<input
@@ -146,13 +183,15 @@
 			required
 			bind:value={newCommission}
 			placeholder="Enter new commission"
+			min="0"
+			max="100"
 			class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
 		/>
 		<div class="justify-end">(%)</div>
 		<button type="submit">
 			<InfoBox title={'Update'}></InfoBox>
 		</button>
-	</form> -->
+	</form>
 
 	<LeleTable>
 		<LeleThead>
