@@ -102,42 +102,96 @@
 	let newCommission: number;
 	async function updateCommission() {
 		const toInsert = [];
-		// const toUpdate = [];
 
-		for (const artistId of choosingArtist) {
-			for (const storeName of choosingStoreName) {
-				const storeId = storeData.find((item) => item.store_name === storeName)?.id;
-				if (!storeId) continue;
+		if (choosingArtist.length === 0 && choosingStoreName.length === 0) {
+			alert('Please select at least one artist or store');
+			return;
+		} else if (choosingArtist.length !== 0 && choosingStoreName.length !== 0) {
+			for (const artistId of choosingArtist) {
+				for (const storeName of choosingStoreName) {
+					const storeId = storeData.find((item) => item.store_name === storeName)?.id;
+					if (!storeId) continue;
 
-				const existingCommission = commissionData.find(
-					(item) => item.artist_id === artistId && item.store_name === storeName
-				);
+					const existingCommission = commissionData.find(
+						(item) => item.artist_id === artistId && item.store_name === storeName
+					);
 
-				if (existingCommission) {
-					// toUpdate.push({ artist_id: artistId, store_id: storeId, commission: newCommission });
-				} else {
-					toInsert.push({
-						artist_id: artistId,
-						store_id: storeId,
-						commission: newCommission,
-						year_month: choosingDate.split('-').slice(0, 2).join('-')
-					});
+					if (!existingCommission) {
+						toInsert.push({
+							artist_id: artistId,
+							store_id: storeId,
+							commission: newCommission,
+							year_month: choosingDate.split('-').slice(0, 2).join('-')
+						});
+					}
+				}
+			}
+		} else if (choosingArtist.length !== 0) {
+			for (const artistId of choosingArtist) {
+				for (const store of storeData) {
+					const storeId = store.id;
+					const storeName = store.store_name;
+					const existingCommission = commissionData.find(
+						(item) => item.artist_id === artistId && item.store_name === storeName
+					);
+
+					if (!existingCommission) {
+						toInsert.push({
+							artist_id: artistId,
+							store_id: storeId,
+							commission: newCommission,
+							year_month: choosingDate.split('-').slice(0, 2).join('-')
+						});
+					}
+				}
+			}
+		} else if (choosingStoreName.length !== 0) {
+			for (const artist of artistData) {
+				const artistId = artist.id;
+				for (const storeName of choosingStoreName) {
+					const storeId = storeData.find((item) => item.store_name === storeName)?.id;
+					if (!storeId) continue;
+
+					const existingCommission = commissionData.find(
+						(item) => item.artist_id === artistId && item.store_name === storeName
+					);
+
+					if (!existingCommission) {
+						toInsert.push({
+							artist_id: artistId,
+							store_id: storeId,
+							commission: newCommission,
+							year_month: choosingDate.split('-').slice(0, 2).join('-')
+						});
+					}
 				}
 			}
 		}
 
-		const { data, error } = await supabase
+		let query = supabase
 			.from('artist_commission')
 			.update({ commission: newCommission })
-			.eq('year_month', choosingDate.split('-').slice(0, 2).join('-'))
-			.in(
+			.eq('year_month', choosingDate.split('-').slice(0, 2).join('-'));
+
+		if (choosingStoreName.length > 0 && choosingArtist.length > 0)
+			query = query
+				.in(
+					'store_id',
+					storeData
+						.filter((item) => choosingStoreName.includes(item.store_name))
+						.map((item) => item.id)
+				)
+				.in('artist_id', choosingArtist);
+		else if (choosingStoreName.length > 0)
+			query = query.in(
 				'store_id',
 				storeData
 					.filter((item) => choosingStoreName.includes(item.store_name))
 					.map((item) => item.id)
-			)
-			.in('artist_id', choosingArtist)
-			.select();
+			);
+		else if (choosingArtist.length > 0) query = query.in('artist_id', choosingArtist);
+
+		const { data, error } = await query.select();
 		console.log(data);
 
 		if (error) {
@@ -157,7 +211,6 @@
 			console.log(data);
 		}
 
-		alert('Commission updated successfully');
 		await QueryCommissionData();
 	}
 
@@ -173,7 +226,6 @@
 {#if commissionData}
 	<form
 		on:submit={async () => {
-			alert('update');
 			await updateCommission();
 		}}
 		class="m-2 flex w-fit justify-start gap-4 rounded-lg border-4 border-lele-line p-2 font-bold"
