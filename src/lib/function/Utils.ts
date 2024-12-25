@@ -43,6 +43,13 @@ export const GetLastDayOfMonth = (date: Date) => {
 	const firstDay: Date = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth() + 1, 0));
 	return firstDay.toISOString().split('T')[0];
 };
+
+// limit dateStr format to 'yyyy-mm-dd'
+export const DateStringToDate = (dateStr: string) => {
+	const date = new Date(dateStr);
+	return new Date(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate());
+};
+
 export const GetAllMonth = () => {
 	return ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12'];
 };
