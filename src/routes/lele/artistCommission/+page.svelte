@@ -201,7 +201,13 @@
 					</td>
 					{#if showStoreName}
 						{#each showStoreName as s}
-							<td>
+							<td
+								class:bg-orange-900={choosingArtist.includes(artist.id) ||
+									choosingStoreName.includes(s)}
+								class:text-white={choosingArtist.includes(artist.id) ||
+									choosingStoreName.includes(s)}
+								class="duration-300 ease-in-out"
+							>
 								{commissionData.find(
 									(item) => item.store_name === s && item.artist_id === artist.id
 								)
