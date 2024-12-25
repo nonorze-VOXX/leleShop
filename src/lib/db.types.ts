@@ -37,20 +37,20 @@ export type Database = {
         Row: {
           artist_id: number
           commission: number
-          effect_from_date: string
           store_id: number
+          year_month: string
         }
         Insert: {
           artist_id: number
           commission: number
-          effect_from_date?: string
           store_id: number
+          year_month: string
         }
         Update: {
           artist_id?: number
           commission?: number
-          effect_from_date?: string
           store_id?: number
+          year_month?: string
         }
         Relationships: [
           {
@@ -234,9 +234,9 @@ export type Database = {
           artist_id: number | null
           artist_name: string | null
           commission: number | null
-          effect_from_date: string | null
           store_id: number | null
           store_name: string | null
+          year_month: string | null
         }
         Relationships: [
           {
