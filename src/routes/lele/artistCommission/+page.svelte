@@ -159,22 +159,24 @@
 			<tr>
 				<th scope="col" class="w-auto p-2"> name </th>
 				{#each showStoreName as s}
-					<th scope="col" class="w-20 p-2">
-						<input
-							type="checkbox"
-							on:click={(e) => {
-								//@ts-ignore
-								if (e?.target?.checked) {
-									choosingStoreName = [...choosingStoreName, s];
-								} else {
-									choosingStoreName = choosingStoreName.filter((item) => item !== s);
-								}
-							}}
-							checked={choosingStoreName.includes(s)}
-						/>
-						<span>
-							{s.split(' ').length !== 1 ? s.split(' ')[1] : s}
-						</span>
+					<th scope="col" class="w-20">
+						<label class="flex h-full w-full cursor-pointer items-center justify-center p-2">
+							<input
+								type="checkbox"
+								on:click={(e) => {
+									//@ts-ignore
+									if (e?.target?.checked) {
+										choosingStoreName = [...choosingStoreName, s];
+									} else {
+										choosingStoreName = choosingStoreName.filter((item) => item !== s);
+									}
+								}}
+								checked={choosingStoreName.includes(s)}
+							/>
+							<span>
+								{s.split(' ').length !== 1 ? s.split(' ')[1] : s}
+							</span>
+						</label>
 					</th>
 				{/each}
 			</tr>
@@ -183,21 +185,23 @@
 			{#each artistData as artist}
 				<LeleTbodyTr>
 					<td>
-						<input
-							type="checkbox"
-							on:click={(e) => {
-								//@ts-ignore
-								if (e?.target?.checked) {
-									choosingArtist = [...choosingArtist, artist.id];
-								} else {
-									choosingArtist = choosingArtist.filter((item) => item !== artist.id);
-								}
-							}}
-							checked={choosingArtist.includes(artist.id)}
-						/>
-						<span>
-							{artist.artist_name}
-						</span>
+						<label class="flex w-full cursor-pointer items-center">
+							<input
+								type="checkbox"
+								on:click={(e) => {
+									//@ts-ignore
+									if (e?.target?.checked) {
+										choosingArtist = [...choosingArtist, artist.id];
+									} else {
+										choosingArtist = choosingArtist.filter((item) => item !== artist.id);
+									}
+								}}
+								checked={choosingArtist.includes(artist.id)}
+							/>
+							<span>
+								{artist.artist_name}
+							</span>
+						</label>
 					</td>
 					{#if showStoreName}
 						{#each showStoreName as s}
