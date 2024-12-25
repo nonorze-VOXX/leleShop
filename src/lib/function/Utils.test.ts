@@ -1,5 +1,5 @@
-import { expect, test } from 'vitest';
-import { FormatDate } from './Utils';
+import { describe, expect, test } from 'vitest';
+import { FormatDate, GetFirstDayOfMonth, GetLastDayOfMonth } from './Utils';
 
 test.each([
 	{ dateStr: '2024-01-01 19:00', answer: '2024/01/01' },
@@ -57,4 +57,32 @@ test('js ? check', () => {
 		const result = un ?? true;
 		expect(result).toBe(true);
 	}
+});
+
+describe('Date function', () => {
+	describe('GetFirstDayOfMonth', () => {
+		test.each(['2024-12-01', '2024-12-31'])('2024-12-01', (d) => {
+			const date = new Date(d);
+			const result = GetFirstDayOfMonth(date);
+			expect(result).toBe('2024-12-01');
+		});
+		test.each(['2024-11-01', '2024-11-30'])('2024-11-01', (d) => {
+			const date = new Date(d);
+			const result = GetFirstDayOfMonth(date);
+			expect(result).toBe('2024-11-01');
+		});
+		test.each(['2025-01-01', '2025-01-30'])('2025-01-01', (d) => {
+			const date = new Date(d);
+			const result = GetFirstDayOfMonth(date);
+			expect(result).toBe('2025-01-01');
+		});
+	}),
+		describe('GetLastDayOfMonth', () => {
+			test.each(['2024-12-01', '2024-12-31'])('2024-12-31', (d) => {
+				expect(GetLastDayOfMonth(new Date(d))).toBe('2024-12-31');
+			});
+			test.each(['2025-01-01', '2025-01-31'])('2025-01-31', (d) => {
+				expect(GetLastDayOfMonth(new Date(d))).toBe('2025-01-31');
+			});
+		});
 });

@@ -35,6 +35,14 @@ export const NextMonthFirstDate = (offset: number = 0) => {
 	return new Date(date.getFullYear(), date.getMonth() + 1 + offset, 1);
 };
 
+export const GetFirstDayOfMonth = (date: Date) => {
+	const firstDay: Date = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), 1));
+	return firstDay.toISOString().split('T')[0];
+};
+export const GetLastDayOfMonth = (date: Date) => {
+	const firstDay: Date = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth() + 1, 0));
+	return firstDay.toISOString().split('T')[0];
+};
 export const GetAllMonth = () => {
 	return ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12'];
 };
