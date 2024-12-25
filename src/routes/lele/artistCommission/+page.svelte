@@ -6,12 +6,7 @@
 	import InfoBox from '$lib/Component/InfoBox.svelte';
 	import { supabase, type ArtistRow, type StoreRow } from '$lib/db';
 	import type { CommissionViewRow } from '$lib/db/DbCommission';
-	import {
-		DateStringToDate,
-		GetFirstDayOfMonth,
-		GetLastDayOfMonth,
-		ThisMonthFirstDate
-	} from '$lib/function/Utils';
+	import { ThisMonthFirstDate } from '$lib/function/Utils';
 	import { selectedStore } from '$lib/store/choosing';
 	import { onDestroy, onMount } from 'svelte';
 
@@ -28,78 +23,79 @@
 		'-' +
 		(ThisMonthFirstDate().getMonth() + 1).toString().padStart(2, '0') +
 		'-01';
+
 	onDestroy(
 		selectedStore.subscribe(async () => {
-			await OnStoreChnage();
+			await OnStoreChange();
 		})
 	);
-	async function OnStoreChnage() {
-		{
-			if ($selectedStore === '*') {
-				const { data, error } = await supabase.from('store').select('*');
-				if (error) {
-					console.error(error);
-				}
-				storeData = data ?? [];
-				showStoreName = (data ?? []).map((item) => item.store_name);
-				$selectedStore = showStoreName;
-			} else {
-				showStoreName = $selectedStore;
-			}
-			choosingStoreName = choosingStoreName.filter((item) => showStoreName.includes(item));
-		}
-		await QueryCommissionData();
-	}
 
-	async function QueryCommissionData() {
-		{
-			// YYYY-MM-DD to YYYY-MM
-			const f = choosingDate.split('-');
-			const yearMonth = f[0] + '-' + f[1];
-			let query = supabase.from('default_commission_view').select('*').eq('year_month', yearMonth);
-
-			//@ts-ignore
-			if ($selectedStore !== '*') query = query.in('store_name', $selectedStore);
-
-			const { data, error } = await query;
-			if (error) {
-				console.error(error);
-			}
-			commissionData = data ?? [];
-		}
-	}
-	onMount(async () => {
-		{
-			const { data, error } = await supabase
-				.from('default_commission_view')
-				//@ts-ignore
-				.select('year_month', { distinct: true })
-				.order('year_month', { ascending: false });
-			if (error) {
-				console.error(error);
-			}
-			console.log(data);
-			yearMonthOption = (data ?? []).map((item) => item.year_month ?? '');
-		}
-		{
-			const { data, error } = await supabase.from('artist').select('*');
-			if (error) {
-				console.error(error);
-			}
-			artistData = data ?? [];
-		}
-		{
+	async function OnStoreChange() {
+		if ($selectedStore === '*') {
 			const { data, error } = await supabase.from('store').select('*');
 			if (error) {
 				console.error(error);
 			}
 			storeData = data ?? [];
+			showStoreName = (data ?? []).map((item) => item.store_name);
+			$selectedStore = showStoreName;
+		} else {
+			showStoreName = $selectedStore;
 		}
+		choosingStoreName = choosingStoreName.filter((item) => showStoreName.includes(item));
+		await QueryCommissionData();
+	}
+
+	async function QueryCommissionData() {
+		const yearMonth = choosingDate.split('-').slice(0, 2).join('-');
+		let query = supabase.from('default_commission_view').select('*').eq('year_month', yearMonth);
+
+		//@ts-ignore
+		if ($selectedStore !== '*') query = query.in('store_name', $selectedStore);
+
+		const { data, error } = await query;
+		if (error) {
+			console.error(error);
+		}
+		commissionData = data ?? [];
+	}
+
+	onMount(async () => {
+		await loadInitialData();
+	});
+
+	async function loadInitialData() {
+		const { data: yearMonthData, error: yearMonthError } = await supabase
+			.from('default_commission_view')
+			//@ts-ignore
+			.select('year_month', { distinct: true })
+			.order('year_month', { ascending: false });
+		if (yearMonthError) {
+			console.error(yearMonthError);
+		}
+		yearMonthOption = (yearMonthData ?? []).map((item) => item.year_month ?? '');
+
+		const { data: artistDataResponse, error: artistError } = await supabase
+			.from('artist')
+			.select('*');
+		if (artistError) {
+			console.error(artistError);
+		}
+		artistData = artistDataResponse ?? [];
+
+		const { data: storeDataResponse, error: storeError } = await supabase.from('store').select('*');
+		if (storeError) {
+			console.error(storeError);
+		}
+		storeData = storeDataResponse ?? [];
+
 		choosingArtist = [];
 		// todo : get artist use store filter
 		choosingStoreName = [];
-	});
+	}
+
 	let newCommission: number;
+
 	async function updateCommission() {
 		const toInsert = [];
 
