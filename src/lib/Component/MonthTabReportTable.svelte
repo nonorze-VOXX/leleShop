@@ -36,8 +36,7 @@
 		});
 	};
 
-	// let yearRange = { min: min_year, max: new Date().getFullYear() };
-	let yearRange = { min: min_year, max: 2025 };
+	let yearRange = { min: min_year, max: new Date().getFullYear() };
 
 	$: {
 		showedTradeDataList = tradeDataList;
