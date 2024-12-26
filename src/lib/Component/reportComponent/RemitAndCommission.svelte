@@ -20,14 +20,14 @@
 					.select('*')
 					.eq('store_name', $selectedStore[0])
 					.eq('artist_id', artist_id)
-					.eq('year_month', year_month)
-					.single();
+					.eq('year_month', year_month);
 				if (error) {
 					// console.error(error);
 					commission = null;
 					return;
 				}
-				commission = data.commission;
+				if (data.length === 1) commission = data[0].commission;
+				else commission = 10; // default commission
 			} else {
 				commission = null;
 			}
