@@ -50,7 +50,6 @@
 		const yearMonth = choosingDate.split('-').slice(0, 2).join('-');
 		let query = supabase.from('default_commission_view').select('*').eq('year_month', yearMonth);
 
-		//@ts-ignore
 		if ($selectedStore !== '*') query = query.in('store_name', $selectedStore);
 
 		const { data, error } = await query;
@@ -67,7 +66,7 @@
 	async function loadInitialData() {
 		const { data: yearMonthData, error: yearMonthError } = await supabase
 			.from('default_commission_view')
-			//@ts-ignore
+			//@ts-expect-error
 			.select('year_month', { distinct: true })
 			.order('year_month', { ascending: false });
 		if (yearMonthError) {
@@ -214,7 +213,7 @@
 		await QueryCommissionData();
 	}
 
-	async function updateChoosingDate(e: Event) {
+	async function updateChoosingDate() {
 		await QueryCommissionData();
 	}
 </script>
