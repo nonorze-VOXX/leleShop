@@ -13,20 +13,16 @@
 		if (error) {
 			console.error(error);
 		}
-		console.log(data);
 		storeData = data ?? [];
 	});
 	let newCommission: number;
 	async function updateRemit(id: number, commission: number) {
-		console.log(Number(commission));
 		const { data, error } = await supabase
 			.from('store')
 			.update({ default_commission: commission })
 			.eq('id', id)
 			.select()
 			.single();
-		console.log(error);
-		console.log(data);
 		if (error) {
 			console.error(error);
 			alert(error);

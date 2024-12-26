@@ -124,7 +124,6 @@
 			}
 		} else if (choosingArtist.length !== 0) {
 			for (const artistId of choosingArtist) {
-				console.log(showStoreName);
 				for (const storeName of showStoreName) {
 					const storeId = storeData.find((item) => item.store_name === storeName)?.id;
 					if (!storeId) continue;
@@ -195,7 +194,6 @@
 		}
 
 		const { data, error } = await query.select();
-		console.log(data);
 
 		if (error) {
 			console.error(error);
@@ -211,7 +209,6 @@
 				alert(`Error inserting commissions: ${error.message}`);
 				return;
 			}
-			console.log(data);
 		}
 
 		await QueryCommissionData();

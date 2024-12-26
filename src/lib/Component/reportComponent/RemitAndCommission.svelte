@@ -22,7 +22,7 @@
 					.eq('year_month', year_month)
 					.single();
 				if (error) {
-					console.log(error);
+					console.error(error);
 					commission = null;
 					return;
 				}
