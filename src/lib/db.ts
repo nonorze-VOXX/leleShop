@@ -194,6 +194,22 @@ export default {
 			total_quantity: quantity ?? 0
 		};
 	},
+	async GetTradeDataMinYear() {
+		const { data, error } = await supabase
+			.from('artist_trade')
+			.select('trade_date')
+			.order('trade_date')
+			.limit(1)
+			.single();
+		if (error) {
+			console.error(error);
+			return { data: null, error };
+		}
+		return {
+			data: new Date(data.trade_date ?? '').getFullYear(),
+			error: null
+		};
+	},
 	artistTrade: DbArtistTrade,
 	commission: DbCommission
 };
