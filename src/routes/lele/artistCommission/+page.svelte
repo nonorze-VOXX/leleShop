@@ -90,7 +90,7 @@
 		storeData = storeDataResponse ?? [];
 
 		choosingArtist = [];
-		// todo : get artist use store filter
+		// todo : get artist use store filter, and when only choose store, only modify artist in show
 		choosingStoreName = [];
 	}
 
@@ -124,9 +124,11 @@
 			}
 		} else if (choosingArtist.length !== 0) {
 			for (const artistId of choosingArtist) {
-				for (const store of storeData) {
-					const storeId = store.id;
-					const storeName = store.store_name;
+				console.log(showStoreName);
+				for (const storeName of showStoreName) {
+					const storeId = storeData.find((item) => item.store_name === storeName)?.id;
+					if (!storeId) continue;
+
 					const existingCommission = commissionData.find(
 						(item) => item.artist_id === artistId && item.store_name === storeName
 					);
@@ -185,7 +187,12 @@
 					.filter((item) => choosingStoreName.includes(item.store_name))
 					.map((item) => item.id)
 			);
-		else if (choosingArtist.length > 0) query = query.in('artist_id', choosingArtist);
+		else if (choosingArtist.length > 0) {
+			query = query.in('artist_id', choosingArtist).in(
+				'store_id',
+				storeData.filter((item) => showStoreName.includes(item.store_name)).map((item) => item.id)
+			);
+		}
 
 		const { data, error } = await query.select();
 		console.log(data);
