@@ -13,6 +13,8 @@
 	import InfoBox from '$lib/Component/InfoBox.svelte';
 	import { selectedStore } from '$lib/store/choosing';
 	import { browser } from '$app/environment';
+	import { FormatNumberToTwoDigi } from '$lib/function/Utils';
+	import RemitAndCommission from '$lib/Component/reportComponent/RemitAndCommission.svelte';
 
 	enum PasswordPanelState {
 		Loading,
@@ -59,6 +61,7 @@
 	});
 
 	onDestroy(unsubscribe);
+	let year_month: string | null = null;
 </script>
 
 <div class="flex flex-col items-center gap-3">
@@ -81,9 +84,10 @@
 	{:else if panelState === PasswordPanelState.Admit}
 		<div class="flex flex-wrap justify-center gap-4 text-center text-sm font-semibold">
 			<InfoBox title={artist_name}></InfoBox>
-			<!-- <Commision bind:net_total></Commision> -->
 			<TradeCount bind:showedLength></TradeCount>
-			<!-- <Remit bind:net_total></Remit> -->
+			{#if year_month}
+				<RemitAndCommission bind:net_total bind:artist_id bind:year_month></RemitAndCommission>
+			{/if}
 
 			<DownloadButton bind:firstDate bind:lastDate bind:artist_id></DownloadButton>
 		</div>
@@ -94,6 +98,11 @@
 				firstDate = e.detail.firstDate;
 				lastDate = e.detail.lastDate;
 				showedLength = e.detail.showedLength;
+				// todo: make no need to refresh to get year_month
+				year_month =
+					firstDate?.getFullYear().toString() +
+					'-' +
+					FormatNumberToTwoDigi((firstDate?.getMonth() + 1).toString());
 			}}
 		></MonthTabReportTableWithLogic>
 	{/if}
