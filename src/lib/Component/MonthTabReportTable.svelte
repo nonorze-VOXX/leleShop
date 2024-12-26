@@ -19,9 +19,8 @@
 	}>();
 	const ClickTab = (tabData: string) => {
 		showedMonth = tabData;
-		const date = new Date();
-		let firstDay = new Date(date.getFullYear(), parseInt(tabData) - 1, 1);
-		let lastDay = new Date(date.getFullYear(), parseInt(tabData), 1);
+		firstDay = new Date(firstDay.getFullYear(), parseInt(tabData) - 1, 1);
+		const lastDay = new Date(firstDay.getFullYear(), parseInt(tabData), 1);
 		dispatch('changeShowedDataList', {
 			firstDay: firstDay,
 			lastDay: lastDay
@@ -29,16 +28,16 @@
 	};
 	const ClickYearTab = (tabData: string) => {
 		showedYear = tabData;
-		const date = new Date();
-		let firstDay = new Date(parseInt(tabData), date.getMonth(), 1);
-		let lastDay = new Date(parseInt(tabData), date.getMonth() + 1, 1);
+		firstDay = new Date(parseInt(tabData), firstDay.getMonth(), 1);
+		const lastDay = new Date(parseInt(tabData), firstDay.getMonth() + 1, 1);
 		dispatch('changeShowedDataList', {
 			firstDay: firstDay,
 			lastDay: lastDay
 		});
 	};
 
-	let yearRange = { min: min_year, max: new Date().getFullYear() };
+	// let yearRange = { min: min_year, max: new Date().getFullYear() };
+	let yearRange = { min: min_year, max: 2025 };
 
 	$: {
 		showedTradeDataList = tradeDataList;
