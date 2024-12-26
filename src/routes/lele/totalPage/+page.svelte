@@ -11,7 +11,7 @@
 		ThisMonthFirstDate
 	} from '$lib/function/Utils';
 	import LeleTbodyTr from '$lib/Component/htmlWrapper/LeleTbodyTr.svelte';
-	import MonthTab from '$lib/Component/MonthTab.svelte';
+	import YearMonthTabs from '$lib/Component/YearMonthTabs.svelte';
 	import { selectedStore } from '$lib/store/choosing';
 	import { browser } from '$app/environment';
 
@@ -30,6 +30,9 @@
 		real_sales_90_sum: number;
 	};
 	let showedMonth: string;
+	let showedYear: string = new Date().getFullYear().toString();
+	let yearRange = { min: 2020, max: new Date().getFullYear() }; // Adjust min year as needed
+
 	const FetchData = async (dateRange: { firstDate: Date; lastDate: Date }) => {
 		const { data, error } = await GetTradeTotalDataEachOne(
 			dateRange.firstDate,
@@ -58,12 +61,20 @@
 	let tabDataList: string[] = GetAllMonth();
 	const ClickTab = async (tabData: string) => {
 		showedMonth = tabData;
-		const date = new Date();
-		let firstDay = new Date(date.getFullYear(), parseInt(tabData) - 1, 1);
-		let lastDay = new Date(date.getFullYear(), parseInt(tabData), 1);
+		let firstDay = new Date(parseInt(showedYear), parseInt(tabData) - 1, 1);
+		let lastDay = new Date(parseInt(showedYear), parseInt(tabData), 1);
 		dateRange = { firstDate: firstDay, lastDate: lastDay };
 		await FetchData(dateRange);
 	};
+
+	const ClickYearTab = async (tabData: string) => {
+		showedYear = tabData;
+		let firstDay = new Date(parseInt(tabData), parseInt(showedMonth) - 1, 1);
+		let lastDay = new Date(parseInt(tabData), parseInt(showedMonth), 1);
+		dateRange = { firstDate: firstDay, lastDate: lastDay };
+		await FetchData(dateRange);
+	};
+
 	// onMount
 	onDestroy(
 		selectedStore.subscribe(async () => {
@@ -73,20 +84,25 @@
 </script>
 
 {#if showedMonth}
-	<MonthTab
+	<YearMonthTabs
 		bind:tabDataList
 		bind:showedMonth
+		bind:showedYear
+		{yearRange}
 		on:onTabChange={async (e) => {
 			await ClickTab(e.detail.showedMonth);
 		}}
-	></MonthTab>
+		on:onYearTabChange={async (e) => {
+			await ClickYearTab(e.detail.showedYear);
+		}}
+	></YearMonthTabs>
 {/if}
 <LeleTable>
 	<LeleThead>
 		<tr>
 			<th scope="col" class="w-auto p-2">name</th>
 			<th scope="col" class="w-20 p-2">Total</th>
-			<th scope="col" class="w-20 p-2">90%</th>
+			<th scope="col" class="w-30 p-2">commission</th>
 		</tr>
 	</LeleThead>
 	<LeleTbody>
@@ -94,7 +110,7 @@
 			<LeleTbodyTr>
 				<td class="p-2"> TOTAL</td>
 				<td class="p-2">{sumTotalData.real_sales_sum}</td>
-				<td class="p-2">{sumTotalData.real_sales_90_sum}</td>
+				<td class="p-2">{sumTotalData.real_sales_90_sum} ({'a'})</td>
 			</LeleTbodyTr>
 		{/if}
 		{#each totalData as data, index}
