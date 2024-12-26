@@ -6,8 +6,8 @@
 		"dev": "vite dev",
 		"build": "vite build",
 		"preview": "vite preview",
-		"test": "TZ=UTC+8 vitest run",
-		"keep-test": "TZ=UTC+8 vitest",
+		"test": "TZ='Asia/Taipei' vitest run",
+		"keep-test": "TZ='Asia/Taipei' vitest",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
 		"lint": "prettier --check . && eslint .",
@@ -29,7 +29,7 @@
 		"prettier": "^3.1.1",
 		"prettier-plugin-svelte": "^3.1.2",
 		"prettier-plugin-tailwindcss": "^0.5.11",
-		"supabase": "^2.0.0",
+		"supabase": "^2.1.1",
 		"svelte": "^4.2.7",
 		"svelte-check": "^3.6.0",
 		"tailwindcss": "^3.4.1",
@@ -40,6 +40,6 @@
 	},
 	"type": "module",
 	"dependencies": {
-		"@supabase/supabase-js": "^2.39.3"
+		"@supabase/supabase-js": "^2.47.10"
 	}
 }
