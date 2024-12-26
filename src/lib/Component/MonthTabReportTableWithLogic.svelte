@@ -19,6 +19,7 @@
 	};
 	let pageIndex: string[] = [];
 	let dateRange: { firstDate: Date; lastDate: Date };
+	let min_year: number | null = null;
 	let unsubscribe = selectedStore.subscribe(async (e) => {
 		store_list = $selectedStore;
 		await refreshByStoreList();
@@ -29,6 +30,12 @@
 	onMount(async () => {
 		store_list = $selectedStore;
 		await DateChange(ThisMonthFirstDate(-1), ThisMonthFirstDate());
+		const { data, error } = await db.GetTradeDataMinYear();
+		if (error) {
+			console.error(error);
+			return;
+		}
+		min_year = data;
 	});
 	async function refreshByStoreList() {
 		if (dateRange) await DateChange(dateRange.firstDate, dateRange.lastDate);
@@ -80,8 +87,9 @@
 	// store_list = store_list;
 </script>
 
-{#if tradeDataList}
+{#if tradeDataList && min_year}
 	<MonthTabReportTable
+		{min_year}
 		bind:tradeDataList
 		bind:totalData={total}
 		on:changeShowedDataList={async (e) => {
