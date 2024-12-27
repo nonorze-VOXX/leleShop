@@ -21,6 +21,16 @@ export class YearMonth {
 		}
 	}
 
+	static now(): YearMonth {
+		const now = new Date();
+		return new YearMonth(now.getFullYear(), now.getMonth() + 1);
+	}
+
+	getPreviousMonth(): YearMonth {
+		const date = new Date(Date.UTC(this.year, this.month - 2)); // month is 0-indexed
+		return new YearMonth(date.getUTCFullYear(), date.getUTCMonth() + 1);
+	}
+
 	getFirstTimePoint(): Date {
 		return new Date(this.year, this.month - 1, 1);
 	}

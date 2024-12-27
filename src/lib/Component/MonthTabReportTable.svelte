@@ -11,10 +11,7 @@
 	export let min_year: number;
 	let showedTradeDataList: ArtistWithTradeRow[];
 	let tabDataList: string[] = GetAllMonth();
-	let yearMonth: YearMonth = new YearMonth(
-		ThisMonthFirstDate(-1).getFullYear().toString(),
-		FormatNumberToTwoDigi((ThisMonthFirstDate(-1).getMonth() + 1).toString())
-	);
+	let yearMonth: YearMonth = YearMonth.now().getPreviousMonth();
 	const dispatch = createEventDispatcher<{
 		changeShowedDataList: { firstDay: Date; lastDay: Date };
 	}>();
