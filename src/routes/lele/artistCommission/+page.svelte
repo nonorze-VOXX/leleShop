@@ -4,7 +4,7 @@
 	import LeleTbodyTr from '$lib/Component/htmlWrapper/LeleTbodyTr.svelte';
 	import LeleThead from '$lib/Component/htmlWrapper/LeleThead.svelte';
 	import InfoBox from '$lib/Component/InfoBox.svelte';
-	import { supabase, type ArtistRow, type StoreRow } from '$lib/db';
+	import db, { supabase, type ArtistRow, type StoreRow } from '$lib/db';
 	import type { CommissionViewRow } from '$lib/db/DbCommission';
 	import { ThisMonthFirstDate } from '$lib/function/Utils';
 	import { selectedStore } from '$lib/store/choosing';
@@ -32,7 +32,7 @@
 
 	async function OnStoreChange() {
 		if ($selectedStore === '*') {
-			const { data, error } = await supabase.from('store').select('*');
+			const { data, error } = await db.store.getStoreData();
 			if (error) {
 				console.error(error);
 			}
@@ -82,7 +82,7 @@
 		}
 		artistData = artistDataResponse ?? [];
 
-		const { data: storeDataResponse, error: storeError } = await supabase.from('store').select('*');
+		const { data: storeDataResponse, error: storeError } = await db.store.getStoreData();
 		if (storeError) {
 			console.error(storeError);
 		}
