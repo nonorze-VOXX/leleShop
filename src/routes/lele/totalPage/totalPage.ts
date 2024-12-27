@@ -1,4 +1,5 @@
 import { supabase } from '$lib/db';
+import { YearMonth } from '$lib/class/YearMonth';
 
 export async function GetTradeTotalDataEachOne(
 	firstDate: Date,
@@ -58,13 +59,12 @@ export async function GetTotalWithCommission(year_month: string, selectedStore: 
 		console.error(error);
 		return [];
 	}
-	const firstDate = new Date(
-		Number(year_month.split('-')[0]),
-		Number(year_month.split('-')[1]) - 1,
-		1
-	);
-	const lastDate = new Date(firstDate.getFullYear(), firstDate.getMonth() + 1, 0);
+
+	const yearMonth = new YearMonth(year_month);
+	const firstDate = yearMonth.getFirstTimePoint();
+	const lastDate = yearMonth.getLastTimePoint();
 	const data = await GetTradeTotalDataEachOne(firstDate, lastDate, [selectedStore]);
+
 	return (
 		data?.data?.map((totalData) => {
 			const comm =

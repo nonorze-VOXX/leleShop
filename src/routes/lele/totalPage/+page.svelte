@@ -15,7 +15,6 @@
 	import { selectedStore } from '$lib/store/choosing';
 	import { browser } from '$app/environment';
 	import db, { type StoreRow } from '$lib/db';
-	import type { CommissionViewRow } from '$lib/db/DbCommission';
 
 	let totalData: {
 		artist_name: string | null;
@@ -25,7 +24,6 @@
 	}[] = [];
 
 	let realTotal: number[] = [];
-	let commissionData: CommissionViewRow[] = [];
 
 	let showedMonth: string;
 	let showedYear: string = new Date().getFullYear().toString();
