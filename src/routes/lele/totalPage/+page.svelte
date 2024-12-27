@@ -26,9 +26,7 @@
 
 	let realTotal: number[] = [];
 
-	let showedMonth: string;
-	let showedYear: string = new Date().getFullYear().toString();
-	let yearRange = { min: 2020, max: new Date().getFullYear() }; // Adjust min year as needed
+	let yearRange = { min: new Date().getFullYear(), max: new Date().getFullYear() }; // Adjust min year as needed
 	let testCommissionData: {
 		processedNetSale: number;
 		total_sales: number;
@@ -47,7 +45,6 @@
 			yearMonth.getLastTimePoint(),
 			$selectedStore
 		);
-		showedMonth = FormatNumberToTwoDigi(yearMonth.month.toString());
 		if (error) {
 			console.error(error);
 			return;
@@ -73,18 +70,16 @@
 
 	let yearMonth = new YearMonth(
 		ThisMonthFirstDate(-1).getFullYear(),
-		ThisMonthFirstDate(-1).getDate()
+		ThisMonthFirstDate(-1).getMonth() + 1
 	);
 	let tabDataList: string[] = GetAllMonth();
 	const ClickTab = async (tabData: string) => {
-		showedMonth = tabData;
-		yearMonth = new YearMonth(showedYear, showedMonth);
+		yearMonth.month = parseInt(tabData);
 		await FetchData(yearMonth);
 	};
 
 	const ClickYearTab = async (tabData: string) => {
-		showedYear = tabData;
-		yearMonth = new YearMonth(showedYear, showedMonth);
+		yearMonth.year = parseInt(tabData);
 		await FetchData(yearMonth);
 	};
 
@@ -98,6 +93,10 @@
 			}
 			storeData = data ?? [];
 		});
+		db.GetTradeDataMinYear().then(({ data, error }) => {
+			if (!error) yearRange.min = data;
+		});
+
 		await FetchData(yearMonth);
 	});
 	onDestroy(
@@ -107,11 +106,10 @@
 	);
 </script>
 
-{#if showedMonth}
+{#if yearMonth}
 	<YearMonthTabs
 		bind:tabDataList
-		bind:showedMonth
-		bind:showedYear
+		bind:yearMonth
 		{yearRange}
 		on:onTabChange={async (e) => {
 			await ClickTab(e.detail.showedMonth);

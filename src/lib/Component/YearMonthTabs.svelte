@@ -1,11 +1,11 @@
 <script lang="ts">
+	import type { YearMonth } from '$lib/class/YearMonth';
 	import MonthTab from './MonthTab.svelte';
 	import YearTab from './YearTab.svelte';
 	import { createEventDispatcher } from 'svelte';
 
 	export let tabDataList: string[];
-	export let showedMonth: string;
-	export let showedYear: string;
+	export let yearMonth: YearMonth;
 	export let yearRange: { min: number; max: number };
 
 	const dispatch = createEventDispatcher<{
@@ -23,6 +23,15 @@
 </script>
 
 <div class="flex w-full flex-col">
-	<YearTab shape="full" bind:showedYear {yearRange} on:onTabChange={handleYearTabChange}></YearTab>
-	<MonthTab bind:tabDataList bind:showedMonth on:onTabChange={handleMonthTabChange}></MonthTab>
+	<YearTab
+		shape="full"
+		showedYear={yearMonth.year.toString()}
+		{yearRange}
+		on:onTabChange={handleYearTabChange}
+	></YearTab>
+	<MonthTab
+		bind:tabDataList
+		showedMonth={yearMonth.month.toString()}
+		on:onTabChange={handleMonthTabChange}
+	></MonthTab>
 </div>

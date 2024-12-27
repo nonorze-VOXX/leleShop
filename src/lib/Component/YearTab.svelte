@@ -29,7 +29,7 @@
 	}>();
 </script>
 
-<div class="m-2 flex justify-start overflow-auto">
+<div class="m-2 flex justify-start gap-2 overflow-auto">
 	{#each tabDataList as tabData}
 		<MidButton
 			bind:focus={focus[tabDataList.indexOf(tabData)]}

@@ -4,34 +4,32 @@
 	import ReportTable from './ReportTable.svelte';
 	import { createEventDispatcher } from 'svelte';
 	import YearMonthTabs from './YearMonthTabs.svelte';
+	import { YearMonth } from '$lib/class/YearMonth';
 
 	export let tradeDataList: ArtistWithTradeRow[];
 	export let totalData: SalesTotalData;
 	export let min_year: number;
 	let showedTradeDataList: ArtistWithTradeRow[];
 	let tabDataList: string[] = GetAllMonth();
-	let firstDay: Date = ThisMonthFirstDate(-1);
-	let showedMonth: string = FormatNumberToTwoDigi((firstDay.getMonth() + 1).toString());
-	let showedYear: string = firstDay.getFullYear().toString();
+	let yearMonth: YearMonth = new YearMonth(
+		ThisMonthFirstDate(-1).getFullYear().toString(),
+		FormatNumberToTwoDigi((ThisMonthFirstDate(-1).getMonth() + 1).toString())
+	);
 	const dispatch = createEventDispatcher<{
 		changeShowedDataList: { firstDay: Date; lastDay: Date };
 	}>();
 	const ClickTab = (tabData: string) => {
-		showedMonth = tabData;
-		firstDay = new Date(parseInt(showedYear), parseInt(tabData) - 1, 1);
-		const lastDay = new Date(parseInt(showedYear), parseInt(tabData), 1);
+		yearMonth.month = Number(tabData);
 		dispatch('changeShowedDataList', {
-			firstDay: firstDay,
-			lastDay: lastDay
+			firstDay: yearMonth.getFirstTimePoint(),
+			lastDay: yearMonth.getLastTimePoint()
 		});
 	};
 	const ClickYearTab = (tabData: string) => {
-		showedYear = tabData;
-		firstDay = new Date(parseInt(tabData), firstDay.getMonth(), 1);
-		const lastDay = new Date(parseInt(tabData), firstDay.getMonth() + 1, 1);
+		yearMonth.year = Number(tabData);
 		dispatch('changeShowedDataList', {
-			firstDay: firstDay,
-			lastDay: lastDay
+			firstDay: yearMonth.getFirstTimePoint(),
+			lastDay: yearMonth.getLastTimePoint()
 		});
 	};
 
@@ -45,8 +43,7 @@
 <div class="flex w-full flex-col">
 	<YearMonthTabs
 		bind:tabDataList
-		bind:showedMonth
-		bind:showedYear
+		bind:yearMonth
 		{yearRange}
 		on:onTabChange={(e) => {
 			ClickTab(e.detail.showedMonth);
