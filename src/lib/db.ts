@@ -5,6 +5,7 @@ import { type Database } from './db.types';
 import { add } from './function/Utils';
 import DbArtistTrade from './db/DbArtistTrade';
 import DbCommission from './db/DbCommission';
+import DbStore from './db/DbStore';
 
 // export const supabase = createClient<Database>(PRIVATE_SUPABASE_URL, PRIVATE_SUPABASE_KEY);
 export const supabase = createClient<Database>(PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_KEY);
@@ -211,5 +212,6 @@ export default {
 		};
 	},
 	artistTrade: DbArtistTrade,
-	commission: DbCommission
+	commission: DbCommission,
+	store: DbStore
 };

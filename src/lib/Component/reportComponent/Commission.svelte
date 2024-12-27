@@ -1,8 +1,4 @@
 <script lang="ts">
-	import { browser } from '$app/environment';
-	import { supabase } from '$lib/db';
-	import { selectedStore } from '$lib/store/choosing';
-	import { onDestroy } from 'svelte';
 	import InfoBox from '../InfoBox.svelte';
 
 	export let net_total: number | null;

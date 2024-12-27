@@ -7,7 +7,7 @@
 	let admit_fail = false;
 
 	const dispatch = createEventDispatcher<{
-		success: {};
+		success: null;
 	}>();
 	const SubmitKey = async (event: { currentTarget: EventTarget & HTMLFormElement }) => {
 		const { data, error } = await supabase
@@ -19,7 +19,7 @@
 			admit_fail = true;
 			return;
 		}
-		dispatch('success', {});
+		dispatch('success');
 	};
 </script>
 

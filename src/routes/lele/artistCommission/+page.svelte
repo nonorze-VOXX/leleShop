@@ -4,7 +4,7 @@
 	import LeleTbodyTr from '$lib/Component/htmlWrapper/LeleTbodyTr.svelte';
 	import LeleThead from '$lib/Component/htmlWrapper/LeleThead.svelte';
 	import InfoBox from '$lib/Component/InfoBox.svelte';
-	import { supabase, type ArtistRow, type StoreRow } from '$lib/db';
+	import db, { supabase, type ArtistRow, type StoreRow } from '$lib/db';
 	import type { CommissionViewRow } from '$lib/db/DbCommission';
 	import { ThisMonthFirstDate } from '$lib/function/Utils';
 	import { selectedStore } from '$lib/store/choosing';
@@ -12,7 +12,6 @@
 
 	let showStoreName: string[] = [];
 	let commissionData: CommissionViewRow[] = [];
-	let yearMonthOption: string[] = [];
 	let choosingArtist: number[] = [];
 	let choosingStoreName: string[] = [];
 	let storeData: StoreRow[] = [];
@@ -32,7 +31,7 @@
 
 	async function OnStoreChange() {
 		if ($selectedStore === '*') {
-			const { data, error } = await supabase.from('store').select('*');
+			const { data, error } = await db.store.getStoreData();
 			if (error) {
 				console.error(error);
 			}
@@ -72,7 +71,6 @@
 		if (yearMonthError) {
 			console.error(yearMonthError);
 		}
-		yearMonthOption = (yearMonthData ?? []).map((item) => item.year_month ?? '');
 
 		const { data: artistDataResponse, error: artistError } = await supabase
 			.from('artist')
@@ -82,7 +80,7 @@
 		}
 		artistData = artistDataResponse ?? [];
 
-		const { data: storeDataResponse, error: storeError } = await supabase.from('store').select('*');
+		const { data: storeDataResponse, error: storeError } = await db.store.getStoreData();
 		if (storeError) {
 			console.error(storeError);
 		}
@@ -192,7 +190,7 @@
 			);
 		}
 
-		const { data, error } = await query.select();
+		const { error } = await query.select();
 
 		if (error) {
 			console.error(error);
@@ -201,7 +199,7 @@
 		}
 
 		if (toInsert.length > 0) {
-			const { data, error } = await supabase.from('artist_commission').insert(toInsert).select();
+			const { error } = await supabase.from('artist_commission').insert(toInsert).select();
 
 			if (error) {
 				console.error(error);
@@ -254,7 +252,7 @@
 							<input
 								type="checkbox"
 								on:click={(e) => {
-									//@ts-ignore
+									// @ts-expect-error no want to change e type use as
 									if (e?.target?.checked) {
 										choosingStoreName = [...choosingStoreName, s];
 									} else {
@@ -279,7 +277,7 @@
 							<input
 								type="checkbox"
 								on:click={(e) => {
-									//@ts-ignore
+									//@ts-expect-error
 									if (e?.target?.checked) {
 										choosingArtist = [...choosingArtist, artist.id];
 									} else {

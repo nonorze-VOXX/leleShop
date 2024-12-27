@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { createEventDispatcher } from 'svelte';
-	import SmallButton from './SmallButton.svelte';
 	import MidButton from './MidButton.svelte';
 
 	export let yearRange: { min: number; max: number };
@@ -29,7 +28,7 @@
 	}>();
 </script>
 
-<div class="m-2 flex justify-start overflow-auto">
+<div class="m-2 flex justify-start gap-2 overflow-auto">
 	{#each tabDataList as tabData}
 		<MidButton
 			bind:focus={focus[tabDataList.indexOf(tabData)]}

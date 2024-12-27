@@ -5,11 +5,9 @@
 
 	import PasswordPanel from './PasswordPanel.svelte';
 	import { onDestroy, onMount } from 'svelte';
-	import db, { supabase } from '$lib/db';
+	import { supabase } from '$lib/db';
 	import { page } from '$app/stores';
 	import TradeCount from '$lib/Component/reportComponent/TradeCount.svelte';
-	import Commission from '$lib/Component/reportComponent/Commission.svelte';
-	import Remit from '$lib/Component/reportComponent/Remit.svelte';
 	import InfoBox from '$lib/Component/InfoBox.svelte';
 	import { selectedStore } from '$lib/store/choosing';
 	import { browser } from '$app/environment';

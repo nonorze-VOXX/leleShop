@@ -1,5 +1,4 @@
 <script lang="ts">
-	import type { TradeBodyRow, TradeHeadRow } from '$lib/db';
 	import { ProcessFile } from './importFunction';
 	enum ProcessedStatus {
 		NORMAL,
