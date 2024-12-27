@@ -22,7 +22,7 @@
 	let realTotal: number[] = [];
 
 	let yearRange = { min: new Date().getFullYear(), max: new Date().getFullYear() }; // Adjust min year as needed
-	let testCommissionData: {
+	let CommissionDataMulNetTotal: {
 		processedNetSale: number;
 		total_sales: number;
 		net_sales: number;
@@ -51,14 +51,14 @@
 		});
 		for (let i = 0; i < $selectedStore.length; i++) {
 			let commission = await GetTotalWithCommission(yearMonth, $selectedStore[i]);
-			testCommissionData = [
+			CommissionDataMulNetTotal = [
 				...commission.map((e) => {
 					return {
 						...e,
 						store_name: $selectedStore[i]
 					};
 				}),
-				...testCommissionData
+				...CommissionDataMulNetTotal
 			];
 		}
 	};
@@ -133,10 +133,10 @@
 				<td class="p-2">{realTotal[index]}</td>
 				{#each $selectedStore as store}
 					<td class="p-2">
-						{#if testCommissionData.find((item) => item.artist_name === data.artist_name && item.store_name === store)}
-							{testCommissionData.find(
+						{#if CommissionDataMulNetTotal.find((item) => item.artist_name === data.artist_name && item.store_name === store)}
+							{CommissionDataMulNetTotal.find(
 								(item) => item.artist_name === data.artist_name && item.store_name === store
-							)?.processedNetSale}({testCommissionData.find(
+							)?.processedNetSale}({CommissionDataMulNetTotal.find(
 								(item) => item.artist_name === data.artist_name && item.store_name === store
 							)?.commission}%)
 						{/if}
@@ -147,7 +147,7 @@
 						{storeData.reduce((acc, store) => {
 							return (
 								acc +
-								(testCommissionData.find(
+								(CommissionDataMulNetTotal.find(
 									(item) =>
 										item.artist_name === data.artist_name && item.store_name === store.store_name
 								)?.processedNetSale ?? 0)
@@ -157,7 +157,7 @@
 						{$selectedStore.reduce((acc, store) => {
 							return (
 								acc +
-								(testCommissionData.find(
+								(CommissionDataMulNetTotal.find(
 									(item) => item.artist_name === data.artist_name && item.store_name === store
 								)?.processedNetSale ?? 0)
 							);
