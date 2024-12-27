@@ -2,11 +2,9 @@
 	import MonthTabReportTableWithLogic from '$lib/Component/MonthTabReportTableWithLogic.svelte';
 
 	import { onMount } from 'svelte';
-	import db, { supabase } from '$lib/db';
+	import db from '$lib/db';
 	import { page } from '$app/stores';
 	import TradeCount from '$lib/Component/reportComponent/TradeCount.svelte';
-	import Commission from '$lib/Component/reportComponent/Commission.svelte';
-	import Remit from '$lib/Component/reportComponent/Remit.svelte';
 	import InfoBox from '$lib/Component/InfoBox.svelte';
 	import { FormatNumberToTwoDigi } from '$lib/function/Utils';
 	import RemitAndCommission from '$lib/Component/reportComponent/RemitAndCommission.svelte';

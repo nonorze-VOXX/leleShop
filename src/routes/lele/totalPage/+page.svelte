@@ -3,13 +3,8 @@
 	import LeleTable from '$lib/Component/htmlWrapper/LeleTable.svelte';
 	import LeleThead from '$lib/Component/htmlWrapper/LeleThead.svelte';
 	import LeleTbody from '$lib/Component/htmlWrapper/LeleTbody.svelte';
-	import { GetCommission, GetTotalWithCommission, GetTradeTotalDataEachOne } from './totalPage';
-	import {
-		FormatNumberToTwoDigi,
-		GetAllMonth,
-		NextMonthFirstDate,
-		ThisMonthFirstDate
-	} from '$lib/function/Utils';
+	import { GetTotalWithCommission, GetTradeTotalDataEachOne } from './totalPage';
+	import { GetAllMonth, ThisMonthFirstDate } from '$lib/function/Utils';
 	import LeleTbodyTr from '$lib/Component/htmlWrapper/LeleTbodyTr.svelte';
 	import YearMonthTabs from '$lib/Component/YearMonthTabs.svelte';
 	import { selectedStore } from '$lib/store/choosing';

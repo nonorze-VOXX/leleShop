@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { ArtistWithTradeRow, SalesTotalData } from '$lib/db';
-	import { FormatNumberToTwoDigi, GetAllMonth, ThisMonthFirstDate } from '$lib/function/Utils';
+	import { GetAllMonth } from '$lib/function/Utils';
 	import ReportTable from './ReportTable.svelte';
 	import { createEventDispatcher } from 'svelte';
 	import YearMonthTabs from './YearMonthTabs.svelte';

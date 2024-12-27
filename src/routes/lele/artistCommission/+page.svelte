@@ -12,7 +12,6 @@
 
 	let showStoreName: string[] = [];
 	let commissionData: CommissionViewRow[] = [];
-	let yearMonthOption: string[] = [];
 	let choosingArtist: number[] = [];
 	let choosingStoreName: string[] = [];
 	let storeData: StoreRow[] = [];
@@ -72,7 +71,6 @@
 		if (yearMonthError) {
 			console.error(yearMonthError);
 		}
-		yearMonthOption = (yearMonthData ?? []).map((item) => item.year_month ?? '');
 
 		const { data: artistDataResponse, error: artistError } = await supabase
 			.from('artist')
@@ -192,7 +190,7 @@
 			);
 		}
 
-		const { data, error } = await query.select();
+		const { error } = await query.select();
 
 		if (error) {
 			console.error(error);
@@ -201,7 +199,7 @@
 		}
 
 		if (toInsert.length > 0) {
-			const { data, error } = await supabase.from('artist_commission').insert(toInsert).select();
+			const { error } = await supabase.from('artist_commission').insert(toInsert).select();
 
 			if (error) {
 				console.error(error);
@@ -254,7 +252,7 @@
 							<input
 								type="checkbox"
 								on:click={(e) => {
-									//@ts-ignore
+									// @ts-expect-error no want to change e type use as
 									if (e?.target?.checked) {
 										choosingStoreName = [...choosingStoreName, s];
 									} else {
@@ -279,7 +277,7 @@
 							<input
 								type="checkbox"
 								on:click={(e) => {
-									//@ts-ignore
+									//@ts-expect-error
 									if (e?.target?.checked) {
 										choosingArtist = [...choosingArtist, artist.id];
 									} else {
