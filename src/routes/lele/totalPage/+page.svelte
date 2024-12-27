@@ -3,7 +3,7 @@
 	import LeleTable from '$lib/Component/htmlWrapper/LeleTable.svelte';
 	import LeleThead from '$lib/Component/htmlWrapper/LeleThead.svelte';
 	import LeleTbody from '$lib/Component/htmlWrapper/LeleTbody.svelte';
-	import { GetCommission, GetTradeTotalDataEachOne } from './totalPage';
+	import { GetCommission, GetTotalWithCommission, GetTradeTotalDataEachOne } from './totalPage';
 	import {
 		FormatNumberToTwoDigi,
 		GetAllMonth,
@@ -30,6 +30,17 @@
 	let showedMonth: string;
 	let showedYear: string = new Date().getFullYear().toString();
 	let yearRange = { min: 2020, max: new Date().getFullYear() }; // Adjust min year as needed
+	let testCommissionData: {
+		processedNetSale: number;
+		total_sales: number;
+		net_sales: number;
+		discount: number;
+		quantity: number;
+		artist_id: number | null;
+		artist_name: string | null;
+		store_name: string;
+		commission: number;
+	}[] = [];
 
 	const FetchData = async (dateRange: { firstDate: Date; lastDate: Date }) => {
 		const { data, error } = await GetTradeTotalDataEachOne(
@@ -47,13 +58,20 @@
 		totalData.map((data) => {
 			realTotal.push(data.net_sales);
 		});
-		const year_month = dateRange.firstDate.getFullYear() + '-' + showedMonth;
-
-		if ($selectedStore.length === 1) {
-			const data = await GetCommission(year_month, $selectedStore[0]);
-			console.log(data);
-			commissionData = data ?? [];
+		let year_month = dateRange.firstDate.getFullYear() + '-' + showedMonth;
+		for (let i = 0; i < $selectedStore.length; i++) {
+			let commission = await GetTotalWithCommission(year_month, $selectedStore[i]);
+			testCommissionData = [
+				...commission.map((e) => {
+					return {
+						...e,
+						store_name: $selectedStore[i]
+					};
+				}),
+				...testCommissionData
+			];
 		}
+
 		// sumTotalData = {
 		// 	real_sales_sum: realTotal.reduce((a, b) => a + b, 0)
 		// };
@@ -114,61 +132,51 @@
 		<tr>
 			<th scope="col" class="w-60 p-2">name</th>
 			<th scope="col" class="w-20 p-2">Net Total</th>
-			{#if $selectedStore.length === 1}
-				{#each $selectedStore as store}
-					<th scope="col" class="w-20 p-2">{store}</th>
-				{/each}
-			{/if}
-
-			<!-- {#each commissionData as commission}
-				<th scope="col" class="w-20 p-2">{commission.store_name}({commission.commission})</th>
-			{/each} -->
-			<!-- <th scope="col" class="w-30 p-2">commission</th> -->
+			{#each $selectedStore as store}
+				<th scope="col" class="w-20 p-2">{store}</th>
+			{/each}
+			<th scope="col" class="w-20 p-2">store sum</th>
 		</tr>
 	</LeleThead>
 	<LeleTbody>
-		<!-- {#if realTotal}
-			<LeleTbodyTr>
-				<td class="p-2"> TOTAL</td>
-				<td class="p-2">{sumTotalData.real_sales_sum}</td>
-				<td class="p-2">{sumTotalData.real_sales_90_sum} ({'a'})</td>
-			</LeleTbodyTr>
-		{/if} -->
 		{#each totalData as data, index}
 			<LeleTbodyTr>
 				<td class="p-2">{data.artist_name}</td>
 
 				<td class="p-2">{realTotal[index]}</td>
-				{#if $selectedStore.length === 1}
+				{#each $selectedStore as store}
 					<td class="p-2">
-						{Math.floor(
-							((commissionData.find((commission) => {
-								return commission.artist_name === data.artist_name;
-							})?.commission ?? 10) /
-								100) *
-								realTotal[index]
-						)}
-						({commissionData.find((commission) => commission.artist_name === data.artist_name)
-							?.commission ?? 10}%)
+						{#if testCommissionData.find((item) => item.artist_name === data.artist_name && item.store_name === store)}
+							{testCommissionData.find(
+								(item) => item.artist_name === data.artist_name && item.store_name === store
+							)?.processedNetSale}({testCommissionData.find(
+								(item) => item.artist_name === data.artist_name && item.store_name === store
+							)?.commission}%)
+						{/if}
 					</td>
-				{/if}
-				<!-- {#each $selectedStore as store}
-					<td class="p-2">
-						{Math.floor(
-							((commissionData.find((commission) => {
-								return (
-									commission.artist_name === data.artist_name && commission.store_name === store
-								);
-							})?.commission ?? 10) /
-								100) *
-								realTotal[index]
-						)}
-						({commissionData.find(
-							(commission) =>
-								commission.artist_name === data.artist_name && commission.store_name === store
-						)?.commission ?? 10}%)
-					</td>
-				{/each} -->
+				{/each}
+				<td class="p-2">
+					{#if $selectedStore === '*'}
+						{storeData.reduce((acc, store) => {
+							return (
+								acc +
+								(testCommissionData.find(
+									(item) =>
+										item.artist_name === data.artist_name && item.store_name === store.store_name
+								)?.processedNetSale ?? 0)
+							);
+						}, 0)}
+					{:else}
+						{$selectedStore.reduce((acc, store) => {
+							return (
+								acc +
+								(testCommissionData.find(
+									(item) => item.artist_name === data.artist_name && item.store_name === store
+								)?.processedNetSale ?? 0)
+							);
+						}, 0)}
+					{/if}
+				</td>
 			</LeleTbodyTr>
 		{/each}
 	</LeleTbody>

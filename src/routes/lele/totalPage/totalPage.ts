@@ -47,3 +47,36 @@ export async function GetCommission(year_month: string, selectedStore: string) {
 	}
 	return data ?? [];
 }
+
+export async function GetTotalWithCommission(year_month: string, selectedStore: string) {
+	const { data: commission, error } = await supabase
+		.from('default_commission_view')
+		.select('*')
+		.eq('store_name', selectedStore)
+		.eq('year_month', year_month);
+	if (error) {
+		console.error(error);
+		return [];
+	}
+	const data = await GetTradeTotalDataEachOne(new Date(2024, 11, 1), new Date(2024, 11, 31), [
+		selectedStore
+	]);
+	return (
+		data?.data?.map((totalData) => {
+			const comm =
+				commission.find(
+					(c) =>
+						c.artist_id === totalData.artist_id &&
+						c.store_name === selectedStore &&
+						c.year_month === year_month
+				)?.commission ?? 10;
+			return {
+				...totalData,
+				commission: comm,
+				processedNetSale: Math.floor(totalData.net_sales * (comm / 100))
+			};
+		}) ?? []
+	);
+
+	// return data ?? [];
+}
