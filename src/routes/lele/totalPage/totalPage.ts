@@ -58,9 +58,13 @@ export async function GetTotalWithCommission(year_month: string, selectedStore: 
 		console.error(error);
 		return [];
 	}
-	const data = await GetTradeTotalDataEachOne(new Date(2024, 11, 1), new Date(2024, 11, 31), [
-		selectedStore
-	]);
+	const firstDate = new Date(
+		Number(year_month.split('-')[0]),
+		Number(year_month.split('-')[1]) - 1,
+		1
+	);
+	const lastDate = new Date(firstDate.getFullYear(), firstDate.getMonth() + 1, 0);
+	const data = await GetTradeTotalDataEachOne(firstDate, lastDate, [selectedStore]);
 	return (
 		data?.data?.map((totalData) => {
 			const comm =
@@ -77,6 +81,4 @@ export async function GetTotalWithCommission(year_month: string, selectedStore: 
 			};
 		}) ?? []
 	);
-
-	// return data ?? [];
 }

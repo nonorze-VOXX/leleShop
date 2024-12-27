@@ -71,10 +71,6 @@
 				...testCommissionData
 			];
 		}
-
-		// sumTotalData = {
-		// 	real_sales_sum: realTotal.reduce((a, b) => a + b, 0)
-		// };
 	};
 
 	let dateRange = { firstDate: ThisMonthFirstDate(-1), lastDate: NextMonthFirstDate(-1) };
