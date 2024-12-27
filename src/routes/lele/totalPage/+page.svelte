@@ -41,13 +41,13 @@
 		commission: number;
 	}[] = [];
 
-	const FetchData = async (dateRange: { firstDate: Date; lastDate: Date }) => {
+	const FetchData = async (yearMonth: YearMonth) => {
 		const { data, error } = await GetTradeTotalDataEachOne(
-			dateRange.firstDate,
-			dateRange.lastDate,
+			yearMonth.getFirstTimePoint(),
+			yearMonth.getLastTimePoint(),
 			$selectedStore
 		);
-		showedMonth = FormatNumberToTwoDigi((dateRange.firstDate.getMonth() + 1).toString());
+		showedMonth = FormatNumberToTwoDigi(yearMonth.month.toString());
 		if (error) {
 			console.error(error);
 			return;
@@ -57,7 +57,6 @@
 		totalData.map((data) => {
 			realTotal.push(data.net_sales);
 		});
-		let yearMonth = new YearMonth(dateRange.firstDate.getFullYear(), Number(showedMonth));
 		for (let i = 0; i < $selectedStore.length; i++) {
 			let commission = await GetTotalWithCommission(yearMonth, $selectedStore[i]);
 			testCommissionData = [
@@ -72,22 +71,21 @@
 		}
 	};
 
-	let dateRange = { firstDate: ThisMonthFirstDate(-1), lastDate: NextMonthFirstDate(-1) };
+	let yearMonth = new YearMonth(
+		ThisMonthFirstDate(-1).getFullYear(),
+		ThisMonthFirstDate(-1).getDate()
+	);
 	let tabDataList: string[] = GetAllMonth();
 	const ClickTab = async (tabData: string) => {
 		showedMonth = tabData;
-		let firstDay = new Date(parseInt(showedYear), parseInt(tabData) - 1, 1);
-		let lastDay = new Date(parseInt(showedYear), parseInt(tabData), 1);
-		dateRange = { firstDate: firstDay, lastDate: lastDay };
-		await FetchData(dateRange);
+		yearMonth = new YearMonth(showedYear, showedMonth);
+		await FetchData(yearMonth);
 	};
 
 	const ClickYearTab = async (tabData: string) => {
 		showedYear = tabData;
-		let firstDay = new Date(parseInt(tabData), parseInt(showedMonth) - 1, 1);
-		let lastDay = new Date(parseInt(tabData), parseInt(showedMonth), 1);
-		dateRange = { firstDate: firstDay, lastDate: lastDay };
-		await FetchData(dateRange);
+		yearMonth = new YearMonth(showedYear, showedMonth);
+		await FetchData(yearMonth);
 	};
 
 	let storeData: StoreRow[] = [];
@@ -100,10 +98,11 @@
 			}
 			storeData = data ?? [];
 		});
+		await FetchData(yearMonth);
 	});
 	onDestroy(
 		selectedStore.subscribe(async () => {
-			if (browser) await FetchData(dateRange);
+			if (browser) await FetchData(yearMonth);
 		})
 	);
 </script>
