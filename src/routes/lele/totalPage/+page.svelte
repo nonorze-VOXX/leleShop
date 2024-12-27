@@ -15,6 +15,7 @@
 	import { selectedStore } from '$lib/store/choosing';
 	import { browser } from '$app/environment';
 	import db, { type StoreRow } from '$lib/db';
+	import { YearMonth } from '$lib/class/YearMonth';
 
 	let totalData: {
 		artist_name: string | null;
@@ -56,9 +57,9 @@
 		totalData.map((data) => {
 			realTotal.push(data.net_sales);
 		});
-		let year_month = dateRange.firstDate.getFullYear() + '-' + showedMonth;
+		let yearMonth = new YearMonth(dateRange.firstDate.getFullYear(), Number(showedMonth));
 		for (let i = 0; i < $selectedStore.length; i++) {
-			let commission = await GetTotalWithCommission(year_month, $selectedStore[i]);
+			let commission = await GetTotalWithCommission(yearMonth, $selectedStore[i]);
 			testCommissionData = [
 				...commission.map((e) => {
 					return {

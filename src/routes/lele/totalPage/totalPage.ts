@@ -36,12 +36,12 @@ export async function GetTradeTotalDataEachOne(
 	return { data, error: null };
 }
 
-export async function GetCommission(year_month: string, selectedStore: string) {
+export async function GetCommission(yearMonth: YearMonth, selectedStore: string) {
 	const { data, error } = await supabase
 		.from('default_commission_view')
 		.select('*')
 		.eq('store_name', selectedStore)
-		.eq('year_month', year_month);
+		.eq('year_month', yearMonth.toString());
 	if (error) {
 		console.error(error);
 		return [];
@@ -49,18 +49,17 @@ export async function GetCommission(year_month: string, selectedStore: string) {
 	return data ?? [];
 }
 
-export async function GetTotalWithCommission(year_month: string, selectedStore: string) {
+export async function GetTotalWithCommission(yearMonth: YearMonth, selectedStore: string) {
 	const { data: commission, error } = await supabase
 		.from('default_commission_view')
 		.select('*')
 		.eq('store_name', selectedStore)
-		.eq('year_month', year_month);
+		.eq('year_month', yearMonth.toString());
 	if (error) {
 		console.error(error);
 		return [];
 	}
 
-	const yearMonth = new YearMonth(year_month);
 	const firstDate = yearMonth.getFirstTimePoint();
 	const lastDate = yearMonth.getLastTimePoint();
 	const data = await GetTradeTotalDataEachOne(firstDate, lastDate, [selectedStore]);
@@ -72,7 +71,7 @@ export async function GetTotalWithCommission(year_month: string, selectedStore: 
 					(c) =>
 						c.artist_id === totalData.artist_id &&
 						c.store_name === selectedStore &&
-						c.year_month === year_month
+						c.year_month === yearMonth.toString()
 				)?.commission ?? 10;
 			return {
 				...totalData,
