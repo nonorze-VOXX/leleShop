@@ -49,7 +49,7 @@ export async function GetCommission(yearMonth: YearMonth, selectedStore: string)
 	return data ?? [];
 }
 
-export async function GetTotalWithCommission(yearMonth: YearMonth, selectedStore: string) {
+export async function GetTotalWithRemit(yearMonth: YearMonth, selectedStore: string) {
 	const { data: commission, error } = await supabase
 		.from('default_commission_view')
 		.select('*')
@@ -76,7 +76,7 @@ export async function GetTotalWithCommission(yearMonth: YearMonth, selectedStore
 			return {
 				...totalData,
 				commission: comm,
-				processedNetSale: Math.floor(totalData.net_sales * (comm / 100))
+				netSaleMulRemit: totalData.net_sales - Math.floor(totalData.net_sales * (comm / 100))
 			};
 		}) ?? []
 	);
