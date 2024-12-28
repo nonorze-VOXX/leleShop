@@ -38,7 +38,7 @@
 
 	function getProcessedNetSale(artist_name: string | null, store_name: string) {
 		const item = FindItem(artist_name, store_name);
-		return item ? `${item.netSaleMulRemit}(${item.commission}%)` : '';
+		return item ? `${item.netSaleMulRemit}(${100 - item.commission}%)` : '';
 	}
 
 	function calculateStoreSum(artist_name: string | null) {
