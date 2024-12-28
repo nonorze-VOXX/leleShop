@@ -27,6 +27,27 @@
 
 	export let storeData: StoreRow[] = [];
 	export let selectedStore: string[] | '*';
+	const needSum = false;
+
+	function FindItem(artist_name: string | null, store_name: string) {
+		console.log('finding ', CommissionDataMulNetTotal);
+		return CommissionDataMulNetTotal.find(
+			(item) => item.artist_name === artist_name && item.store_name === store_name
+		);
+	}
+
+	function getProcessedNetSale(artist_name: string | null, store_name: string) {
+		const item = FindItem(artist_name, store_name);
+		return item ? `${item.processedNetSale}(${item.commission}%)` : '';
+	}
+
+	function calculateStoreSum(artist_name: string | null) {
+		const stores =
+			selectedStore === '*' ? storeData.map((store) => store.store_name) : selectedStore;
+		return stores.reduce((acc, store) => {
+			return acc + (FindItem(artist_name, store)?.processedNetSale ?? 0);
+		}, 0);
+	}
 </script>
 
 <LeleTable>
@@ -37,48 +58,29 @@
 			{#each selectedStore as store}
 				<th scope="col" class="w-20 p-2">{store}</th>
 			{/each}
-			<th scope="col" class="w-20 p-2">store sum</th>
+			{#if needSum}
+				<th scope="col" class="w-20 p-2">store sum</th>
+			{/if}
 		</tr>
 	</LeleThead>
 	<LeleTbody>
-		{#each totalData as data, index}
-			<LeleTbodyTr>
-				<td class="p-2">{data.artist_name}</td>
-				<td class="p-2">{realTotal[index]}</td>
-				{#each selectedStore as store}
-					<td class="p-2">
-						{#if CommissionDataMulNetTotal.find((item) => item.artist_name === data.artist_name && item.store_name === store)}
-							{CommissionDataMulNetTotal.find(
-								(item) => item.artist_name === data.artist_name && item.store_name === store
-							)?.processedNetSale}({CommissionDataMulNetTotal.find(
-								(item) => item.artist_name === data.artist_name && item.store_name === store
-							)?.commission}%)
-						{/if}
-					</td>
-				{/each}
-				<td class="p-2">
-					{#if selectedStore === '*'}
-						{storeData.reduce((acc, store) => {
-							return (
-								acc +
-								(CommissionDataMulNetTotal.find(
-									(item) =>
-										item.artist_name === data.artist_name && item.store_name === store.store_name
-								)?.processedNetSale ?? 0)
-							);
-						}, 0)}
-					{:else}
-						{selectedStore.reduce((acc, store) => {
-							return (
-								acc +
-								(CommissionDataMulNetTotal.find(
-									(item) => item.artist_name === data.artist_name && item.store_name === store
-								)?.processedNetSale ?? 0)
-							);
-						}, 0)}
+		{#if CommissionDataMulNetTotal.length === 0}
+			<tr>
+				<td class="p-2" colspan={selectedStore.length + 2}>No data</td>
+			</tr>
+		{:else}
+			{#each totalData as data, index}
+				<LeleTbodyTr>
+					<td class="p-2">{data.artist_name}</td>
+					<td class="p-2">{realTotal[index]}</td>
+					{#each selectedStore as store}
+						<td class="p-2">{getProcessedNetSale(data.artist_name, store)}</td>
+					{/each}
+					{#if needSum}
+						<td class="p-2">{calculateStoreSum(data.artist_name)}</td>
 					{/if}
-				</td>
-			</LeleTbodyTr>
-		{/each}
+				</LeleTbodyTr>
+			{/each}
+		{/if}
 	</LeleTbody>
 </LeleTable>

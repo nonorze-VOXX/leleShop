@@ -46,17 +46,17 @@
 		totalData.map((data) => {
 			realTotal.push(data.net_sales);
 		});
-		for (let i = 0; i < $selectedStore.length; i++) {
-			let commission = await GetTotalWithCommission(yearMonth, $selectedStore[i]);
-			CommissionDataMulNetTotal = [
-				...commission.map((e) => {
-					return {
-						...e,
-						store_name: $selectedStore[i]
-					};
-				}),
-				...CommissionDataMulNetTotal
-			];
+		if ($selectedStore !== '*') {
+			const commissionPromises = $selectedStore.map((store) =>
+				GetTotalWithCommission(yearMonth, store)
+			);
+			const commissionResults = await Promise.all(commissionPromises);
+			CommissionDataMulNetTotal = commissionResults.flatMap((commission, index) =>
+				commission.map((e) => ({
+					...e,
+					store_name: $selectedStore[index]
+				}))
+			);
 		}
 	};
 
@@ -111,10 +111,12 @@
 		}}
 	></YearMonthTabs>
 {/if}
-<TotalTable
-	bind:totalData
-	bind:realTotal
-	bind:CommissionDataMulNetTotal
-	bind:storeData
-	selectedStore={$selectedStore}
-></TotalTable>
+{#if CommissionDataMulNetTotal}
+	<TotalTable
+		bind:totalData
+		bind:realTotal
+		bind:CommissionDataMulNetTotal
+		bind:storeData
+		selectedStore={$selectedStore}
+	></TotalTable>
+{/if}
