@@ -1,16 +1,13 @@
 <script lang="ts">
 	import { onDestroy, onMount } from 'svelte';
-	import LeleTable from '$lib/Component/htmlWrapper/LeleTable.svelte';
-	import LeleThead from '$lib/Component/htmlWrapper/LeleThead.svelte';
-	import LeleTbody from '$lib/Component/htmlWrapper/LeleTbody.svelte';
 	import { GetTotalWithCommission, GetTradeTotalDataEachOne } from './totalPage';
 	import { GetAllMonth, ThisMonthFirstDate } from '$lib/function/Utils';
-	import LeleTbodyTr from '$lib/Component/htmlWrapper/LeleTbodyTr.svelte';
 	import YearMonthTabs from '$lib/Component/YearMonthTabs.svelte';
 	import { selectedStore } from '$lib/store/choosing';
 	import { browser } from '$app/environment';
 	import db, { type StoreRow } from '$lib/db';
 	import { YearMonth } from '$lib/class/YearMonth';
+	import TotalTable from './TotalTable.svelte';
 
 	let totalData: {
 		artist_name: string | null;
@@ -114,57 +111,10 @@
 		}}
 	></YearMonthTabs>
 {/if}
-<LeleTable>
-	<LeleThead>
-		<tr>
-			<th scope="col" class="w-60 p-2">name</th>
-			<th scope="col" class="w-20 p-2">Net Total</th>
-			{#each $selectedStore as store}
-				<th scope="col" class="w-20 p-2">{store}</th>
-			{/each}
-			<th scope="col" class="w-20 p-2">store sum</th>
-		</tr>
-	</LeleThead>
-	<LeleTbody>
-		{#each totalData as data, index}
-			<LeleTbodyTr>
-				<td class="p-2">{data.artist_name}</td>
-
-				<td class="p-2">{realTotal[index]}</td>
-				{#each $selectedStore as store}
-					<td class="p-2">
-						{#if CommissionDataMulNetTotal.find((item) => item.artist_name === data.artist_name && item.store_name === store)}
-							{CommissionDataMulNetTotal.find(
-								(item) => item.artist_name === data.artist_name && item.store_name === store
-							)?.processedNetSale}({CommissionDataMulNetTotal.find(
-								(item) => item.artist_name === data.artist_name && item.store_name === store
-							)?.commission}%)
-						{/if}
-					</td>
-				{/each}
-				<td class="p-2">
-					{#if $selectedStore === '*'}
-						{storeData.reduce((acc, store) => {
-							return (
-								acc +
-								(CommissionDataMulNetTotal.find(
-									(item) =>
-										item.artist_name === data.artist_name && item.store_name === store.store_name
-								)?.processedNetSale ?? 0)
-							);
-						}, 0)}
-					{:else}
-						{$selectedStore.reduce((acc, store) => {
-							return (
-								acc +
-								(CommissionDataMulNetTotal.find(
-									(item) => item.artist_name === data.artist_name && item.store_name === store
-								)?.processedNetSale ?? 0)
-							);
-						}, 0)}
-					{/if}
-				</td>
-			</LeleTbodyTr>
-		{/each}
-	</LeleTbody>
-</LeleTable>
+<TotalTable
+	bind:totalData
+	bind:realTotal
+	bind:CommissionDataMulNetTotal
+	bind:storeData
+	selectedStore={$selectedStore}
+></TotalTable>
