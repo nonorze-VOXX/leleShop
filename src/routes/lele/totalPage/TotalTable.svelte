@@ -13,8 +13,8 @@
 	}[] = [];
 
 	export let realTotal: number[] = [];
-	export let CommissionDataMulNetTotal: {
-		processedNetSale: number;
+	export let RemitDataMulNetTotal: {
+		netSaleMulRemit: number;
 		total_sales: number;
 		net_sales: number;
 		discount: number;
@@ -30,22 +30,22 @@
 	const needSum = false;
 
 	function FindItem(artist_name: string | null, store_name: string) {
-		console.log('finding ', CommissionDataMulNetTotal);
-		return CommissionDataMulNetTotal.find(
+		console.log('finding ', RemitDataMulNetTotal);
+		return RemitDataMulNetTotal.find(
 			(item) => item.artist_name === artist_name && item.store_name === store_name
 		);
 	}
 
 	function getProcessedNetSale(artist_name: string | null, store_name: string) {
 		const item = FindItem(artist_name, store_name);
-		return item ? `${item.processedNetSale}(${item.commission}%)` : '';
+		return item ? `${item.netSaleMulRemit}(${item.commission}%)` : '';
 	}
 
 	function calculateStoreSum(artist_name: string | null) {
 		const stores =
 			selectedStore === '*' ? storeData.map((store) => store.store_name) : selectedStore;
 		return stores.reduce((acc, store) => {
-			return acc + (FindItem(artist_name, store)?.processedNetSale ?? 0);
+			return acc + (FindItem(artist_name, store)?.netSaleMulRemit ?? 0);
 		}, 0);
 	}
 </script>
@@ -64,7 +64,7 @@
 		</tr>
 	</LeleThead>
 	<LeleTbody>
-		{#if CommissionDataMulNetTotal.length === 0}
+		{#if RemitDataMulNetTotal.length === 0}
 			<tr>
 				<td class="p-2" colspan={selectedStore.length + 2}>No data</td>
 			</tr>

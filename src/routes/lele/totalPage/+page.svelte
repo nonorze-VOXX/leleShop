@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onDestroy, onMount } from 'svelte';
-	import { GetTotalWithCommission, GetTradeTotalDataEachOne } from './totalPage';
+	import { GetTotalWithRemit, GetTradeTotalDataEachOne } from './totalPage';
 	import { GetAllMonth, ThisMonthFirstDate } from '$lib/function/Utils';
 	import YearMonthTabs from '$lib/Component/YearMonthTabs.svelte';
 	import { selectedStore } from '$lib/store/choosing';
@@ -19,8 +19,8 @@
 	let realTotal: number[] = [];
 
 	let yearRange = { min: new Date().getFullYear(), max: new Date().getFullYear() }; // Adjust min year as needed
-	let CommissionDataMulNetTotal: {
-		processedNetSale: number;
+	let RemitDataMulNetTotal: {
+		netSaleMulRemit: number;
 		total_sales: number;
 		net_sales: number;
 		discount: number;
@@ -47,11 +47,9 @@
 			realTotal.push(data.net_sales);
 		});
 		if ($selectedStore !== '*') {
-			const commissionPromises = $selectedStore.map((store) =>
-				GetTotalWithCommission(yearMonth, store)
-			);
-			const commissionResults = await Promise.all(commissionPromises);
-			CommissionDataMulNetTotal = commissionResults.flatMap((commission, index) =>
+			const remitPromises = $selectedStore.map((store) => GetTotalWithRemit(yearMonth, store));
+			const remitResults = await Promise.all(remitPromises);
+			RemitDataMulNetTotal = remitResults.flatMap((commission, index) =>
 				commission.map((e) => ({
 					...e,
 					store_name: $selectedStore[index]
@@ -111,11 +109,11 @@
 		}}
 	></YearMonthTabs>
 {/if}
-{#if CommissionDataMulNetTotal}
+{#if RemitDataMulNetTotal}
 	<TotalTable
 		bind:totalData
 		bind:realTotal
-		bind:CommissionDataMulNetTotal
+		bind:RemitDataMulNetTotal
 		bind:storeData
 		selectedStore={$selectedStore}
 	></TotalTable>
