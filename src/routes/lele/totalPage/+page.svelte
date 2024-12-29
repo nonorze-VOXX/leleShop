@@ -49,12 +49,13 @@
 		if ($selectedStore !== '*') {
 			const remitPromises = $selectedStore.map((store) => GetTotalWithRemit(yearMonth, store));
 			const remitResults = await Promise.all(remitPromises);
-			RemitDataMulNetTotal = remitResults.flatMap((commission, index) =>
+			const flat = remitResults.flatMap((commission, index) =>
 				commission.map((e) => ({
 					...e,
 					store_name: $selectedStore[index]
 				}))
 			);
+			RemitDataMulNetTotal = flat;
 		}
 	};
 

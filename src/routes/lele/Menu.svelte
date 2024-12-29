@@ -8,7 +8,7 @@
 		payment,
 		total,
 		import,
-		store,
+		// store,
 		artist_commission
 	}
 	let tabType: TabEnum = TabEnum.artist_list;
@@ -50,13 +50,13 @@
 			goto('/lele/totalPage');
 		}}
 	/>
-	<MenuButton
+	<!-- <MenuButton
 		label="Store"
 		on:click={() => {
 			tabType = TabEnum.store;
 			goto('/lele/store');
 		}}
-	/>
+	/> -->
 	<MenuButton
 		label="Artist Commission"
 		on:click={() => {
