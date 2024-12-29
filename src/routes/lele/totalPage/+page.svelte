@@ -17,6 +17,7 @@
 	}[] = [];
 
 	let realTotal: number[] = [];
+	let dataReady = false;
 
 	let yearRange = { min: new Date().getFullYear(), max: new Date().getFullYear() }; // Adjust min year as needed
 	let RemitDataMulNetTotal: {
@@ -32,6 +33,7 @@
 	}[] = [];
 
 	const FetchData = async (yearMonth: YearMonth) => {
+		dataReady = false;
 		const { data, error } = await GetTradeTotalDataEachOne(
 			yearMonth.getFirstTimePoint(),
 			yearMonth.getLastTimePoint(),
@@ -57,6 +59,7 @@
 			);
 			RemitDataMulNetTotal = flat;
 		}
+		dataReady = true;
 	};
 
 	let yearMonth = new YearMonth(
@@ -116,6 +119,7 @@
 		bind:realTotal
 		bind:RemitDataMulNetTotal
 		bind:storeData
+		{dataReady}
 		selectedStore={$selectedStore}
 	></TotalTable>
 {/if}
