@@ -12,6 +12,7 @@
 		discount: number;
 	}[] = [];
 
+	export let dataReady;
 	export let realTotal: number[] = [];
 	export let RemitDataMulNetTotal: {
 		netSaleMulRemit: number;
@@ -48,6 +49,7 @@
 			return acc + (FindItem(artist_name, store)?.netSaleMulRemit ?? 0);
 		}, 0);
 	}
+	$: dataReady;
 </script>
 
 <LeleTable>
@@ -63,24 +65,30 @@
 			{/if}
 		</tr>
 	</LeleThead>
-	<LeleTbody>
-		{#if RemitDataMulNetTotal.length === 0}
-			<tr>
-				<td class="p-2" colspan={selectedStore.length + 2}>No data</td>
-			</tr>
-		{:else}
-			{#each totalData as data, index}
-				<LeleTbodyTr>
-					<td class="p-2">{data.artist_name}</td>
-					<td class="p-2">{realTotal[index]}</td>
-					{#each selectedStore as store}
-						<td class="p-2">{getProcessedNetSale(data.artist_name, store)}</td>
-					{/each}
-					{#if needSum}
-						<td class="p-2">{calculateStoreSum(data.artist_name)}</td>
-					{/if}
-				</LeleTbodyTr>
-			{/each}
-		{/if}
-	</LeleTbody>
+	{#if dataReady}
+		<LeleTbody>
+			{#if RemitDataMulNetTotal.length === 0}
+				<tr>
+					<td class="p-2" colspan={selectedStore.length + 2}>No data</td>
+				</tr>
+			{:else}
+				{#each totalData as data, index}
+					<LeleTbodyTr>
+						<td class="p-2">{data.artist_name}</td>
+						<td class="p-2">{realTotal[index]}</td>
+						{#each selectedStore as store}
+							<td class="p-2">{getProcessedNetSale(data.artist_name, store)}</td>
+						{/each}
+						{#if needSum}
+							<td class="p-2">{calculateStoreSum(data.artist_name)}</td>
+						{/if}
+					</LeleTbodyTr>
+				{/each}
+			{/if}
+		</LeleTbody>
+	{:else}
+		<tr>
+			<td class="p-2" colspan={selectedStore.length + 2}>Loading...</td>
+		</tr>
+	{/if}
 </LeleTable>
