@@ -1,50 +1,67 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
+	import MenuButton from './MenuButton.svelte';
 
 	enum TabEnum {
 		artist_list,
 		report_key,
 		payment,
 		total,
-		import
+		import,
+		// store,
+		artist_commission
 	}
 	let tabType: TabEnum = TabEnum.artist_list;
 </script>
 
 <div class="flex justify-start gap-2 overflow-auto p-2">
-	<button
+	<MenuButton
+		label="Artist List"
 		on:click={() => {
 			tabType = TabEnum.artist_list;
 			goto('/lele/artistList');
 		}}
-		class="flex rounded-xl bg-lele-line p-2 font-semibold text-lele-bg">Artist List</button
-	>
-	<button
-		class="flex rounded-xl bg-lele-line p-2 font-semibold text-lele-bg"
+	/>
+	<MenuButton
+		label="Manage Key"
 		on:click={() => {
 			tabType = TabEnum.report_key;
 			goto('/lele/reportKey');
-		}}>Manage Key</button
-	>
-	<button
-		class="flex rounded-xl bg-lele-line p-2 font-semibold text-lele-bg"
+		}}
+	/>
+	<MenuButton
+		label="Payment"
 		on:click={() => {
 			tabType = TabEnum.payment;
 			goto('/lele/payment');
-		}}>payment</button
-	>
-	<button
-		class="flex rounded-xl bg-lele-line p-2 font-semibold text-lele-bg"
+		}}
+	/>
+	<MenuButton
+		label="Import"
 		on:click={() => {
 			tabType = TabEnum.import;
 			goto('/lele/import');
-		}}>import</button
-	>
-	<button
-		class="flex rounded-xl bg-lele-line p-2 font-semibold text-lele-bg"
+		}}
+	/>
+	<MenuButton
+		label="Total"
 		on:click={() => {
 			tabType = TabEnum.total;
 			goto('/lele/totalPage');
-		}}>Total</button
-	>
+		}}
+	/>
+	<!-- <MenuButton
+		label="Store"
+		on:click={() => {
+			tabType = TabEnum.store;
+			goto('/lele/store');
+		}}
+	/> -->
+	<MenuButton
+		label="Artist Commission"
+		on:click={() => {
+			tabType = TabEnum.artist_commission;
+			goto('/lele/artistCommission');
+		}}
+	/>
 </div>

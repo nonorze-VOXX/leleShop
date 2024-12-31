@@ -33,6 +33,67 @@ export type Database = {
         }
         Relationships: []
       }
+      artist_commission: {
+        Row: {
+          artist_id: number
+          commission: number
+          store_id: number
+          year_month: string
+        }
+        Insert: {
+          artist_id: number
+          commission: number
+          store_id: number
+          year_month: string
+        }
+        Update: {
+          artist_id?: number
+          commission?: number
+          store_id?: number
+          year_month?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "artist_commision_artist_id_fkey"
+            columns: ["artist_id"]
+            isOneToOne: false
+            referencedRelation: "artist"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "artist_commision_artist_id_fkey"
+            columns: ["artist_id"]
+            isOneToOne: false
+            referencedRelation: "default_artist_view"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "artist_commision_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "store"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      store: {
+        Row: {
+          created_at: string
+          id: number
+          store_name: string
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          store_name: string
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          store_name?: string
+        }
+        Relationships: []
+      }
       trade_body: {
         Row: {
           artist_id: number
@@ -90,18 +151,29 @@ export type Database = {
       }
       trade_head: {
         Row: {
+          store_id: number
           trade_date: string
           trade_id: string
         }
         Insert: {
+          store_id?: number
           trade_date: string
           trade_id: string
         }
         Update: {
+          store_id?: number
           trade_date?: string
           trade_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "trade_head_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "store"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
@@ -114,6 +186,7 @@ export type Database = {
           item_name: string | null
           net_sales: number | null
           quantity: number | null
+          store_name: string | null
           total_sales: number | null
           trade_date: string | null
           trade_id: string | null
@@ -148,23 +221,43 @@ export type Database = {
           id: number | null
           payment: number | null
           report_key: string | null
+          store_name: string | null
           visible: boolean | null
         }
-        Insert: {
-          artist_name?: string | null
-          id?: number | null
-          payment?: number | null
-          report_key?: string | null
-          visible?: boolean | null
-        }
-        Update: {
-          artist_name?: string | null
-          id?: number | null
-          payment?: number | null
-          report_key?: string | null
-          visible?: boolean | null
-        }
         Relationships: []
+      }
+      default_commission_view: {
+        Row: {
+          artist_id: number | null
+          artist_name: string | null
+          commission: number | null
+          store_id: number | null
+          store_name: string | null
+          year_month: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "artist_commision_artist_id_fkey"
+            columns: ["artist_id"]
+            isOneToOne: false
+            referencedRelation: "artist"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "artist_commision_artist_id_fkey"
+            columns: ["artist_id"]
+            isOneToOne: false
+            referencedRelation: "default_artist_view"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "artist_commision_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "store"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Functions: {
@@ -178,7 +271,7 @@ export type Database = {
       }
     }
     Enums: {
-      processenum: "todo" | "doing" | "done"
+      [_ in never]: never
     }
     CompositeTypes: {
       [_ in never]: never
@@ -266,5 +359,20 @@ export type Enums<
   ? Database[PublicEnumNameOrOptions["schema"]]["Enums"][EnumName]
   : PublicEnumNameOrOptions extends keyof PublicSchema["Enums"]
     ? PublicSchema["Enums"][PublicEnumNameOrOptions]
+    : never
+
+export type CompositeTypes<
+  PublicCompositeTypeNameOrOptions extends
+    | keyof PublicSchema["CompositeTypes"]
+    | { schema: keyof Database },
+  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
+    schema: keyof Database
+  }
+    ? keyof Database[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
+    : never = never,
+> = PublicCompositeTypeNameOrOptions extends { schema: keyof Database }
+  ? Database[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
+  : PublicCompositeTypeNameOrOptions extends keyof PublicSchema["CompositeTypes"]
+    ? PublicSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
     : never
 

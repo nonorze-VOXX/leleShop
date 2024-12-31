@@ -1,19 +1,31 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
+	import { onDestroy } from 'svelte';
 	import { supabase, type ArtistViewRow } from '$lib/db';
 	import LeleThead from '$lib/Component/htmlWrapper/LeleThead.svelte';
 	import LeleTbody from '$lib/Component/htmlWrapper/LeleTbody.svelte';
 	import LeleTable from '$lib/Component/htmlWrapper/LeleTable.svelte';
 	import LeleTbodyTr from '$lib/Component/htmlWrapper/LeleTbodyTr.svelte';
+	import { selectedStore } from '$lib/store/choosing';
 	let artistData: ArtistViewRow[] = [];
 
-	onMount(async () => {
-		const { data, error } = await supabase.from('default_artist_view').select('*');
-		if (error) {
-			console.error(error);
-		}
-		artistData = data ?? [];
-	});
+	onDestroy(
+		selectedStore.subscribe(async () => {
+			let query = supabase.from('default_artist_view').select('*');
+			if ($selectedStore !== '*') {
+				query = query.in('store_name', $selectedStore);
+			}
+			const { data, error } = await query;
+			if (error) {
+				console.error(error);
+			}
+			const filterDupData = data?.filter((artist, index, self) => {
+				return index === self.findIndex((t) => t.id === artist.id);
+			});
+			artistData = filterDupData ?? [];
+		})
+	);
+
+	// onMount();
 </script>
 
 <LeleTable>

@@ -1,114 +1,56 @@
 <script lang="ts">
-	import { invalidateAll } from '$app/navigation';
-	import type { TradeBodyRow, TradeHeadRow } from '$lib/db';
-	import {
-		GetDateRange,
-		GetNewArtistList,
-		GetStoreData,
-		fileToArray,
-		savePartToDb,
-		tradeIdIndex
-	} from './importFunction';
-	import { groupBy } from '$lib/function/Utils';
-	import db from '$lib/db';
+	import { ProcessFile } from './importFunction';
 	enum ProcessedStatus {
 		NORMAL,
 		PROCESSING,
 		ERROR,
 		PROCESSED
 	}
-	const timeZoneOffsetToHHMM = (timeZoneOffset: number) => {
-		const sign = timeZoneOffset < 0 ? '+' : '-';
-		const abs = Math.abs(timeZoneOffset);
-		const hour = Math.floor(abs / 60);
-		const minute = abs % 60;
-		return sign + (hour < 10 ? '0' : '') + hour + ':' + (minute < 10 ? '0' : '') + minute;
-	};
 
-	let newTradeHeadList: TradeHeadRow[] = [];
-	let newTradeBodyList: TradeBodyRow[] = [];
+	let newTradeHeadCount: number = 0;
+	let newTradeBodyCount: number = 0;
 	let susTrade: string[] = [];
 	let processed: ProcessedStatus = ProcessedStatus.NORMAL;
 	let submitLog: string = '';
 	async function handleSubmit(event: { currentTarget: EventTarget & HTMLFormElement }) {
-		const data = new FormData(event.currentTarget);
+		const formData = new FormData(event.currentTarget);
 		processed = ProcessedStatus.PROCESSING;
-		const { error, newTradeBody, newTradeHead, susTradeIdLists } = await f(
-			data,
-			timeZoneOffsetToHHMM(new Date().getTimezoneOffset())
-		);
 
-		if (!error) {
-			// submitLog = result.data?.error;
-			newTradeBodyList = newTradeBody ?? [];
-			newTradeHeadList = newTradeHead ?? [];
-			susTrade = susTradeIdLists ?? [];
-			processed = ProcessedStatus.PROCESSED;
-			await invalidateAll();
-		} else {
-			processed = ProcessedStatus.ERROR;
-			submitLog = error.toString();
-			console.error(error);
-		}
-	}
-	const f = async (formData: FormData, timezoneOffset: string) => {
+		// const newF = async (formData: FormData) => {
 		const files = formData.getAll('fileToUpload');
 		if (files.length === 0) {
 			return { error: 'You must provide a file to upload' };
 		}
-		let susTradeIdLists: string[] = [];
 
-		for (let i = 0; i < files.length; i++) {
-			const file = files[i] as File;
-			const fileArr2D = await fileToArray(file);
-			let dataHeader: string[] = [];
-			dataHeader = fileArr2D[0];
-			if (!dataHeader) {
-				continue;
-			}
-
-			const groupByOrder = groupBy(fileArr2D.slice(1), (i) => i[tradeIdIndex(dataHeader)]);
-			const { maxDate, minDate } = await GetDateRange(groupByOrder, dataHeader, timezoneOffset);
-
-			const tradeIdList =
-				(await db.GetTradeIdList({ firstDate: minDate, lastDate: maxDate })).data ?? [];
-			let artistList = (await db.GetArtistDataList()).data ?? [];
-			const newArtistList = GetNewArtistList(artistList, groupByOrder, dataHeader);
-			{
-				if (newArtistList.length > 0) {
-					const { data } = await db.SaveArtistName(newArtistList);
-					artistList = artistList.concat(data ?? []);
-				}
-			}
-
-			const { tradeBodyList, tradeHeadList, susTradeIdList, error } = GetStoreData(
-				tradeIdList,
-				artistList,
-				groupByOrder,
-				timezoneOffset,
-				dataHeader
-			);
-			if (error) {
-				return { error: error };
-			}
-			susTradeIdLists = susTradeIdLists.concat(susTradeIdList ?? []);
-			const {
-				error: saveError,
-				newTradeBody,
-				newTradeHead
-			} = await savePartToDb(tradeBodyList, tradeHeadList);
-			if (saveError) {
-				return { error: saveError };
-			} else {
-				return { error: null, newTradeBody, newTradeHead, susTradeIdLists };
-			}
+		const fs = files.map((e) => {
+			return e as File;
+		});
+		newTradeHeadCount = 0;
+		newTradeBodyCount = 0;
+		for (let i = 0; i < fs.length; i++) {
+			await ProcessFile(fs[i])
+				.then(({ newHeadCount, newBodyCount, susTradeIdList }) => {
+					processed = ProcessedStatus.PROCESSED;
+					newTradeBodyCount += newBodyCount;
+					newTradeHeadCount += newHeadCount;
+					susTrade = susTradeIdList;
+				})
+				.catch((e) => {
+					processed = ProcessedStatus.ERROR;
+					submitLog = e.toString();
+					console.error(e);
+				});
 		}
-		return { error: null, newTradeBody: [], newTradeHead: [], susTradeIdLists };
-	};
+	}
 </script>
 
-<div class="flex flex-col items-center rounded-xl border-4 border-lele-line bg-lele-bg p-5">
-	<form on:submit|preventDefault={handleSubmit} class="flex flex-col items-center gap-4 text-lg">
+<div
+	class="flex flex-col items-center rounded-xl border-4 border-lele-line bg-lele-bg p-5 font-bold"
+>
+	<form
+		on:submit|preventDefault={handleSubmit}
+		class="flex w-full flex-col items-center gap-4 text-lg"
+	>
 		<div>
 			<!-- <label for="file">Upload your file</label> -->
 			<input multiple type="file" id="file" name="fileToUpload" accept=".csv" required />
@@ -126,17 +68,19 @@
 	{:else if processed === ProcessedStatus.ERROR}
 		<p class="text-7xl text-red-600">{submitLog}</p>
 	{/if}
-	<div class="flex flex-col">
-		<div class="text-center">共{newTradeHeadList.length}筆新交易</div>
-		<div class="text-center">賣出{newTradeBodyList.length}次商品</div>
+	<div class="p-2" />
+	<div class="flex w-full flex-col border-t-2 border-lele-line pt-2">
+		<div class="text-center">共{newTradeHeadCount}筆新交易</div>
+		<div class="text-center">賣出{newTradeBodyCount}次商品</div>
 
 		{#if susTrade.length > 0}
 			<div class="text-center">以下交易序號不是關閉狀態</div>
-			{#each susTrade as tradeId}
-				<div class="flex justify-start gap-4 text-lg">
-					<div>交易序號：{tradeId}</div>
-				</div>
-			{/each}
+			<div class="inline gap-4">
+				<p>交易序號：{susTrade.reduce((acc, tradeId) => acc + tradeId + ', ', '')}</p>
+				<!-- {#each susTrade as tradeId} -->
+				<!-- <div class="inline text-lg">{tradeId}</div> -->
+				<!-- {/each} -->
+			</div>
 		{/if}
 	</div>
 </div>

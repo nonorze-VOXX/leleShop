@@ -1,13 +1,13 @@
 <script lang="ts">
-	import OkButton from '$lib/UrlBox.svelte';
+	import InfoBox from '$lib/Component/InfoBox.svelte';
 
-	export let artist_id: string = '';
+	export let artist_id: number;
 	export let firstDate: Date | null;
 	export let lastDate: Date | null;
 </script>
 
 {#if firstDate && lastDate}
-	<OkButton>
-		<a href={artist_id + '/' + firstDate.toISOString() + '/' + lastDate.toISOString()}> download</a>
-	</OkButton>
+	<a href={artist_id.toString() + '/' + firstDate.toISOString() + '/' + lastDate.toISOString()}>
+		<InfoBox title={'download'}></InfoBox>
+	</a>
 {/if}

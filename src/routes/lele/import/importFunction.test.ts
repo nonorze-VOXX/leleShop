@@ -1,5 +1,14 @@
 import { describe, it, expect } from 'vitest';
-import { GetDateWithTimeZone, GetNewArtistList, GetStoreData, fileToArray } from './importFunction';
+import {
+	Array2DToImportedTrade,
+	GetArtistNameList,
+	GetDateWithTimeZone,
+	GetNewArtistList,
+	GetStoreData,
+	GetTradeHeadSet,
+	fileToArray,
+	type ImportedTrade
+} from './importFunction';
 import type { ArtistRow } from '$lib/db';
 
 describe('importFunction', () => {
@@ -204,6 +213,151 @@ describe('importFunction', () => {
 		);
 		expect(GetDateWithTimeZone('2024-03-10T09:43:00+00:00', '+08:00').toISOString()).eq(
 			'2024-03-10T09:43:00.000Z'
+		);
+	});
+});
+
+describe('new importFunction', () => {
+	const testTradeRow: ImportedTrade[] = [
+		{
+			artist_name: 'artist_random_id artist_name',
+
+			item_name: 'item_name',
+			quantity: 1,
+			total_sales: 150,
+			discount: 0,
+			net_sales: 150,
+			trade_date: '2024-07-08T15:03:00.000Z',
+			trade_id: '2-1022',
+			store_name: 'The shop2'
+		},
+		{
+			artist_name: 'artist_random_id artist_name',
+			item_name: 'item_name',
+			quantity: 1,
+			total_sales: 150,
+			discount: 0,
+			net_sales: 150,
+			trade_date: '2024-07-08T15:03:00.000Z',
+			trade_id: '2-1022',
+			store_name: 'The shop1'
+		}
+	];
+	const storeData: { id: number; store_name: string }[] = [
+		{
+			id: 1,
+			store_name: 'The shop1'
+		},
+		{
+			id: 2,
+			store_name: 'The shop2'
+		}
+	];
+
+	it('string to object but header is broken', async () => {
+		// UTC+8 timezone test
+		const context =
+			'期,據號碼,收據類型,類別,SKU,商品,變體,修飾符已应用的,數量,銷售總額,折扣,淨銷售額,銷售成本,毛利潤,稅務,POS,商店,收銀員名稱,客戶名稱,客戶聯繫電話,註釋,狀態\n' +
+			'2024-07-08 23:03+8,2-1022,銷售,artist_random_id artist_name,sku,item_name,,,1.000,150.00,0.00,150.00,0.00,150.00,0.00,POS 2,The shop2,,,,,關閉\n\n' +
+			'2024-07-08 23:03,2-1022,銷售,artist_random_id artist_name,sku,item_name,,,1.000,150.00,0.00,150.00,0.00,150.00,0.00,POS 2,The shop1,,,,,關閉\n\n';
+
+		const file = new File([context], 'filename');
+		const result = await fileToArray(file);
+		const dataHeader = result.shift() ?? [];
+		const body = result;
+
+		// const {importedTrade, susTradeIdList} =
+		expect(() => Array2DToImportedTrade(dataHeader, body)).toThrowError();
+		// expect(res).toStrictEqual(expectTradeRow);
+	});
+	describe('test Array2DToImportedTrade', () => {
+		it('string to object with diff id', async () => {
+			// UTC+8 timezone test
+			const context =
+				'日期,收據號碼,收據類型,類別,SKU,商品,變體,修飾符已应用的,數量,銷售總額,折扣,淨銷售額,銷售成本,毛利潤,稅務,POS,商店,收銀員名稱,客戶名稱,客戶聯繫電話,註釋,狀態\n' +
+				'2024-07-08 23:03+8,2-1022,銷售,artist_random_id artist_name,sku,item_name,,,1.000,150.00,0.00,150.00,0.00,150.00,0.00,POS 2,The shop2,,,,,關閉\n\n' +
+				'2024-07-08 23:03,2-1023,銷售,artist_random_id artist_name,sku,item_name,,,1.000,150.00,0.00,150.00,0.00,150.00,0.00,POS 2,The shop1,,,,,關閉\n\n';
+
+			const file = new File([context], 'filename');
+			const result = await fileToArray(file);
+			const dataHeader = result.shift() ?? [];
+			const body = result;
+			const { importedTrade, susTradeIdList } = Array2DToImportedTrade(dataHeader, body);
+			const testTradeRowWithDiffId: ImportedTrade[] = [
+				{
+					artist_name: 'artist_random_id artist_name',
+
+					item_name: 'item_name',
+					quantity: 1,
+					total_sales: 150,
+					discount: 0,
+					net_sales: 150,
+					trade_date: '2024-07-08T15:03:00.000Z',
+					trade_id: '2-1022',
+					store_name: 'The shop2'
+				},
+				{
+					artist_name: 'artist_random_id artist_name',
+					item_name: 'item_name',
+					quantity: 1,
+					total_sales: 150,
+					discount: 0,
+					net_sales: 150,
+					trade_date: '2024-07-08T15:03:00.000Z',
+					trade_id: '2-1023',
+					store_name: 'The shop1'
+				}
+			];
+			expect(importedTrade).toStrictEqual(testTradeRowWithDiffId);
+			expect(susTradeIdList).toStrictEqual([]);
+		});
+		it('string to object with same id', async () => {
+			// UTC+8 timezone test
+			const context =
+				'日期,收據號碼,收據類型,類別,SKU,商品,變體,修飾符已应用的,數量,銷售總額,折扣,淨銷售額,銷售成本,毛利潤,稅務,POS,商店,收銀員名稱,客戶名稱,客戶聯繫電話,註釋,狀態\n' +
+				'2024-07-08 23:03+8,2-1022,銷售,artist_random_id artist_name,sku,item_name,,,1.000,150.00,0.00,150.00,0.00,150.00,0.00,POS 2,The shop2,,,,,關閉\n\n' +
+				'2024-07-08 23:03,2-1022,銷售,artist_random_id artist_name,sku,item_name,,,1.000,150.00,0.00,150.00,0.00,150.00,0.00,POS 2,The shop1,,,,,關閉\n\n';
+
+			const file = new File([context], 'filename');
+			const result = await fileToArray(file);
+			const dataHeader = result.shift() ?? [];
+			const body = result;
+			const { importedTrade, susTradeIdList } = Array2DToImportedTrade(dataHeader, body);
+			expect(importedTrade).toStrictEqual(testTradeRow);
+			expect(susTradeIdList).toStrictEqual([]);
+		});
+		it('string to object with not 關閉', async () => {
+			// UTC+8 timezone test
+			const context =
+				'日期,收據號碼,收據類型,類別,SKU,商品,變體,修飾符已应用的,數量,銷售總額,折扣,淨銷售額,銷售成本,毛利潤,稅務,POS,商店,收銀員名稱,客戶名稱,客戶聯繫電話,註釋,狀態\n' +
+				'2024-07-08 23:03+8,2-1022,銷售,artist_random_id artist_name,sku,item_name,,,1.000,150.00,0.00,150.00,0.00,150.00,0.00,POS 2,The shop2,,,,,關閉\n\n' +
+				'2024-07-08 23:03+8,2-1023,銷售,artist_random_id artist_name,sku,item_name,,,1.000,150.00,0.00,150.00,0.00,150.00,0.00,POS 2,The shop2,,,,,取消\n\n' +
+				'2024-07-08 23:03,2-1022,銷售,artist_random_id artist_name,sku,item_name,,,1.000,150.00,0.00,150.00,0.00,150.00,0.00,POS 2,The shop1,,,,,關閉\n\n';
+
+			const file = new File([context], 'filename');
+			const result = await fileToArray(file);
+			const dataHeader = result.shift() ?? [];
+			const body = result;
+			const { importedTrade, susTradeIdList } = Array2DToImportedTrade(dataHeader, body);
+			expect(importedTrade).toStrictEqual(testTradeRow);
+			expect(susTradeIdList).toStrictEqual(['2-1023']);
+		});
+	});
+	it('get artist name set in imported trade', async () => {
+		const artistSet = GetArtistNameList(testTradeRow);
+		expect(artistSet).toStrictEqual(['artist_random_id artist_name']);
+	});
+	it('get trade head in imported trade', () => {
+		const tradeHeadList = GetTradeHeadSet(testTradeRow, storeData);
+
+		expect(tradeHeadList).toStrictEqual(
+			new Set([
+				{
+					store_id: 2,
+					trade_date: '2024-07-08T15:03:00.000Z',
+					trade_id: '2-1022'
+				}
+			])
 		);
 	});
 });
