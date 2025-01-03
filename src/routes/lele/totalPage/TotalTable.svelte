@@ -67,6 +67,16 @@
 	</LeleThead>
 	{#if dataReady}
 		<LeleTbody>
+			<LeleTbodyTr>
+				<td class="p-2">Total</td>
+				<td class="p-2">{realTotal.reduce( (pre,nex)=>{return pre+nex }, 0) }</td>
+				{#each selectedStore as store}
+					<td class="p-2">{RemitDataMulNetTotal.filter( item => item.store_name === store).reduce( (pre,nex)=>{return pre+nex.netSaleMulRemit }, 0) }</td>
+				{/each}
+				{#if needSum}
+					<td class="p-2">{RemitDataMulNetTotal.reduce( (pre,nex)=>{return pre+nex.netSaleMulRemit }, 0) }</td>
+				{/if}
+			</LeleTbodyTr>
 			{#if RemitDataMulNetTotal.length === 0}
 				<tr>
 					<td class="p-2" colspan={selectedStore.length + 2}>No data</td>
