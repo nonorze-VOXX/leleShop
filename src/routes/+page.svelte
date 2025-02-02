@@ -14,7 +14,7 @@
 			if ($selectedStore !== '*') {
 				query = query.in('store_name', $selectedStore);
 			}
-			const { data, error } = await query;
+			const { data, error } = await query.order('artist_name');
 			if (error) {
 				console.error(error);
 			}
