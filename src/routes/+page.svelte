@@ -42,19 +42,6 @@
 				<td class="p-2">
 					{artists.artist_name}
 				</td>
-				<td class="text-center">
-					<div class="text-lg">
-						{#each { length: 3 } as _, i}
-							{#if artists.payment !== null}
-								{#if i >= artists.payment}
-									X
-								{:else}
-									✓
-								{/if}
-							{/if}
-						{/each}
-					</div>
-				</td>
 				<td class="flex">
 					<a
 						class="grow rounded-lg bg-lele-line p-2 text-center text-lele-bg"

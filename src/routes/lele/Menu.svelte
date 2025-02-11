@@ -5,7 +5,6 @@
 	enum TabEnum {
 		artist_list,
 		report_key,
-		payment,
 		total,
 		import,
 		// store,
@@ -27,13 +26,6 @@
 		on:click={() => {
 			tabType = TabEnum.report_key;
 			goto('/lele/reportKey');
-		}}
-	/>
-	<MenuButton
-		label="Payment"
-		on:click={() => {
-			tabType = TabEnum.payment;
-			goto('/lele/payment');
 		}}
 	/>
 	<MenuButton
