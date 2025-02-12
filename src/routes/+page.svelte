@@ -32,7 +32,6 @@
 	<LeleThead>
 		<tr>
 			<th scope="col" class="w-40 p-2"> 品牌 </th>
-			<th scope="col" class="w-20 p-2 text-center"> 繳費 </th>
 			<th scope="col" class="w-16 p-2 text-center"> 銷售 </th>
 		</tr>
 	</LeleThead>
@@ -41,19 +40,6 @@
 			<LeleTbodyTr>
 				<td class="p-2">
 					{artists.artist_name}
-				</td>
-				<td class="text-center">
-					<div class="text-lg">
-						{#each { length: 3 } as _, i}
-							{#if artists.payment !== null}
-								{#if i >= artists.payment}
-									X
-								{:else}
-									✓
-								{/if}
-							{/if}
-						{/each}
-					</div>
 				</td>
 				<td class="flex">
 					<a

@@ -13,21 +13,18 @@ export type Database = {
         Row: {
           artist_name: string
           id: number
-          payment: number
           report_key: string | null
           visible: boolean
         }
         Insert: {
           artist_name: string
           id?: never
-          payment?: number
           report_key?: string | null
           visible?: boolean
         }
         Update: {
           artist_name?: string
           id?: never
-          payment?: number
           report_key?: string | null
           visible?: boolean
         }
@@ -219,7 +216,6 @@ export type Database = {
         Row: {
           artist_name: string | null
           id: number | null
-          payment: number | null
           report_key: string | null
           store_name: string | null
           visible: boolean | null
