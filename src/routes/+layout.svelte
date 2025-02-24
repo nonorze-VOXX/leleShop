@@ -4,7 +4,7 @@
 	import { onMount } from 'svelte';
 	import { supabase } from '$lib/db';
 	import type { StoreRow } from '$lib/db';
-	import { findIndex } from './lele/import/importFunction';
+	import { findIndex } from './lele/import/importBase';
 	import LeleButton from '$lib/Component/LeleStoreButton.svelte';
 	let store_list: StoreRow[] = [];
 	let selectState: boolean[] = [];
