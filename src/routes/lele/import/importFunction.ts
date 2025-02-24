@@ -120,26 +120,12 @@ export const GetStoreData = (
 	return { tradeBodyList, tradeHeadList, susTradeIdList };
 };
 
-export const fileToArray = async (file: File) => {
-	const result2D: string[][] = [];
+export const fileToArray = async (file: File): Promise<string[][]> => {
 	const text = await file.text();
-	const lines = text.split('\n');
-	for (let i = 0; i < lines.length; i++) {
-		const line = lines[i].split('\r')[0];
-		const words = line.split(',');
-		const result1D: string[] = [];
-		if (words.length === 1 && words[0] === '') {
-			continue;
-		}
-		for (let ii = 0; ii < words.length; ii++) {
-			const word = words[ii] ? words[ii] : '';
-			result1D.push(word);
-		}
-		if (result1D.length > 0) {
-			result2D.push(result1D);
-		}
-	}
-	return result2D;
+	return text
+		.split('\n')
+		.map(line => line.trim().split(','))
+		.filter(words => words.length > 1 || words[0] !== '');
 };
 
 // dateStr: YYYY-MM-DD HH:MM
