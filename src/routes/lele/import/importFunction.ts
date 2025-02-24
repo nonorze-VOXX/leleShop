@@ -2,11 +2,9 @@ import type {
 	Artist,
 	ArtistRow,
 	TradeBody,
-	TradeHead,
-	TradeHeadRow
-} from '$lib/db';
+	TradeHead} from '$lib/db';
 import db, { supabase } from '$lib/db';
-import { artistIndex, findIndex, dateIndex, stateIndex, tradeIdIndex, itemNameIndex, quantityIndex, totalIndex, discountIndex, netIndex, GetStoreId, GetStoreSet } from './importBase';
+import { artistIndex, dateIndex, discountIndex, fileToArray, findIndex, GetStoreSet, GetTradeHeadSet, itemNameIndex, netIndex, quantityIndex, stateIndex, totalIndex, tradeIdIndex } from './importBase';
 import { Array2DToImportedTrade, type ImportedTrade } from './importDTO';
 
 export const GetNewArtistList = (
@@ -118,14 +116,6 @@ export const GetStoreData = (
 		}
 	}
 	return { tradeBodyList, tradeHeadList, susTradeIdList };
-};
-
-export const fileToArray = async (file: File): Promise<string[][]> => {
-	const text = await file.text();
-	return text
-		.split('\n')
-		.map(line => line.trim().split(','))
-		.filter(words => words.length > 1 || words[0] !== '');
 };
 
 // dateStr: YYYY-MM-DD HH:MM
@@ -278,29 +268,6 @@ export const GetArtistNameList = (data: ImportedTrade[]) => {
 		artistNameSet.push(e.artist_name);
 	});
 	return artistNameSet;
-};
-
-export const GetTradeHeadSet = (
-	data: ImportedTrade[],
-	storeData: { id: number; store_name: string }[]
-) => {
-	const tradeHeadSet = new Set<TradeHeadRow>();
-
-	data.forEach((e) => {
-		const next = {
-			trade_id: e.trade_id,
-			trade_date: e.trade_date,
-			store_id: GetStoreId(e.store_name, storeData)
-		};
-		if (
-			![...tradeHeadSet].some(
-				(tradeHead) =>
-					tradeHead.trade_id === next.trade_id && tradeHead.trade_date === next.trade_date
-			)
-		)
-			tradeHeadSet.add(next);
-	});
-	return tradeHeadSet;
 };
 
 

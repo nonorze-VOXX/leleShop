@@ -1,5 +1,6 @@
 import{ GetDateWithTimeZone } from './importFunction';
 import { type ImportedTrade } from './importDTO';
+import type { TradeHeadRow } from '$lib/db';
 
 export const findIndex = (dataHeader: string[], target: string) => {
 	return dataHeader.findLastIndex((e) => e === target);
@@ -77,5 +78,31 @@ export const GetDateRange = async (
 		}
 	}
 	return { minDate, maxDate };
+};
+export const GetTradeHeadSet = (
+	data: ImportedTrade[],
+	storeData: { id: number; store_name: string; }[]
+) => {
+	const tradeHeadSet = new Set<TradeHeadRow>();
+
+	data.forEach((e) => {
+		const next = {
+			trade_id: e.trade_id,
+			trade_date: e.trade_date,
+			store_id: GetStoreId(e.store_name, storeData)
+		};
+		if (![...tradeHeadSet].some(
+			(tradeHead) => tradeHead.trade_id === next.trade_id && tradeHead.trade_date === next.trade_date
+		))
+			tradeHeadSet.add(next);
+	});
+	return tradeHeadSet;
+};
+export const fileToArray = async (file: File): Promise<string[][]> => {
+	const text = await file.text();
+	return text
+		.split('\n')
+		.map(line => line.trim().split(','))
+		.filter(words => words.length > 1 || words[0] !== '');
 };
 

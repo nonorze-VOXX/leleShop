@@ -3,9 +3,9 @@ import {
 	GetArtistNameList,
 	GetDateWithTimeZone,
 	GetNewArtistList,
-	GetStoreData,
-	GetTradeHeadSet,
-	fileToArray} from './importFunction';
+	GetStoreData} from './importFunction';
+import { fileToArray } from './importBase';
+import { GetTradeHeadSet } from './importBase';
 import { type ImportedTrade } from './importDTO';
 import { Array2DToImportedTrade } from './importDTO';
 import type { ArtistRow } from '$lib/db';
