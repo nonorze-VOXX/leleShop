@@ -5,6 +5,7 @@ import type {
 	TradeHead} from '$lib/db';
 import db, { supabase } from '$lib/db';
 import { artistIndex, dateIndex, discountIndex, fileToArray, findIndex, GetStoreSet, GetTradeHeadSet, itemNameIndex, netIndex, quantityIndex, stateIndex, totalIndex, tradeIdIndex } from './importBase';
+import { getExistingArtists } from './importDb';
 import { Array2DToImportedTrade, type ImportedTrade } from './importDTO';
 
 export const GetNewArtistList = (
@@ -132,11 +133,7 @@ export const ProcessFile = async (file: File) => {
 
 	const { importedTrade, susTradeIdList } = Array2DToImportedTrade(head, body);
 	const importedArtist = GetArtistNameList(importedTrade);
-	const exist_artist = await supabase.from('artist').select().in('artist_name', importedArtist);
-
-	if (exist_artist.error) {
-		throw new Error('artist not found');
-	}
+	const exist_artist = await getExistingArtists(importedArtist);
 
 	const not_exist_artist: ImportedTrade[] = [];
 	for (let i = 0; i < importedTrade.length; i++) {

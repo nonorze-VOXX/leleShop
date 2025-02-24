@@ -1,5 +1,10 @@
-import db, { type TradeBody, type TradeHead, type TradeHeadRow, type TradeBodyRow } from '$lib/db';
-
+import db, {
+	type TradeBody,
+	type TradeHead,
+	type TradeHeadRow,
+	type TradeBodyRow,
+	supabase
+} from '$lib/db';
 
 export const savePartToDb = async (tradeBodyList: TradeBody[], tradeHeadList: TradeHead[]) => {
 	let newTradeHead: TradeHeadRow[] = [];
@@ -20,3 +25,12 @@ export const savePartToDb = async (tradeBodyList: TradeBody[], tradeHeadList: Tr
 	}
 	return { error: null, newTradeHead, newTradeBody };
 };
+
+export async function getExistingArtists(importedArtist: string[]) {
+	const exist_artist = await supabase.from('artist').select().in('artist_name', importedArtist);
+	if (exist_artist.error) {
+		throw new Error('artist not found');
+	}
+
+	return exist_artist;
+}
