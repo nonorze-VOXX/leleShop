@@ -2,8 +2,10 @@ import { describe, it, expect } from 'vitest';
 import {
 	GetArtistNameList,
 	GetDateWithTimeZone,
+	getHeadBody,
 	GetNewArtistList,
-	GetStoreData} from './importFunction';
+	GetStoreData
+} from './importFunction';
 import { fileToArray } from './importBase';
 import { GetTradeHeadSet } from './importBase';
 import { type ImportedTrade } from './importDTO';
@@ -358,5 +360,25 @@ describe('new importFunction', () => {
 				}
 			])
 		);
+	});
+});
+
+describe('ProcessFile', () => {
+	describe('getHeadBody', () => {
+		it('wonderful', async () => {
+			const context = '1,2,3,4\n1,2,3,4';
+			const file = new File([context], 'filename');
+			const result = await getHeadBody(file);
+			expect(result).toStrictEqual({ head: ['1', '2', '3', '4'], body: [['1', '2', '3', '4']] });
+		});
+		it('empty file', async () => {
+			const file = new File([], 'filename');
+			await expect(getHeadBody(file)).rejects.toThrowError();
+		})
+		it('only header', async () => {
+			const context = '1,2,3,4\n';
+			const file = new File([context], 'filename');
+			expect(await getHeadBody(file)).toStrictEqual({ head: ['1', '2', '3', '4'], body: [] });
+		})
 	});
 });

@@ -128,15 +128,7 @@ export const GetDateWithTimeZone = (dateStr: string, timezoneOffset: string) => 
 	return date;
 };
 export const ProcessFile = async (file: File) => {
-	const headBody = await fileToArray(file).then((arr) => {
-		const [h,...b] = arr;
-		return {head:h, body:b};
-	});
-	if (headBody.head === undefined) {
-		throw new Error('head format is wrong or file is empty');
-	}
-	const head = headBody.head;
-	const body = headBody.body;
+	const { head, body } = await getHeadBody(file);
 
 	const { importedTrade, susTradeIdList } = Array2DToImportedTrade(head, body);
 	const importedArtist = GetArtistNameList(importedTrade);
@@ -270,4 +262,16 @@ export const GetArtistNameList = (data: ImportedTrade[]) => {
 	return artistNameSet;
 };
 
+export async function getHeadBody(file: File) {
+	const headBody = await fileToArray(file).then((arr) => {
+		const [h, ...b] = arr;
+		return { head: h, body: b };
+	});
+	if (headBody.head === undefined) {
+		throw new Error('head format is wrong or file is empty');
+	}
+	const head = headBody.head;
+	const body = headBody.body;
+	return { head, body };
+}
 
