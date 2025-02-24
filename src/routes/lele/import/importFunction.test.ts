@@ -1,14 +1,13 @@
 import { describe, it, expect } from 'vitest';
 import {
-	Array2DToImportedTrade,
 	GetArtistNameList,
 	GetDateWithTimeZone,
 	GetNewArtistList,
 	GetStoreData,
 	GetTradeHeadSet,
-	fileToArray,
-	type ImportedTrade
-} from './importFunction';
+	fileToArray} from './importFunction';
+import { type ImportedTrade } from './importDTO';
+import { Array2DToImportedTrade } from './importDTO';
 import type { ArtistRow } from '$lib/db';
 
 describe('importFunction', () => {

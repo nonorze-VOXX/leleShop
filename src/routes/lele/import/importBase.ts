@@ -1,4 +1,5 @@
-import{ GetDateWithTimeZone, type ImportedTrade } from './importFunction';
+import{ GetDateWithTimeZone } from './importFunction';
+import { type ImportedTrade } from './importDTO';
 
 export const findIndex = (dataHeader: string[], target: string) => {
 	return dataHeader.findLastIndex((e) => e === target);
