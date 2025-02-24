@@ -133,18 +133,7 @@ export const ProcessFile = async (file: File) => {
 
 	const { importedTrade, susTradeIdList } = Array2DToImportedTrade(head, body);
 	const importedArtist = GetArtistNameList(importedTrade);
-	const exist_artist = await getExistingArtists(importedArtist);
-
-	const not_exist_artist: ImportedTrade[] = [];
-	for (let i = 0; i < importedTrade.length; i++) {
-		const e = importedTrade[i];
-		if (
-			!exist_artist.data.some((artist) => artist.artist_name === e.artist_name) &&
-			!not_exist_artist.some((artist) => artist.artist_name === e.artist_name)
-		) {
-			not_exist_artist.push(e);
-		}
-	}
+	const not_exist_artist: ImportedTrade[] = await filterNonExistentArtists(importedArtist, importedTrade);
 
 	const saveArtist = await db.SaveArtist(
 		not_exist_artist.map((e) => ({ artist_name: e.artist_name }))
@@ -258,6 +247,29 @@ export const GetArtistNameList = (data: ImportedTrade[]) => {
 	});
 	return artistNameSet;
 };
+
+async function filterNonExistentArtists(importedArtist: string[], importedTrade: ImportedTrade[]) {
+	const exist_artist = await getExistingArtists(importedArtist);
+
+	return filterNonExistentTrades(importedTrade, exist_artist.data);
+}
+
+function filterNonExistentTrades(importedTrade: ImportedTrade[], exist_artist:{
+    artist_name: string;
+    id: number;
+    report_key: string | null;
+    visible: boolean;
+}[]) {
+	const not_exist_artist: ImportedTrade[] = [];
+	for (let i = 0; i < importedTrade.length; i++) {
+		const e = importedTrade[i];
+		if (!exist_artist.some((artist) => artist.artist_name === e.artist_name) &&
+			!not_exist_artist.some((artist) => artist.artist_name === e.artist_name)) {
+			not_exist_artist.push(e);
+		}
+	}
+	return not_exist_artist;
+}
 
 export async function getHeadBody(file: File) {
 	const headBody = await fileToArray(file).then((arr) => {
