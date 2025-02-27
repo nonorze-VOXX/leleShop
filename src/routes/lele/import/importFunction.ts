@@ -1,11 +1,21 @@
-import type {
-	Artist,
-	ArtistRow,
-	TradeBody,
-	TradeHead} from '$lib/db';
+import type { Artist, ArtistRow, TradeBody, TradeHead } from '$lib/db';
 import db, { supabase } from '$lib/db';
-import { artistIndex, dateIndex, discountIndex, fileToArray, findIndex, GetStoreSet, GetTradeHeadSet, itemNameIndex, netIndex, quantityIndex, stateIndex, totalIndex, tradeIdIndex } from './importBase';
-import { getExistingArtists } from './importDb';
+import {
+	artistIndex,
+	dateIndex,
+	discountIndex,
+	fileToArray,
+	findIndex,
+	GetStoreSet,
+	GetTradeHeadSet,
+	itemNameIndex,
+	netIndex,
+	quantityIndex,
+	stateIndex,
+	totalIndex,
+	tradeIdIndex
+} from './importBase';
+import { GetArtistList, getExistingArtists, saveNotExistArtist } from './importDb';
 import { Array2DToImportedTrade, type ImportedTrade } from './importDTO';
 
 export const GetNewArtistList = (
@@ -133,19 +143,14 @@ export const ProcessFile = async (file: File) => {
 
 	const { importedTrade, susTradeIdList } = Array2DToImportedTrade(head, body);
 	const importedArtist = GetArtistNameList(importedTrade);
-	const not_exist_artist: ImportedTrade[] = await filterNonExistentArtists(importedArtist, importedTrade);
-
-	const saveArtist = await db.SaveArtist(
-		not_exist_artist.map((e) => ({ artist_name: e.artist_name }))
+	const not_exist_artist: ImportedTrade[] = await filterNonExistentArtists(
+		importedArtist,
+		importedTrade
 	);
-	if (saveArtist.error) {
-		throw new Error('artist save error');
-	}
 
-	const artistList = await db.GetArtistDataList();
-	if (artistList.error) {
-		throw new Error(artistList.error.message);
-	}
+	await saveNotExistArtist(not_exist_artist);
+
+	const artistList = await GetArtistList();
 	{
 		const storePreData = await supabase.from('store').select();
 		if (storePreData.error) {
@@ -174,14 +179,14 @@ export const ProcessFile = async (file: File) => {
 	}
 
 	const tradeHeadSet = GetTradeHeadSet(importedTrade, storeData.data ?? []);
+	const tradeHeadList = [...tradeHeadSet].map((e) => {
+		return e.trade_id;
+	});
 	const existTradeHead: {
 		store_id: number;
 		trade_date: string;
 		trade_id: string;
 	}[] = [];
-	const tradeHeadList = [...tradeHeadSet].map((e) => {
-		return e.trade_id;
-	});
 
 	const partLen = 300;
 	for (let i = 0; i < tradeHeadList.length; i += partLen) {
@@ -236,7 +241,6 @@ export const ProcessFile = async (file: File) => {
 	};
 };
 
-
 export const GetArtistNameList = (data: ImportedTrade[]) => {
 	const artistNameSet: string[] = [];
 	data.forEach((e) => {
@@ -254,17 +258,22 @@ async function filterNonExistentArtists(importedArtist: string[], importedTrade:
 	return filterNonExistentTrades(importedTrade, exist_artist.data);
 }
 
-function filterNonExistentTrades(importedTrade: ImportedTrade[], exist_artist:{
-    artist_name: string;
-    id: number;
-    report_key: string | null;
-    visible: boolean;
-}[]) {
+function filterNonExistentTrades(
+	importedTrade: ImportedTrade[],
+	exist_artist: {
+		artist_name: string;
+		id: number;
+		report_key: string | null;
+		visible: boolean;
+	}[]
+) {
 	const not_exist_artist: ImportedTrade[] = [];
 	for (let i = 0; i < importedTrade.length; i++) {
 		const e = importedTrade[i];
-		if (!exist_artist.some((artist) => artist.artist_name === e.artist_name) &&
-			!not_exist_artist.some((artist) => artist.artist_name === e.artist_name)) {
+		if (
+			!exist_artist.some((artist) => artist.artist_name === e.artist_name) &&
+			!not_exist_artist.some((artist) => artist.artist_name === e.artist_name)
+		) {
 			not_exist_artist.push(e);
 		}
 	}
@@ -283,4 +292,3 @@ export async function getHeadBody(file: File) {
 	const body = headBody.body;
 	return { head, body };
 }
-
