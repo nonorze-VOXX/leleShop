@@ -5,6 +5,7 @@ import {
 	dateIndex,
 	discountIndex,
 	fileToArray,
+	filterNonExistentArtists,
 	findIndex,
 	GetStoreSet,
 	GetTradeHeadSet,
@@ -15,7 +16,7 @@ import {
 	totalIndex,
 	tradeIdIndex
 } from './importBase';
-import { GetArtistList, getExistingArtists, saveNotExistArtist } from './importDb';
+import { GetArtistList, saveNotExistArtist } from './importDb';
 import { Array2DToImportedTrade, type ImportedTrade } from './importDTO';
 
 export const GetNewArtistList = (
@@ -274,34 +275,6 @@ async function GetNoDupTradeHead(
 		return !existTradeHead.some((tradeHead) => tradeHead.trade_id === e.trade_id);
 	});
 	return noDupTradeHead;
-}
-
-async function filterNonExistentArtists(importedArtist: string[], importedTrade: ImportedTrade[]) {
-	const exist_artist = await getExistingArtists(importedArtist);
-
-	return filterNonExistentTrades(importedTrade, exist_artist.data);
-}
-
-function filterNonExistentTrades(
-	importedTrade: ImportedTrade[],
-	exist_artist: {
-		artist_name: string;
-		id: number;
-		report_key: string | null;
-		visible: boolean;
-	}[]
-) {
-	const not_exist_artist: ImportedTrade[] = [];
-	for (let i = 0; i < importedTrade.length; i++) {
-		const e = importedTrade[i];
-		if (
-			!exist_artist.some((artist) => artist.artist_name === e.artist_name) &&
-			!not_exist_artist.some((artist) => artist.artist_name === e.artist_name)
-		) {
-			not_exist_artist.push(e);
-		}
-	}
-	return not_exist_artist;
 }
 
 export async function getHeadBody(file: File) {
