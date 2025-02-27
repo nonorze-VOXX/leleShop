@@ -1,44 +1,47 @@
 import type { ArtistWithTradeRow } from '$lib/db';
-import { tradeIdIndex, artistIndex, itemNameIndex, quantityIndex, totalIndex, discountIndex, netIndex, dateIndex, storeIndex, stateIndex } from './importBase';
 
 export type ImportedTrade = Omit<
 	{
 		[K in keyof ArtistWithTradeRow]: NonNullable<ArtistWithTradeRow[K]>;
-	}, 'id' | 'artist_id'
+	},
+	'id' | 'artist_id'
 >;
+export type ImportedTradeWithState = ImportedTrade & { state: string };
+export type ImportIndexOfHeader = {
+	tradeIdIdx: number;
+	artistIdx: number;
+	itemNameIdx: number;
+	quantityIdx: number;
+	totalIdx: number;
+	discountIdx: number;
+	netIdx: number;
+	dateIdx: number;
+	storeIdx: number;
+	stateIdx: number;
+};
 
-export const Array2DToImportedTrade = (dataHeader: string[], data: string[][]) => {
-	const susTradeIdList: string[] = [];
+export const Array2DToImportedTrade = (
+	importIndexOfHeader: ImportIndexOfHeader,
+	data: string[][]
+) => {
+	const {
+		tradeIdIdx,
+		artistIdx,
+		itemNameIdx,
+		quantityIdx,
+		totalIdx,
+		discountIdx,
+		netIdx,
+		dateIdx,
+		storeIdx,
+		stateIdx
+	} = importIndexOfHeader;
 	const importedTrade = data
 		.map((e) => {
-			const tradeIdIdx = tradeIdIndex(dataHeader);
-			const artistIdx = artistIndex(dataHeader);
-			const itemNameIdx = itemNameIndex(dataHeader);
-			const quantityIdx = quantityIndex(dataHeader);
-			const totalIdx = totalIndex(dataHeader);
-			const discountIdx = discountIndex(dataHeader);
-			const netIdx = netIndex(dataHeader);
-			const dateIdx = dateIndex(dataHeader);
-			const storeIdx = storeIndex(dataHeader);
-			const stateIdx = stateIndex(dataHeader);
-
-			if (tradeIdIdx === -1 ||
-				artistIdx === -1 ||
-				itemNameIdx === -1 ||
-				quantityIdx === -1 ||
-				totalIdx === -1 ||
-				discountIdx === -1 ||
-				netIdx === -1 ||
-				dateIdx === -1 ||
-				storeIdx === -1) {
-				throw new Error('header is wrong');
-			}
-			if (stateIdx !== -1) {
-				if (e[stateIdx] !== '關閉') {
-					susTradeIdList.push(e[tradeIdIdx]);
-					return;
-				}
-			}
+			// if (stateIdx !== -1 && e[stateIdx] !== '關閉') {
+			// 	susTradeIdList.push(e[tradeIdIdx]);
+			// 	return;
+			// }
 			const dateStr = e[dateIdx];
 			let date;
 			if (dateStr.split('+').length == 2) {
@@ -47,7 +50,7 @@ export const Array2DToImportedTrade = (dataHeader: string[], data: string[][]) =
 				date = new Date(dateStr + '+08');
 			}
 
-			const result: ImportedTrade = {
+			const result: ImportedTradeWithState = {
 				trade_id: e[tradeIdIdx],
 				artist_name: e[artistIdx],
 				item_name: e[itemNameIdx],
@@ -56,12 +59,24 @@ export const Array2DToImportedTrade = (dataHeader: string[], data: string[][]) =
 				discount: parseFloat(e[discountIdx]),
 				net_sales: parseFloat(e[netIdx]),
 				trade_date: date.toISOString(),
-				store_name: e[storeIdx]
+				store_name: e[storeIdx],
+				state: stateIdx !== -1 ? e[stateIdx] : '關閉'
 			};
 			return result;
 		})
 		.filter((e) => e !== undefined);
 
-	return { importedTrade, susTradeIdList: Array.of(...new Set(susTradeIdList)) };
+	return importedTrade;
+	// , susTradeIdList: Array.of(...new Set(susTradeIdList))
 };
 
+export const FilterSusTradeIdList = (importedTradeWithState: ImportedTradeWithState[]) => {
+	const susTradeIdList: string[] = [];
+	for (const e of importedTradeWithState) {
+		if (e.state !== '關閉') {
+			susTradeIdList.push(e.trade_id);
+		}
+	}
+	const importedTrade: ImportedTrade[] = importedTradeWithState.filter((e) => e.state === '關閉');
+	return { susTradeIdList, importedTrade };
+};

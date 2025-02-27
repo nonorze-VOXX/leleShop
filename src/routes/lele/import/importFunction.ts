@@ -7,6 +7,7 @@ import {
 	fileToArray,
 	filterNonExistentArtists,
 	findIndex,
+	GetIndexByHeader,
 	GetStoreSet,
 	GetTradeHeadSet,
 	itemNameIndex,
@@ -17,7 +18,7 @@ import {
 	tradeIdIndex
 } from './importBase';
 import { GetArtistList, saveNotExistArtist } from './importDb';
-import { Array2DToImportedTrade, type ImportedTrade } from './importDTO';
+import { Array2DToImportedTrade, FilterSusTradeIdList, type ImportedTrade } from './importDTO';
 
 export const GetNewArtistList = (
 	artistList: ArtistRow[],
@@ -142,7 +143,13 @@ export const GetDateWithTimeZone = (dateStr: string, timezoneOffset: string) => 
 export const ProcessFile = async (file: File) => {
 	const { head, body } = await getHeadBody(file);
 
-	const { importedTrade, susTradeIdList } = Array2DToImportedTrade(head, body);
+	// check header is ok
+	// if not ok will throw error
+	const importIndexOfHeader = GetIndexByHeader(head);
+
+	const { importedTrade, susTradeIdList } = FilterSusTradeIdList(
+		Array2DToImportedTrade(importIndexOfHeader, body)
+	);
 	const importedArtist = GetArtistNameList(importedTrade);
 	const not_exist_artist: ImportedTrade[] = await filterNonExistentArtists(
 		importedArtist,
