@@ -1,21 +1,12 @@
-import type { Artist, ArtistRow, TradeBody, TradeHead } from '$lib/db';
+import type { Artist, ArtistRow, TradeBody } from '$lib/db';
 import db, { supabase } from '$lib/db';
 import {
 	artistIndex,
-	dateIndex,
-	discountIndex,
 	fileToArray,
 	filterNonExistentArtists,
-	findIndex,
 	GetIndexByHeader,
 	GetStoreSet,
-	GetTradeHeadSet,
-	itemNameIndex,
-	netIndex,
-	quantityIndex,
-	stateIndex,
-	totalIndex,
-	tradeIdIndex
+	GetTradeHeadSet
 } from './importBase';
 import { GetArtistList, saveNotExistArtist } from './importDb';
 import { Array2DToImportedTrade, FilterSusTradeIdList, type ImportedTrade } from './importDTO';
@@ -42,104 +33,6 @@ export const GetNewArtistList = (
 	return newArtistList;
 };
 
-const CheckDataHeader = (dataHeader: string[]) => {
-	const shouldDataHeader = [
-		'收據號碼',
-		'類別',
-		'商品',
-		'數量',
-		'銷售總額',
-		'折扣',
-		'淨銷售額',
-		// '狀態',
-		'日期'
-	];
-	const notFoundColumn: string[] = [];
-	shouldDataHeader.forEach((e) => {
-		if (findIndex(dataHeader, e) === -1) {
-			notFoundColumn.push(e);
-		}
-	});
-	if (notFoundColumn.length > 0) {
-		return {
-			error: notFoundColumn.join(',') + ', not found'
-		};
-	}
-	return { error: null };
-};
-
-export const GetStoreData = (
-	tradeIdList: { trade_id: string }[],
-	artistList: ArtistRow[],
-	groupByIndex: Record<string, string[][]>,
-	timezoneOffset: string,
-	dataHeader: string[]
-) => {
-	const { error } = CheckDataHeader(dataHeader);
-	if (error) {
-		return {
-			tradeBodyList: [],
-			tradeHeadList: [],
-			error
-		};
-	}
-	const tradeBodyList: TradeBody[] = [];
-	const tradeHeadList: TradeHead[] = [];
-	const susTradeIdList: string[] = [];
-
-	for (const key in groupByIndex) {
-		if (key === undefined || key === 'undefined') continue;
-		if (tradeIdList.findLastIndex((i) => i.trade_id === key) !== -1) {
-			continue;
-		}
-
-		const element = groupByIndex[key];
-		const date = GetDateWithTimeZone(element[0][dateIndex(dataHeader)], timezoneOffset);
-		let state = '關閉';
-		if (stateIndex(dataHeader) !== -1) {
-			state = element[0][stateIndex(dataHeader)];
-		}
-		if (state !== '關閉') {
-			susTradeIdList.push(key);
-			continue;
-		}
-		tradeHeadList.push({
-			trade_date: date.toISOString(),
-			trade_id: element[0][tradeIdIndex(dataHeader)]
-		});
-
-		for (let i = 0; i < element.length; i++) {
-			const artist_name = element[i][artistIndex(dataHeader)];
-			if (artistList.findLastIndex((artist) => artist.artist_name === artist_name) === -1) {
-				console.error('artist not found', artist_name);
-			}
-			const artist_id = artistList.find((artist) => artist.artist_name === artist_name)?.id;
-			if (artist_id === undefined)
-				return { error: 'artist not found', tradeBodyList: [], tradeHeadList: [] };
-
-			tradeBodyList.push({
-				item_name: element[i][itemNameIndex(dataHeader)],
-				quantity: parseInt(element[i][quantityIndex(dataHeader)]),
-				trade_id: element[i][tradeIdIndex(dataHeader)],
-				total_sales: parseFloat(element[i][totalIndex(dataHeader)]),
-				discount: parseFloat(element[i][discountIndex(dataHeader)]),
-				net_sales: parseFloat(element[i][netIndex(dataHeader)]),
-				artist_id: artist_id
-			});
-		}
-	}
-	return { tradeBodyList, tradeHeadList, susTradeIdList };
-};
-
-// dateStr: YYYY-MM-DD HH:MM
-export const GetDateWithTimeZone = (dateStr: string, timezoneOffset: string) => {
-	if (dateStr.split('+').length == 2) {
-		const date = new Date(dateStr);
-		return date;
-	}
-	const date = new Date(dateStr.replace(/ /g, 'T') + timezoneOffset);
-	return date;
-};
 export const ProcessFile = async (file: File) => {
 	const { head, body } = await getHeadBody(file);
 

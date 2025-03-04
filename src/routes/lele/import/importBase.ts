@@ -1,4 +1,3 @@
-import { GetDateWithTimeZone } from './importFunction';
 import { type ImportedTrade, type ImportIndexOfHeader } from './importDTO';
 import type { TradeHeadRow } from '$lib/db';
 import { getExistingArtists } from './importDb';
@@ -53,32 +52,6 @@ export const GetStoreSet = (data: ImportedTrade[]) => {
 		storeSet.add(e.store_name);
 	});
 	return storeSet;
-};
-export const GetDateRange = async (
-	groupByOrder: Record<string, string[][]>,
-	dataHeader: string[],
-	timezoneOffset: string
-) => {
-	let minDate: Date | null = null;
-	let maxDate: Date | null = null;
-	for (const key in groupByOrder) {
-		if (key === undefined || key === 'undefined') continue;
-		const tradeDate = groupByOrder[key][0][dateIndex(dataHeader)];
-		const date = GetDateWithTimeZone(tradeDate, timezoneOffset);
-		if (minDate === null) {
-			minDate = date;
-		}
-		if (maxDate === null) {
-			maxDate = date;
-		}
-		if (date < minDate) {
-			minDate = date;
-		}
-		if (date > maxDate) {
-			maxDate = date;
-		}
-	}
-	return { minDate, maxDate };
 };
 export const GetTradeHeadSet = (
 	data: ImportedTrade[],
