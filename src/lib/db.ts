@@ -57,27 +57,6 @@ export default {
 		}
 		return { total_sales_sum, net_sales_sum, discount_sum, error: null };
 	},
-	async SaveArtist(artist: Artist[]) {
-		const { error, data } = await supabase.from('artist').insert(artist).select();
-		if (error !== null) {
-			console.error(error);
-		}
-		return { data, error };
-	},
-	async SaveTradeBody(body: TradeBody[]) {
-		const { data, error } = await supabase.from('trade_body').insert(body).select();
-		if (error) {
-			console.error(error);
-		}
-		return { data, error };
-	},
-	async SaveTradeHead(head: TradeHead[]) {
-		const { data, error } = await supabase.from('trade_head').insert(head).select();
-		if (error) {
-			console.error(error);
-		}
-		return { data, error };
-	},
 	async GetArtistData(id: number | '*' = '*') {
 		let query = supabase.from('artist').select();
 		if (id !== '*') {

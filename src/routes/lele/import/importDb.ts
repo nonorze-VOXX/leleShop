@@ -1,30 +1,11 @@
-import db, {
-	type TradeBody,
-	type TradeHead,
-	type TradeHeadRow,
-	type TradeBodyRow,
-	supabase
-} from '$lib/db';
-
-export const savePartToDb = async (tradeBodyList: TradeBody[], tradeHeadList: TradeHead[]) => {
-	let newTradeHead: TradeHeadRow[] = [];
-	let newTradeBody: TradeBodyRow[] = [];
-	{
-		const { error, data } = await db.SaveTradeHead(tradeHeadList);
-		if (error !== null) {
-			return { error, newTradeHead, newTradeBody };
-		}
-		newTradeHead = data ?? [];
+import db, { type TradeBody, type TradeHead, supabase, type Artist } from '$lib/db';
+export async function SaveTradeBody(body: TradeBody[]) {
+	const { data, error } = await supabase.from('trade_body').insert(body).select();
+	if (error) {
+		console.error(error);
 	}
-	{
-		const { error, data } = await db.SaveTradeBody(tradeBodyList);
-		if (error !== null) {
-			return { error, newTradeHead, newTradeBody };
-		}
-		newTradeBody = data ?? [];
-	}
-	return { error: null, newTradeHead, newTradeBody };
-};
+	return { data, error };
+}
 
 export async function getExistingArtists(importedArtist: string[]) {
 	const exist_artist = await supabase.from('artist').select().in('artist_name', importedArtist);
@@ -34,8 +15,23 @@ export async function getExistingArtists(importedArtist: string[]) {
 
 	return exist_artist;
 }
+
+export async function SaveTradeHead(head: TradeHead[]) {
+	const { data, error } = await supabase.from('trade_head').insert(head).select();
+	if (error) {
+		console.error(error);
+	}
+	return { data, error };
+}
+async function SaveArtist(artist: Artist[]) {
+	const { error, data } = await supabase.from('artist').insert(artist).select();
+	if (error !== null) {
+		console.error(error);
+	}
+	return { data, error };
+}
 export async function saveNotExistArtist(not_exist_artist: { artist_name: string }[]) {
-	const saveArtist = await db.SaveArtist(
+	const saveArtist = await SaveArtist(
 		not_exist_artist.map((e) => ({ artist_name: e.artist_name }))
 	);
 	if (saveArtist.error) {

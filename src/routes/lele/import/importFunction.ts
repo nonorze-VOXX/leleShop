@@ -1,5 +1,5 @@
 import type { TradeBody } from '$lib/db';
-import db, { supabase } from '$lib/db';
+import { supabase } from '$lib/db';
 import {
 	filterNonExistentArtists,
 	GetArtistNameList,
@@ -12,7 +12,9 @@ import {
 	GetArtistList,
 	getExistingArtists,
 	GetNoDupTradeHead,
-	saveNotExistArtist
+	saveNotExistArtist,
+	SaveTradeBody,
+	SaveTradeHead
 } from './importDb';
 import { Array2DToImportedTrade, FilterSusTradeIdList, type ImportedTrade } from './importDTO';
 
@@ -42,7 +44,7 @@ export const ProcessFile = async (file: File) => {
 	const tradeHeadSet = GetTradeHeadSet(importedTrade, storeData ?? []);
 	const noDupTradeHead = await GetNoDupTradeHead(tradeHeadSet);
 
-	const saveHead = await db.SaveTradeHead(noDupTradeHead);
+	const saveHead = await SaveTradeHead(noDupTradeHead);
 	if (saveHead.error) {
 		throw new Error(saveHead.error.message);
 	}
@@ -66,7 +68,7 @@ export const ProcessFile = async (file: File) => {
 			};
 		})
 		.filter((e) => noDupTradeHead.some((h) => h.trade_id === e.trade_id));
-	const saveBody = await db.SaveTradeBody(tradeBodyList);
+	const saveBody = await SaveTradeBody(tradeBodyList);
 	if (saveBody.error) {
 		throw new Error(saveBody.error.message);
 	}
