@@ -87,16 +87,6 @@ describe('importBase', () => {
 		expect(storeSet.size).toBe(2);
 	});
 
-	// it.skip('should get the correct date range', async () => {
-	// 	const groupByOrder = {
-	// 		order1: [['2023-01-01']],
-	// 		order2: [['2023-01-02']]
-	// 	};
-	// 	const { minDate, maxDate } = await GetDateRange(groupByOrder, dataHeader, '+00:00');
-	// 	expect(minDate).toEqual(new Date('2023-01-01'));
-	// 	expect(maxDate).toEqual(new Date('2023-01-02'));
-	// });
-
 	it('should get the correct trade head set', () => {
 		const tradeHeadSet = GetTradeHeadSet(importedTrade, storeData);
 		expect(tradeHeadSet.size).toBe(2);
@@ -109,6 +99,35 @@ describe('importBase', () => {
 			['a', 'b', 'c'],
 			['1', '2', '3']
 		]);
+	});
+	it.each([
+		{
+			context: '1,2,3,4\n1,2,3,4',
+			answer: [
+				['1', '2', '3', '4'],
+				['1', '2', '3', '4']
+			]
+		},
+		{ context: '\n1,2,3,4', answer: [['1', '2', '3', '4']] },
+		{
+			context: '1,2,3,4\n1,2,3',
+			answer: [
+				['1', '2', '3', '4'],
+				['1', '2', '3']
+			]
+		},
+		{
+			context: '1,,3,4\n1,2,3',
+			answer: [
+				['1', '', '3', '4'],
+				['1', '2', '3']
+			]
+		}
+	])('fileToArray($context)', async ({ context, answer }) => {
+		const file = new File([context], 'filename');
+
+		const result = await fileToArray(file);
+		expect(result).toStrictEqual(answer);
 	});
 
 	it('should convert string to array', () => {

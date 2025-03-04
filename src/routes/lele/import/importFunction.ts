@@ -11,28 +11,6 @@ import {
 import { GetArtistList, saveNotExistArtist } from './importDb';
 import { Array2DToImportedTrade, FilterSusTradeIdList, type ImportedTrade } from './importDTO';
 
-export const GetNewArtistList = (
-	artistList: ArtistRow[],
-	groupByIndex: Record<string, string[][]>,
-	dataHeader: string[]
-) => {
-	const newArtistList: Artist[] = [];
-	for (const key in groupByIndex) {
-		if (key === undefined || key === 'undefined') continue;
-		const element = groupByIndex[key];
-		for (let i = 0; i < element.length; i++) {
-			const artist_name = element[i][artistIndex(dataHeader)];
-			if (
-				artistList.findLastIndex((artist) => artist.artist_name === artist_name) === -1 &&
-				newArtistList.findLastIndex((artist) => artist.artist_name === artist_name) === -1
-			) {
-				newArtistList.push({ artist_name });
-			}
-		}
-	}
-	return newArtistList;
-};
-
 export const ProcessFile = async (file: File) => {
 	const { head, body } = await getHeadBody(file);
 
