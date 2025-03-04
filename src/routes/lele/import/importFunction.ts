@@ -8,7 +8,12 @@ import {
 	GetStoreSet,
 	GetTradeHeadSet
 } from './importBase';
-import { GetArtistList, getExistingArtists, saveNotExistArtist } from './importDb';
+import {
+	GetArtistList,
+	getExistingArtists,
+	GetNoDupTradeHead,
+	saveNotExistArtist
+} from './importDb';
 import { Array2DToImportedTrade, FilterSusTradeIdList, type ImportedTrade } from './importDTO';
 
 export const ProcessFile = async (file: File) => {
@@ -34,7 +39,8 @@ export const ProcessFile = async (file: File) => {
 	await PreInsertStores(importedTrade);
 	const storeData = await GetStoreDataFromDb();
 
-	const noDupTradeHead = await BiggerGetNoDupTradeHead(importedTrade, storeData);
+	const tradeHeadSet = GetTradeHeadSet(importedTrade, storeData ?? []);
+	const noDupTradeHead = await GetNoDupTradeHead(tradeHeadSet);
 
 	const saveHead = await db.SaveTradeHead(noDupTradeHead);
 	if (saveHead.error) {
@@ -71,18 +77,6 @@ export const ProcessFile = async (file: File) => {
 	};
 };
 
-async function BiggerGetNoDupTradeHead(
-	importedTrade: ImportedTrade[],
-	storeData: { created_at: string; id: number; store_name: string }[]
-) {
-	const tradeHeadSet = GetTradeHeadSet(importedTrade, storeData ?? []);
-	const tradeHeadList = [...tradeHeadSet].map((e) => {
-		return e.trade_id;
-	});
-	const noDupTradeHead = await GetNoDupTradeHead(tradeHeadList, tradeHeadSet);
-	return noDupTradeHead;
-}
-
 async function GetStoreDataFromDb() {
 	const storeData = await supabase.from('store').select();
 	if (storeData.error) {
@@ -112,36 +106,4 @@ async function PreInsertStores(importedTrade: ImportedTrade[]) {
 	if (saveStore.error) {
 		throw new Error(saveStore.error.message);
 	}
-}
-
-async function GetNoDupTradeHead(
-	tradeHeadList: string[],
-	tradeHeadSet: Set<{ store_id: number; trade_date: string; trade_id: string }>
-) {
-	const existTradeHead: {
-		store_id: number;
-		trade_date: string;
-		trade_id: string;
-	}[] = [];
-
-	const partLen = 300;
-	for (let i = 0; i < tradeHeadList.length; i += partLen) {
-		const existTradeHeadPart = await supabase
-			.from('trade_head')
-			.select()
-			.in('trade_id', tradeHeadList.slice(i, i + partLen));
-		if (existTradeHeadPart.error) {
-			throw new Error(existTradeHeadPart.error.message);
-		} else {
-			// existTradeHead += existTradeHeadPart.data??[];
-			existTradeHeadPart.data?.forEach((e) => {
-				existTradeHead.push(e);
-			});
-		}
-	}
-
-	const noDupTradeHead = [...tradeHeadSet].filter((e) => {
-		return !existTradeHead.some((tradeHead) => tradeHead.trade_id === e.trade_id);
-	});
-	return noDupTradeHead;
 }

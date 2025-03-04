@@ -50,3 +50,37 @@ export async function GetArtistList() {
 	}
 	return artistList;
 }
+export async function GetNoDupTradeHead(
+	tradeHeadSet: Set<{ store_id: number; trade_date: string; trade_id: string }>
+) {
+	const existTradeHead: {
+		store_id: number;
+		trade_date: string;
+		trade_id: string;
+	}[] = [];
+
+	const tradeIdList = [...tradeHeadSet].map((e) => {
+		return e.trade_id;
+	});
+
+	const partLen = 300;
+	for (let i = 0; i < tradeIdList.length; i += partLen) {
+		const existTradeHeadPart = await supabase
+			.from('trade_head')
+			.select()
+			.in('trade_id', tradeIdList.slice(i, i + partLen));
+		if (existTradeHeadPart.error) {
+			throw new Error(existTradeHeadPart.error.message);
+		} else {
+			// existTradeHead += existTradeHeadPart.data??[];
+			existTradeHeadPart.data?.forEach((e) => {
+				existTradeHead.push(e);
+			});
+		}
+	}
+
+	const noDupTradeHead = [...tradeHeadSet].filter((e) => {
+		return !existTradeHead.some((tradeHead) => tradeHead.trade_id === e.trade_id);
+	});
+	return noDupTradeHead;
+}
