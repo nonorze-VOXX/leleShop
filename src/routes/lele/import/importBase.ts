@@ -1,6 +1,6 @@
+// this file main perpose is no import supabase for test without supabase key
 import { type ImportedTrade, type ImportIndexOfHeader } from './importDTO';
 import type { TradeHeadRow } from '$lib/db';
-import { getExistingArtists } from './importDb';
 
 export const findIndex = (dataHeader: string[], target: string) => {
 	return dataHeader.findLastIndex((e) => e === target);
@@ -87,12 +87,10 @@ export const StringToArray = (text: string): string[][] => {
 };
 
 export async function filterNonExistentArtists(
-	importedArtist: string[],
-	importedTrade: ImportedTrade[]
+	importedTrade: ImportedTrade[],
+	exist_artist: { artist_name: string; id: number; report_key: string | null; visible: boolean }[]
 ) {
-	const exist_artist = await getExistingArtists(importedArtist);
-
-	return filterNonExistentTrades(importedTrade, exist_artist.data);
+	return filterNonExistentTrades(importedTrade, exist_artist);
 }
 function filterNonExistentTrades(
 	importedTrade: ImportedTrade[],
@@ -153,3 +151,25 @@ export const GetIndexByHeader = (dataHeader: string[]): ImportIndexOfHeader => {
 		stateIdx
 	};
 };
+export const GetArtistNameList = (data: ImportedTrade[]) => {
+	const artistNameSet: string[] = [];
+	data.forEach((e) => {
+		if (artistNameSet.some((artistName) => artistName === e.artist_name)) {
+			return;
+		}
+		artistNameSet.push(e.artist_name);
+	});
+	return artistNameSet;
+};
+export async function getHeadBody(file: File) {
+	const headBody = await fileToArray(file).then((arr) => {
+		const [h, ...b] = arr;
+		return { head: h, body: b };
+	});
+	if (headBody.head === undefined) {
+		throw new Error('head format is wrong or file is empty');
+	}
+	const head = headBody.head;
+	const body = headBody.body;
+	return { head, body };
+}

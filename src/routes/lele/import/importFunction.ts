@@ -1,14 +1,14 @@
-import type { Artist, ArtistRow, TradeBody } from '$lib/db';
+import type { TradeBody } from '$lib/db';
 import db, { supabase } from '$lib/db';
 import {
-	artistIndex,
-	fileToArray,
 	filterNonExistentArtists,
+	GetArtistNameList,
+	getHeadBody,
 	GetIndexByHeader,
 	GetStoreSet,
 	GetTradeHeadSet
 } from './importBase';
-import { GetArtistList, saveNotExistArtist } from './importDb';
+import { GetArtistList, getExistingArtists, saveNotExistArtist } from './importDb';
 import { Array2DToImportedTrade, FilterSusTradeIdList, type ImportedTrade } from './importDTO';
 
 export const ProcessFile = async (file: File) => {
@@ -22,9 +22,11 @@ export const ProcessFile = async (file: File) => {
 		Array2DToImportedTrade(importIndexOfHeader, body)
 	);
 	const importedArtist = GetArtistNameList(importedTrade);
+	const exist_artist = await getExistingArtists(importedArtist);
+
 	const not_exist_artist: ImportedTrade[] = await filterNonExistentArtists(
-		importedArtist,
-		importedTrade
+		importedTrade,
+		exist_artist.data
 	);
 
 	await saveNotExistArtist(not_exist_artist);
@@ -67,17 +69,6 @@ export const ProcessFile = async (file: File) => {
 		newBodyCount: (saveBody.data ?? []).length,
 		susTradeIdList
 	};
-};
-
-export const GetArtistNameList = (data: ImportedTrade[]) => {
-	const artistNameSet: string[] = [];
-	data.forEach((e) => {
-		if (artistNameSet.some((artistName) => artistName === e.artist_name)) {
-			return;
-		}
-		artistNameSet.push(e.artist_name);
-	});
-	return artistNameSet;
 };
 
 async function BiggerGetNoDupTradeHead(
@@ -153,17 +144,4 @@ async function GetNoDupTradeHead(
 		return !existTradeHead.some((tradeHead) => tradeHead.trade_id === e.trade_id);
 	});
 	return noDupTradeHead;
-}
-
-export async function getHeadBody(file: File) {
-	const headBody = await fileToArray(file).then((arr) => {
-		const [h, ...b] = arr;
-		return { head: h, body: b };
-	});
-	if (headBody.head === undefined) {
-		throw new Error('head format is wrong or file is empty');
-	}
-	const head = headBody.head;
-	const body = headBody.body;
-	return { head, body };
 }

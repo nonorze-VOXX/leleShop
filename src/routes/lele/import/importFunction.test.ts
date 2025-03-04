@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
-import { GetArtistNameList, getHeadBody } from './importFunction';
-import { GetIndexByHeader, StringToArray } from './importBase';
-import { GetTradeHeadSet } from './importBase';
+import { getHeadBody } from './importBase';
+import { GetArtistNameList } from './importBase';
+import { GetTradeHeadSet, GetIndexByHeader, StringToArray } from './importBase';
 import type { ImportedTradeWithState } from './importDTO';
 
 describe('new importFunction', () => {
