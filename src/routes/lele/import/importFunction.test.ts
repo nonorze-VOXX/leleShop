@@ -6,9 +6,9 @@ import {
 	GetNewArtistList,
 	GetStoreData
 } from './importFunction';
-import { fileToArray } from './importBase';
+import { fileToArray, GetIndexByHeader, StringToArray } from './importBase';
 import { GetTradeHeadSet } from './importBase';
-import { type ImportedTrade } from './importDTO';
+import { FilterSusTradeIdList, type ImportedTradeWithState } from './importDTO';
 import { Array2DToImportedTrade } from './importDTO';
 import type { ArtistRow } from '$lib/db';
 
@@ -219,7 +219,7 @@ describe('importFunction', () => {
 });
 
 describe('new importFunction', () => {
-	const testTradeRow: ImportedTrade[] = [
+	const testTradeRow: ImportedTradeWithState[] = [
 		{
 			artist_name: 'artist_random_id artist_name',
 
@@ -230,7 +230,8 @@ describe('new importFunction', () => {
 			net_sales: 150,
 			trade_date: '2024-07-08T15:03:00.000Z',
 			trade_id: '2-1022',
-			store_name: 'The shop2'
+			store_name: 'The shop2',
+			state: '關閉'
 		},
 		{
 			artist_name: 'artist_random_id artist_name',
@@ -241,7 +242,8 @@ describe('new importFunction', () => {
 			net_sales: 150,
 			trade_date: '2024-07-08T15:03:00.000Z',
 			trade_id: '2-1022',
-			store_name: 'The shop1'
+			store_name: 'The shop1',
+			state: '關閉'
 		}
 	];
 	const storeData: { id: number; store_name: string }[] = [
@@ -254,40 +256,122 @@ describe('new importFunction', () => {
 			store_name: 'The shop2'
 		}
 	];
-
-	it('string to object but header is broken', async () => {
-		// UTC+8 timezone test
-		const context =
-			'期,據號碼,收據類型,類別,SKU,商品,變體,修飾符已应用的,數量,銷售總額,折扣,淨銷售額,銷售成本,毛利潤,稅務,POS,商店,收銀員名稱,客戶名稱,客戶聯繫電話,註釋,狀態\n' +
-			'2024-07-08 23:03+8,2-1022,銷售,artist_random_id artist_name,sku,item_name,,,1.000,150.00,0.00,150.00,0.00,150.00,0.00,POS 2,The shop2,,,,,關閉\n\n' +
-			'2024-07-08 23:03,2-1022,銷售,artist_random_id artist_name,sku,item_name,,,1.000,150.00,0.00,150.00,0.00,150.00,0.00,POS 2,The shop1,,,,,關閉\n\n';
-
+	it('get head body from file', async () => {
+		const context = '1,2,3,4\n1,2,3,4';
 		const file = new File([context], 'filename');
-		const result = await fileToArray(file);
-		const dataHeader = result.shift() ?? [];
-		const body = result;
+		const result = await getHeadBody(file);
+		expect(result).toStrictEqual({ head: ['1', '2', '3', '4'], body: [['1', '2', '3', '4']] });
+	});
 
-		// const {importedTrade, susTradeIdList} =
-		expect(() => Array2DToImportedTrade(dataHeader, body)).toThrowError();
-		// expect(res).toStrictEqual(expectTradeRow);
+	describe('GetIndexByHeader', () => {
+		it('get index by header ok', async () => {
+			// UTC+8 timezone test
+			const context =
+				'期,據號碼,收據類型,類別,SKU,商品,變體,修飾符已应用的,數量,銷售總額,折扣,淨銷售額,銷售成本,毛利潤,稅務,POS,商店,收銀員名稱,客戶名稱,客戶聯繫電話,註釋,狀態\n';
+			const contextArr = StringToArray(context);
+
+			const dataHeader = contextArr[0];
+
+			// const {importedTrade, susTradeIdList} =
+			expect(() => GetIndexByHeader(dataHeader)).toThrowError();
+			// expect(res).toStrictEqual(expectTradeRow);
+		});
+		it('get index by header ok', async () => {
+			// UTC+8 timezone test
+			const context =
+				'日期,收據號碼,收據類型,類別,SKU,商品,變體,修飾符已应用的,數量,銷售總額,折扣,淨銷售額,銷售成本,毛利潤,稅務,POS,商店,收銀員名稱,客戶名稱,客戶聯繫電話,註釋,狀態\n';
+			const contextArr = StringToArray(context);
+
+			const dataHeader = contextArr[0];
+
+			expect(GetIndexByHeader(dataHeader)).toEqual({
+				tradeIdIdx: 1,
+				artistIdx: 3,
+				itemNameIdx: 5,
+				quantityIdx: 8,
+				totalIdx: 9,
+				discountIdx: 10,
+				netIdx: 11,
+				dateIdx: 0,
+				storeIdx: 16,
+				stateIdx: 21
+			});
+		});
 	});
 	describe('test Array2DToImportedTrade', () => {
+		const importIndexOfHeader = {
+			tradeIdIdx: 1,
+			artistIdx: 3,
+			itemNameIdx: 5,
+			quantityIdx: 8,
+			totalIdx: 9,
+			discountIdx: 10,
+			netIdx: 11,
+			dateIdx: 0,
+			storeIdx: 16,
+			stateIdx: 21
+		};
 		it('string to object with diff id', async () => {
 			// UTC+8 timezone test
 			const context =
-				'日期,收據號碼,收據類型,類別,SKU,商品,變體,修飾符已应用的,數量,銷售總額,折扣,淨銷售額,銷售成本,毛利潤,稅務,POS,商店,收銀員名稱,客戶名稱,客戶聯繫電話,註釋,狀態\n' +
 				'2024-07-08 23:03+8,2-1022,銷售,artist_random_id artist_name,sku,item_name,,,1.000,150.00,0.00,150.00,0.00,150.00,0.00,POS 2,The shop2,,,,,關閉\n\n' +
 				'2024-07-08 23:03,2-1023,銷售,artist_random_id artist_name,sku,item_name,,,1.000,150.00,0.00,150.00,0.00,150.00,0.00,POS 2,The shop1,,,,,關閉\n\n';
 
-			const file = new File([context], 'filename');
-			const result = await fileToArray(file);
-			const dataHeader = result.shift() ?? [];
-			const body = result;
-			const { importedTrade, susTradeIdList } = Array2DToImportedTrade(dataHeader, body);
-			const testTradeRowWithDiffId: ImportedTrade[] = [
+			const body = StringToArray(context);
+			expect(body).toStrictEqual([
+				[
+					'2024-07-08 23:03+8',
+					'2-1022',
+					'銷售',
+					'artist_random_id artist_name',
+					'sku',
+					'item_name',
+					'',
+					'',
+					'1.000',
+					'150.00',
+					'0.00',
+					'150.00',
+					'0.00',
+					'150.00',
+					'0.00',
+					'POS 2',
+					'The shop2',
+					'',
+					'',
+					'',
+					'',
+					'關閉'
+				],
+				[
+					'2024-07-08 23:03',
+					'2-1023',
+					'銷售',
+					'artist_random_id artist_name',
+					'sku',
+					'item_name',
+					'',
+					'',
+					'1.000',
+					'150.00',
+					'0.00',
+					'150.00',
+					'0.00',
+					'150.00',
+					'0.00',
+					'POS 2',
+					'The shop1',
+					'',
+					'',
+					'',
+					'',
+					'關閉'
+				]
+			]);
+			const importedTrade = Array2DToImportedTrade(importIndexOfHeader, body);
+			expect(importedTrade).toStrictEqual([
 				{
 					artist_name: 'artist_random_id artist_name',
-
 					item_name: 'item_name',
 					quantity: 1,
 					total_sales: 150,
@@ -295,7 +379,8 @@ describe('new importFunction', () => {
 					net_sales: 150,
 					trade_date: '2024-07-08T15:03:00.000Z',
 					trade_id: '2-1022',
-					store_name: 'The shop2'
+					store_name: 'The shop2',
+					state: '關閉'
 				},
 				{
 					artist_name: 'artist_random_id artist_name',
@@ -306,40 +391,35 @@ describe('new importFunction', () => {
 					net_sales: 150,
 					trade_date: '2024-07-08T15:03:00.000Z',
 					trade_id: '2-1023',
-					store_name: 'The shop1'
+					store_name: 'The shop1',
+					state: '關閉'
 				}
-			];
-			expect(importedTrade).toStrictEqual(testTradeRowWithDiffId);
-			expect(susTradeIdList).toStrictEqual([]);
+			]);
 		});
 		it('string to object with same id', async () => {
 			// UTC+8 timezone test
 			const context =
-				'日期,收據號碼,收據類型,類別,SKU,商品,變體,修飾符已应用的,數量,銷售總額,折扣,淨銷售額,銷售成本,毛利潤,稅務,POS,商店,收銀員名稱,客戶名稱,客戶聯繫電話,註釋,狀態\n' +
+				// '日期,收據號碼,收據類型,類別,SKU,商品,變體,修飾符已应用的,數量,銷售總額,折扣,淨銷售額,銷售成本,毛利潤,稅務,POS,商店,收銀員名稱,客戶名稱,客戶聯繫電話,註釋,狀態\n' +
 				'2024-07-08 23:03+8,2-1022,銷售,artist_random_id artist_name,sku,item_name,,,1.000,150.00,0.00,150.00,0.00,150.00,0.00,POS 2,The shop2,,,,,關閉\n\n' +
 				'2024-07-08 23:03,2-1022,銷售,artist_random_id artist_name,sku,item_name,,,1.000,150.00,0.00,150.00,0.00,150.00,0.00,POS 2,The shop1,,,,,關閉\n\n';
 
-			const file = new File([context], 'filename');
-			const result = await fileToArray(file);
-			const dataHeader = result.shift() ?? [];
-			const body = result;
-			const { importedTrade, susTradeIdList } = Array2DToImportedTrade(dataHeader, body);
-			expect(importedTrade).toStrictEqual(testTradeRow);
-			expect(susTradeIdList).toStrictEqual([]);
+			const body = StringToArray(context);
+			const result = Array2DToImportedTrade(importIndexOfHeader, body);
+			expect(result).toStrictEqual(testTradeRow);
 		});
 		it('string to object with not 關閉', async () => {
 			// UTC+8 timezone test
 			const context =
-				'日期,收據號碼,收據類型,類別,SKU,商品,變體,修飾符已应用的,數量,銷售總額,折扣,淨銷售額,銷售成本,毛利潤,稅務,POS,商店,收銀員名稱,客戶名稱,客戶聯繫電話,註釋,狀態\n' +
+				// '日期,收據號碼,收據類型,類別,SKU,商品,變體,修飾符已应用的,數量,銷售總額,折扣,淨銷售額,銷售成本,毛利潤,稅務,POS,商店,收銀員名稱,客戶名稱,客戶聯繫電話,註釋,狀態\n' +
 				'2024-07-08 23:03+8,2-1022,銷售,artist_random_id artist_name,sku,item_name,,,1.000,150.00,0.00,150.00,0.00,150.00,0.00,POS 2,The shop2,,,,,關閉\n\n' +
 				'2024-07-08 23:03+8,2-1023,銷售,artist_random_id artist_name,sku,item_name,,,1.000,150.00,0.00,150.00,0.00,150.00,0.00,POS 2,The shop2,,,,,取消\n\n' +
 				'2024-07-08 23:03,2-1022,銷售,artist_random_id artist_name,sku,item_name,,,1.000,150.00,0.00,150.00,0.00,150.00,0.00,POS 2,The shop1,,,,,關閉\n\n';
 
-			const file = new File([context], 'filename');
-			const result = await fileToArray(file);
-			const dataHeader = result.shift() ?? [];
-			const body = result;
-			const { importedTrade, susTradeIdList } = Array2DToImportedTrade(dataHeader, body);
+			const body = StringToArray(context);
+			const { importedTrade, susTradeIdList } = FilterSusTradeIdList(
+				Array2DToImportedTrade(importIndexOfHeader, body)
+			);
+
 			expect(importedTrade).toStrictEqual(testTradeRow);
 			expect(susTradeIdList).toStrictEqual(['2-1023']);
 		});
@@ -374,11 +454,11 @@ describe('ProcessFile', () => {
 		it('empty file', async () => {
 			const file = new File([], 'filename');
 			await expect(getHeadBody(file)).rejects.toThrowError();
-		})
+		});
 		it('only header', async () => {
 			const context = '1,2,3,4\n';
 			const file = new File([context], 'filename');
 			expect(await getHeadBody(file)).toStrictEqual({ head: ['1', '2', '3', '4'], body: [] });
-		})
+		});
 	});
 });

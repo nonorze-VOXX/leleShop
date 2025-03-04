@@ -104,11 +104,15 @@ export const GetTradeHeadSet = (
 };
 export const fileToArray = async (file: File): Promise<string[][]> => {
 	const text = await file.text();
+	return StringToArray(text);
+};
+export const StringToArray = (text: string): string[][] => {
 	return text
 		.split('\n')
 		.map((line) => line.trim().split(','))
 		.filter((words) => words.length > 1 || words[0] !== '');
 };
+
 export async function filterNonExistentArtists(
 	importedArtist: string[],
 	importedTrade: ImportedTrade[]
