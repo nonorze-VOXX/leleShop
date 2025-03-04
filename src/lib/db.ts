@@ -53,37 +53,6 @@ export default {
 		}
 		return { data, error };
 	},
-	async GetTradeIdListCount(
-		date: { firstDate: Date | null; lastDate: Date | null } = { firstDate: null, lastDate: null }
-	) {
-		const query = supabase.from('trade_head').select('trade_id', { count: 'exact', head: true });
-		if (date.firstDate !== null && date.lastDate !== null) {
-			query
-				.gte('trade_date', date.firstDate.toISOString())
-				.lte('trade_date', date.lastDate.toISOString());
-		}
-		return await query;
-	},
-	async GetTradeIdList(
-		date: { firstDate: Date | null; lastDate: Date | null } = { firstDate: null, lastDate: null }
-	) {
-		const count = (await this.GetTradeIdListCount(date)).count as number;
-		let result: { trade_id: string }[] = [];
-		for (let i = 0; i < count; i += 1000) {
-			let query = supabase.from('trade_head').select('trade_id');
-			if (date.firstDate !== null && date.lastDate !== null) {
-				query = query
-					.gte('trade_date', date.firstDate.toISOString())
-					.lte('trade_date', date.lastDate.toISOString());
-			}
-			const { data, error } = await query.range(i, i + 1000);
-			if (error) {
-				console.error(error);
-			}
-			result = result.concat(data ?? []);
-		}
-		return { data: result };
-	},
 	async GetTradeDataCount(
 		id: number,
 		store_name_list: string[] | '*',
