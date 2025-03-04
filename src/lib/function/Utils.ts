@@ -68,3 +68,6 @@ export function DownloadData(data: string | Blob, name: string) {
 	a.click();
 	a.remove();
 }
+export const findIndex = (stringArray: string[], target: string) => {
+	return stringArray.findLastIndex((e) => e === target);
+};

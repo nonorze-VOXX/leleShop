@@ -1,10 +1,7 @@
 // this file main perpose is no import supabase for test without supabase key
 import { type ImportedTrade, type ImportIndexOfHeader } from './importDTO';
 import type { TradeHeadRow } from '$lib/db';
-
-export const findIndex = (dataHeader: string[], target: string) => {
-	return dataHeader.findLastIndex((e) => e === target);
-};
+import { findIndex } from '$lib/function/Utils';
 
 export const artistIndex = (dataHeader: string[]) => {
 	return findIndex(dataHeader, '類別');
