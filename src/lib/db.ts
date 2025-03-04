@@ -2,7 +2,6 @@ import { createClient } from '@supabase/supabase-js';
 import { PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_KEY } from '$env/static/public';
 import { type Database } from './db.types';
 // import { PRIVATE_SUPABASE_KEY, PRIVATE_SUPABASE_URL } from '$env/static/private';
-import { add } from './function/Utils';
 import DbArtistTrade from './db/DbArtistTrade';
 import DbCommission from './db/DbCommission';
 import DbStore from './db/DbStore';
@@ -29,55 +28,6 @@ export type SalesTotalData = {
 export const onePageLength = 100;
 
 export default {
-	async GetTradeTotalData(
-		id: string = '*',
-		date: { firstDate: Date | null; lastDate: Date | null } = { firstDate: null, lastDate: null }
-	) {
-		let query = supabase.from('artist_trade').select('total_sales,net_sales,discount'); //, sum(net_sales), sum(discount)');
-		if (id !== '*') {
-			query = query.eq('artist_id', id);
-		}
-		if (date.firstDate !== null && date.lastDate !== null) {
-			query = query
-				.gte('trade_date', date.firstDate.toISOString())
-				.lte('trade_date', date.lastDate.toISOString());
-		}
-
-		const { data, error } = await query;
-		if (error) {
-			console.error(error);
-		}
-		let total_sales_sum = 0;
-		let net_sales_sum = 0;
-		let discount_sum = 0;
-		if (data) {
-			total_sales_sum = data.map((el) => el.total_sales ?? 0).reduce(add);
-			net_sales_sum = data.map((el) => el.net_sales ?? 0).reduce(add);
-			discount_sum = data.map((el) => el.discount ?? 0).reduce(add);
-		}
-		return { total_sales_sum, net_sales_sum, discount_sum, error: null };
-	},
-	async SaveArtist(artist: Artist[]) {
-		const { error, data } = await supabase.from('artist').insert(artist).select();
-		if (error !== null) {
-			console.error(error);
-		}
-		return { data, error };
-	},
-	async SaveTradeBody(body: TradeBody[]) {
-		const { data, error } = await supabase.from('trade_body').insert(body).select();
-		if (error) {
-			console.error(error);
-		}
-		return { data, error };
-	},
-	async SaveTradeHead(head: TradeHead[]) {
-		const { data, error } = await supabase.from('trade_head').insert(head).select();
-		if (error) {
-			console.error(error);
-		}
-		return { data, error };
-	},
 	async GetArtistData(id: number | '*' = '*') {
 		let query = supabase.from('artist').select();
 		if (id !== '*') {
@@ -102,37 +52,6 @@ export default {
 			console.error(error);
 		}
 		return { data, error };
-	},
-	async GetTradeIdListCount(
-		date: { firstDate: Date | null; lastDate: Date | null } = { firstDate: null, lastDate: null }
-	) {
-		const query = supabase.from('trade_head').select('trade_id', { count: 'exact', head: true });
-		if (date.firstDate !== null && date.lastDate !== null) {
-			query
-				.gte('trade_date', date.firstDate.toISOString())
-				.lte('trade_date', date.lastDate.toISOString());
-		}
-		return await query;
-	},
-	async GetTradeIdList(
-		date: { firstDate: Date | null; lastDate: Date | null } = { firstDate: null, lastDate: null }
-	) {
-		const count = (await this.GetTradeIdListCount(date)).count as number;
-		let result: { trade_id: string }[] = [];
-		for (let i = 0; i < count; i += 1000) {
-			let query = supabase.from('trade_head').select('trade_id');
-			if (date.firstDate !== null && date.lastDate !== null) {
-				query = query
-					.gte('trade_date', date.firstDate.toISOString())
-					.lte('trade_date', date.lastDate.toISOString());
-			}
-			const { data, error } = await query.range(i, i + 1000);
-			if (error) {
-				console.error(error);
-			}
-			result = result.concat(data ?? []);
-		}
-		return { data: result };
 	},
 	async GetTradeDataCount(
 		id: number,
