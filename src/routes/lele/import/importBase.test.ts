@@ -14,7 +14,9 @@ import {
 	GetTradeHeadSet,
 	fileToArray,
 	StringToArray,
-	GetIndexByHeader
+	GetIndexByHeader,
+	filterNonExistentArtists,
+	GetArtistNameList
 } from './importBase';
 import { describe, it, expect } from 'vitest';
 import type { ImportedTrade } from './importDTO';
@@ -153,5 +155,34 @@ describe('importBase', () => {
 			storeIdx: 9,
 			stateIdx: 7
 		});
+	});
+});
+
+describe('filterNonExistentArtists', () => {
+	const importedTrade: { artist_name: string }[] = [
+		{
+			artist_name: 'Artist1'
+		},
+		{
+			artist_name: 'Artist2'
+		}
+	];
+	const exist_artist = [{ artist_name: 'Artist1', id: 1, report_key: null, visible: true }];
+
+	it('should filter out non-existent artists', async () => {
+		const result = await filterNonExistentArtists(importedTrade, exist_artist);
+		expect(result).toEqual([{ artist_name: 'Artist2' }]);
+	});
+});
+
+describe('GetArtistNameList', () => {
+	const artist_name = ['Artist1', 'Artist2', 'Artist1'];
+	const importedTrade: { artist_name: string }[] = artist_name.map((artist_name) => ({
+		artist_name
+	}));
+
+	it('should get the correct artist name list', () => {
+		const artistNameList = GetArtistNameList(importedTrade);
+		expect(artistNameList).toEqual(['Artist1', 'Artist2']);
 	});
 });

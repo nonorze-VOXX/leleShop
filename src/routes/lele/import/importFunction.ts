@@ -24,7 +24,7 @@ export const ProcessFile = async (file: File) => {
 	const importedArtist = GetArtistNameList(importedTrade);
 	const exist_artist = await getExistingArtists(importedArtist);
 
-	const not_exist_artist: ImportedTrade[] = await filterNonExistentArtists(
+	const not_exist_artist: { artist_name: string }[] = await filterNonExistentArtists(
 		importedTrade,
 		exist_artist.data
 	);

@@ -87,21 +87,10 @@ export const StringToArray = (text: string): string[][] => {
 };
 
 export async function filterNonExistentArtists(
-	importedTrade: ImportedTrade[],
-	exist_artist: { artist_name: string; id: number; report_key: string | null; visible: boolean }[]
+	importedTrade: { artist_name: string }[],
+	exist_artist: { artist_name: string }[]
 ) {
-	return filterNonExistentTrades(importedTrade, exist_artist);
-}
-function filterNonExistentTrades(
-	importedTrade: ImportedTrade[],
-	exist_artist: {
-		artist_name: string;
-		id: number;
-		report_key: string | null;
-		visible: boolean;
-	}[]
-) {
-	const not_exist_artist: ImportedTrade[] = [];
+	const not_exist_artist: { artist_name: string }[] = [];
 	for (let i = 0; i < importedTrade.length; i++) {
 		const e = importedTrade[i];
 		if (
@@ -151,7 +140,7 @@ export const GetIndexByHeader = (dataHeader: string[]): ImportIndexOfHeader => {
 		stateIdx
 	};
 };
-export const GetArtistNameList = (data: ImportedTrade[]) => {
+export const GetArtistNameList = (data: { artist_name: string }[]) => {
 	const artistNameSet: string[] = [];
 	data.forEach((e) => {
 		if (artistNameSet.some((artistName) => artistName === e.artist_name)) {

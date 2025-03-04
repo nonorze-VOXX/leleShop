@@ -5,7 +5,6 @@ import db, {
 	type TradeBodyRow,
 	supabase
 } from '$lib/db';
-import type { ImportedTrade } from './importDTO';
 
 export const savePartToDb = async (tradeBodyList: TradeBody[], tradeHeadList: TradeHead[]) => {
 	let newTradeHead: TradeHeadRow[] = [];
@@ -35,7 +34,7 @@ export async function getExistingArtists(importedArtist: string[]) {
 
 	return exist_artist;
 }
-export async function saveNotExistArtist(not_exist_artist: ImportedTrade[]) {
+export async function saveNotExistArtist(not_exist_artist: { artist_name: string }[]) {
 	const saveArtist = await db.SaveArtist(
 		not_exist_artist.map((e) => ({ artist_name: e.artist_name }))
 	);
