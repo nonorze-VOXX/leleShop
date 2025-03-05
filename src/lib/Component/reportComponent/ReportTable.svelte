@@ -1,10 +1,10 @@
 <script lang="ts">
 	import { type ArtistWithTradeRow, type SalesTotalData } from '$lib/db';
 	import { FormatDate } from '$lib/function/Utils';
-	import LeleTable from './htmlWrapper/LeleTable.svelte';
-	import LeleTbody from './htmlWrapper/LeleTbody.svelte';
-	import LeleTbodyTr from './htmlWrapper/LeleTbodyTr.svelte';
-	import LeleThead from './htmlWrapper/LeleThead.svelte';
+	import LeleTable from '../htmlWrapper/LeleTable.svelte';
+	import LeleTbody from '../htmlWrapper/LeleTbody.svelte';
+	import LeleTbodyTr from '../htmlWrapper/LeleTbodyTr.svelte';
+	import LeleThead from '../htmlWrapper/LeleThead.svelte';
 	export let showedTradeDataList: ArtistWithTradeRow[];
 	export let totalData: SalesTotalData;
 

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { createEventDispatcher } from 'svelte';
-	import MidButton from './MidButton.svelte';
+	import MidButton from '../MidButton.svelte';
 
 	export let yearRange: { min: number; max: number };
 	export let showedYear: string;

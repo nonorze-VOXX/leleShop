@@ -2,7 +2,7 @@
 	import { onDestroy, onMount } from 'svelte';
 	import { GetTotalWithRemit, GetTradeTotalDataEachOne } from './totalPage';
 	import { GetAllMonth, ThisMonthFirstDate } from '$lib/function/Utils';
-	import YearMonthTabs from '$lib/Component/YearMonthTabs.svelte';
+	import YearMonthTabs from '$lib/Component/reportComponent/YearMonthTabs.svelte';
 	import { selectedStore } from '$lib/store/choosing';
 	import { browser } from '$app/environment';
 	import db, { type StoreRow } from '$lib/db';
