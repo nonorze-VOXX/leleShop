@@ -39,8 +39,8 @@
 
 <div class="flex w-full flex-col">
 	<YearMonthTabs
-		bind:tabDataList
-		bind:yearMonth
+		{tabDataList}
+		{yearMonth}
 		{yearRange}
 		on:onTabChange={(e) => {
 			ClickTab(e.detail.showedMonth);
