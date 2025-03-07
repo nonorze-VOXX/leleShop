@@ -14,12 +14,12 @@
 		total_sales: number;
 		net_sales: number;
 		discount: number;
-	}[] = [];
+	}[] = $state([]);
 
-	let realTotal: number[] = [];
-	let dataReady = false;
+	let realTotal: number[] = $state([]);
+	let dataReady = $state(false);
 
-	let yearRange = { min: new Date().getFullYear(), max: new Date().getFullYear() }; // Adjust min year as needed
+	let yearRange = $state({ min: new Date().getFullYear(), max: new Date().getFullYear() }); // Adjust min year as needed
 	let RemitDataMulNetTotal: {
 		netSaleMulRemit: number;
 		total_sales: number;
@@ -30,7 +30,7 @@
 		artist_name: string | null;
 		store_name: string;
 		commission: number;
-	}[] = [];
+	}[] = $state([]);
 
 	const FetchData = async (yearMonth: YearMonth) => {
 		dataReady = false;
@@ -62,11 +62,11 @@
 		dataReady = true;
 	};
 
-	let yearMonth = new YearMonth(
+	let yearMonth = $state(new YearMonth(
 		ThisMonthFirstDate(-1).getFullYear(),
 		ThisMonthFirstDate(-1).getMonth() + 1
-	);
-	let tabDataList: string[] = GetAllMonth();
+	));
+	let tabDataList: string[] = $state(GetAllMonth());
 	const ClickTab = async (tabData: string) => {
 		yearMonth.month = parseInt(tabData);
 		await FetchData(yearMonth);
@@ -77,7 +77,7 @@
 		await FetchData(yearMonth);
 	};
 
-	let storeData: StoreRow[] = [];
+	let storeData: StoreRow[] = $state([]);
 
 	onMount(async () => {
 		await db.store.getStoreData().then(({ data, error }) => {

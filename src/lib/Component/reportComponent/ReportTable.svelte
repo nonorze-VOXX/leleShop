@@ -1,24 +1,30 @@
 <script lang="ts">
+	import { run } from 'svelte/legacy';
+
 	import { type ArtistWithTradeRow, type SalesTotalData } from '$lib/db';
 	import { FormatDate } from '$lib/function/Utils';
 	import LeleTable from '../htmlWrapper/LeleTable.svelte';
 	import LeleTbody from '../htmlWrapper/LeleTbody.svelte';
 	import LeleTbodyTr from '../htmlWrapper/LeleTbodyTr.svelte';
 	import LeleThead from '../htmlWrapper/LeleThead.svelte';
-	export let showedTradeDataList: ArtistWithTradeRow[];
-	export let totalData: SalesTotalData;
+	interface Props {
+		showedTradeDataList: ArtistWithTradeRow[];
+		totalData: SalesTotalData;
+	}
 
-	let total = -1;
-	let net_total = -1;
-	let discount_total = 0;
-	let total_quantity = 0;
+	let { showedTradeDataList, totalData }: Props = $props();
 
-	$: {
+	let total = $state(-1);
+	let net_total = $state(-1);
+	let discount_total = $state(0);
+	let total_quantity = $state(0);
+
+	run(() => {
 		total = totalData.sales_total;
 		net_total = totalData.net_total;
 		discount_total = totalData.discount_total;
 		total_quantity = totalData.total_quantity;
-	}
+	});
 </script>
 
 <LeleTable>

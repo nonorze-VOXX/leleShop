@@ -1,8 +1,12 @@
 <script lang="ts">
 	import InfoBox from '../InfoBox.svelte';
 
-	export let net_total: number | null;
-	export let commission: number | null;
+	interface Props {
+		net_total: number | null;
+		commission: number | null;
+	}
+
+	let { net_total, commission }: Props = $props();
 </script>
 
 {#if net_total != -1 && net_total !== null}

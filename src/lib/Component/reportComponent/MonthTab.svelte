@@ -1,16 +1,17 @@
 <script lang="ts">
+	import { run } from 'svelte/legacy';
+
 	import { createEventDispatcher } from 'svelte';
 	import SmallButton from '../SmallButton.svelte';
 
-	export let tabDataList: string[];
-	export let showedMonth: string;
-	export let shape: 'full' | 'up' | 'down' = 'up';
-	let focus: boolean[] = [];
-	$: {
-		// force tracking
-		tabDataList;
-		UpdateFocus();
+	interface Props {
+		tabDataList: string[];
+		showedMonth: string;
+		shape?: 'full' | 'up' | 'down';
 	}
+
+	let { tabDataList, showedMonth = $bindable(), shape = 'up' }: Props = $props();
+	let focus: boolean[] = $state([]);
 	function UpdateFocus() {
 		focus = [];
 		tabDataList.forEach((element) => {
@@ -21,6 +22,11 @@
 	const dispatch = createEventDispatcher<{
 		onTabChange: { showedMonth: string };
 	}>();
+	run(() => {
+		// force tracking
+		tabDataList;
+		UpdateFocus();
+	});
 </script>
 
 <div class="mx-2 flex justify-start overflow-auto">

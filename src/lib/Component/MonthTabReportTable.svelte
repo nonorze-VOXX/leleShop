@@ -6,12 +6,16 @@
 	import YearMonthTabs from './reportComponent/YearMonthTabs.svelte';
 	import { YearMonth } from '$lib/class/YearMonth';
 
-	export let tradeDataList: ArtistWithTradeRow[];
-	export let totalData: SalesTotalData;
-	export let min_year: number;
-	let showedTradeDataList: ArtistWithTradeRow[];
+	interface Props {
+		tradeDataList: ArtistWithTradeRow[];
+		totalData: SalesTotalData;
+		min_year: number;
+	}
+
+	let { tradeDataList, totalData = $bindable(), min_year }: Props = $props();
+	let showedTradeDataList: ArtistWithTradeRow[] = $derived(tradeDataList);
 	let tabDataList: string[] = GetAllMonth();
-	let yearMonth: YearMonth = YearMonth.now().getPreviousMonth();
+	let yearMonth: YearMonth = $state(YearMonth.now().getPreviousMonth());
 	const dispatch = createEventDispatcher<{
 		changeShowedDataList: { firstDay: Date; lastDay: Date };
 	}>();
@@ -32,9 +36,7 @@
 
 	let yearRange = { min: min_year, max: new Date().getFullYear() };
 
-	$: {
-		showedTradeDataList = tradeDataList;
-	}
+	
 </script>
 
 <div class="flex w-full flex-col">

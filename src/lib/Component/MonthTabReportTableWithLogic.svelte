@@ -7,19 +7,23 @@
 	import MonthTab from './reportComponent/MonthTab.svelte';
 	import { selectedStore } from '$lib/store/choosing';
 
-	export let artist_id: number;
+	interface Props {
+		artist_id: number;
+	}
+
+	let { artist_id }: Props = $props();
 	let store_list: string[] | '*';
-	let tradeDataList: ArtistWithTradeRow[] = [];
-	let nowPage: string = '0';
-	let total: SalesTotalData = {
+	let tradeDataList: ArtistWithTradeRow[] = $state([]);
+	let nowPage: string = $state('0');
+	let total: SalesTotalData = $state({
 		sales_total: 0,
 		net_total: 0,
 		discount_total: 0,
 		total_quantity: 0
-	};
-	let pageIndex: string[] = [];
+	});
+	let pageIndex: string[] = $state([]);
 	let dateRange: { firstDate: Date; lastDate: Date };
-	let min_year: number | null = null;
+	let min_year: number | null = $state(null);
 	let unsubscribe = selectedStore.subscribe(async (e) => {
 		store_list = $selectedStore;
 		await refreshByStoreList();

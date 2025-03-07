@@ -1,8 +1,14 @@
 <script lang="ts">
+	import { run } from 'svelte/legacy';
+
 	import { createEventDispatcher } from 'svelte';
 
-	export let choosing: number | null = 0;
-	let checked: boolean[] = [false, false, false, false];
+	interface Props {
+		choosing?: number | null;
+	}
+
+	let { choosing = $bindable(0) }: Props = $props();
+	let checked: boolean[] = $state([false, false, false, false]);
 	let sr = true;
 	const OnChange = (n: number) => {
 		checked = [false, false, false, false];
@@ -13,12 +19,12 @@
 		change: { choosing: number };
 	}>();
 
-	$: {
+	run(() => {
 		choosing = choosing ?? 0;
 		choosing = choosing > 3 ? 3 : choosing < 0 ? 0 : choosing;
 		OnChange(choosing);
 		dispatch('change', { choosing });
-	}
+	});
 </script>
 
 <div
@@ -53,7 +59,7 @@
 		<input
 			type="checkbox"
 			bind:checked={checked[0]}
-			on:change={() => {
+			onchange={() => {
 				choosing = 0;
 			}}
 			class:sr-only={sr}
@@ -63,7 +69,7 @@
 		<input
 			type="checkbox"
 			bind:checked={checked[1]}
-			on:change={() => {
+			onchange={() => {
 				choosing = 1;
 			}}
 			class:sr-only={sr}
@@ -73,7 +79,7 @@
 		<input
 			type="checkbox"
 			bind:checked={checked[2]}
-			on:change={() => {
+			onchange={() => {
 				choosing = 2;
 			}}
 			class:sr-only={sr}
@@ -83,7 +89,7 @@
 		<input
 			type="checkbox"
 			bind:checked={checked[3]}
-			on:change={() => {
+			onchange={() => {
 				choosing = 3;
 			}}
 			class:sr-only={sr}

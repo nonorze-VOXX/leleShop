@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { run } from 'svelte/legacy';
+
 	import { browser } from '$app/environment';
 	import { supabase } from '$lib/db';
 	import { selectedStore } from '$lib/store/choosing';
@@ -7,10 +9,14 @@
 	import Remit from './Remit.svelte';
 	import Commission from './Commission.svelte';
 
-	export let net_total: number | null;
-	export let artist_id: number;
-	export let year_month: string;
-	let commission: number | null = null;
+	interface Props {
+		net_total: number | null;
+		artist_id: number;
+		year_month: string;
+	}
+
+	let { net_total, artist_id, year_month }: Props = $props();
+	let commission: number | null = $state(null);
 
 	const fetchCommission = async () => {
 		if (browser) {
@@ -38,8 +44,12 @@
 
 	onMount(fetchCommission);
 
-	$: year_month, fetchCommission();
-	$: net_total, fetchCommission();
+	run(() => {
+		year_month, fetchCommission();
+	});
+	run(() => {
+		net_total, fetchCommission();
+	});
 
 	onDestroy(unsubscribe);
 </script>

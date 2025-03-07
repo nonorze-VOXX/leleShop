@@ -9,15 +9,15 @@
 	import { FormatNumberToTwoDigi } from '$lib/function/Utils';
 	import RemitAndCommission from '$lib/Component/reportComponent/RemitAndCommission.svelte';
 
-	let artist_name: string = '';
-	let artist_id: number = Number($page.params.creator_id);
-	let showedLength = 0;
+	let artist_name: string = $state('');
+	let artist_id: number = $state(Number($page.params.creator_id));
+	let showedLength = $state(0);
 	onMount(async () => {
 		const artist_data = (await db.artist.GetArtistData(artist_id)).data ?? [];
 		artist_name = artist_data.length !== 0 ? artist_data[0].artist_name : 'not found this artist';
 	});
-	let net_total: null | number = null;
-	let year_month: string | null = null;
+	let net_total: null | number = $state(null);
+	let year_month: string | null = $state(null);
 </script>
 
 <div class="flex flex-col items-center gap-3">

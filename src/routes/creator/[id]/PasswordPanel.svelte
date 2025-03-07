@@ -1,10 +1,16 @@
 <script lang="ts">
+	import { preventDefault } from 'svelte/legacy';
+
 	import { supabase } from '$lib/db';
 	import LeleBox from '$lib/Component/LeleBox.svelte';
 	import { createEventDispatcher } from 'svelte';
 
-	export let artist_id: number;
-	let admit_fail = false;
+	interface Props {
+		artist_id: number;
+	}
+
+	let { artist_id }: Props = $props();
+	let admit_fail = $state(false);
 
 	const dispatch = createEventDispatcher<{
 		success: null;
@@ -23,7 +29,7 @@
 	};
 </script>
 
-<form on:submit|preventDefault={SubmitKey} class="flex flex-col">
+<form onsubmit={preventDefault(SubmitKey)} class="flex flex-col">
 	<div class="flex">
 		<input type="password" id="password" name="password" required />
 

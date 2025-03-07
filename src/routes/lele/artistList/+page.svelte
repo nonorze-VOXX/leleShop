@@ -7,7 +7,7 @@
 	import LeleTbodyTr from '$lib/Component/htmlWrapper/LeleTbodyTr.svelte';
 	import { onMount } from 'svelte';
 
-	let artistData: ArtistRow[] = [];
+	let artistData: ArtistRow[] = $state([]);
 	onMount(async () => {
 		artistData = (await db.GetArtistDataList())?.data ?? [];
 	});

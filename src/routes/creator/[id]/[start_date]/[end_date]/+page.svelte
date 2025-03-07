@@ -5,7 +5,7 @@
 	import db from '$lib/db';
 	import { selectedStore } from '$lib/store/choosing';
 
-	let error_message: string = '';
+	let error_message: string = $state('');
 	onMount(async () => {
 		const artist_id = $page.params.id;
 		const start_date = new Date($page.params.start_date);

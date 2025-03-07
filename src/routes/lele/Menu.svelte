@@ -10,7 +10,7 @@
 		// store,
 		artist_commission
 	}
-	let tabType: TabEnum = TabEnum.artist_list;
+	let tabType: TabEnum = $state(TabEnum.artist_list);
 </script>
 
 <div class="flex justify-start gap-2 overflow-auto p-2">

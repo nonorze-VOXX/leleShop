@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { preventDefault } from 'svelte/legacy';
+
 	import { ProcessFile } from './importFunction';
 	enum ProcessedStatus {
 		NORMAL,
@@ -7,11 +9,11 @@
 		PROCESSED
 	}
 
-	let newTradeHeadCount: number = 0;
-	let newTradeBodyCount: number = 0;
-	let susTrade: string[] = [];
-	let processed: ProcessedStatus = ProcessedStatus.NORMAL;
-	let submitLog: string = '';
+	let newTradeHeadCount: number = $state(0);
+	let newTradeBodyCount: number = $state(0);
+	let susTrade: string[] = $state([]);
+	let processed: ProcessedStatus = $state(ProcessedStatus.NORMAL);
+	let submitLog: string = $state('');
 	async function handleSubmit(event: { currentTarget: EventTarget & HTMLFormElement }) {
 		const formData = new FormData(event.currentTarget);
 		processed = ProcessedStatus.PROCESSING;
@@ -48,7 +50,7 @@
 	class="flex flex-col items-center rounded-xl border-4 border-lele-line bg-lele-bg p-5 font-bold"
 >
 	<form
-		on:submit|preventDefault={handleSubmit}
+		onsubmit={preventDefault(handleSubmit)}
 		class="flex w-full flex-col items-center gap-4 text-lg"
 	>
 		<div>
@@ -68,7 +70,7 @@
 	{:else if processed === ProcessedStatus.ERROR}
 		<p class="text-7xl text-red-600">{submitLog}</p>
 	{/if}
-	<div class="p-2" />
+	<div class="p-2"></div>
 	<div class="flex w-full flex-col border-t-2 border-lele-line pt-2">
 		<div class="text-center">共{newTradeHeadCount}筆新交易</div>
 		<div class="text-center">賣出{newTradeBodyCount}次商品</div>

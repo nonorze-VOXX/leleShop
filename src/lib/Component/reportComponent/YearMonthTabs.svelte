@@ -4,9 +4,13 @@
 	import YearTab from './YearTab.svelte';
 	import { createEventDispatcher } from 'svelte';
 
-	export let tabDataList: string[];
-	export let yearMonth: YearMonth;
-	export let yearRange: { min: number; max: number };
+	interface Props {
+		tabDataList: string[];
+		yearMonth: YearMonth;
+		yearRange: { min: number; max: number };
+	}
+
+	let { tabDataList, yearMonth, yearRange }: Props = $props();
 
 	const dispatch = createEventDispatcher<{
 		onTabChange: { showedMonth: string };

@@ -19,15 +19,15 @@
 		NotAdmit,
 		Admit
 	}
-	let artist_name: string = '';
-	let net_total = -1;
-	let artist_id: number = 0;
-	let panelState: PasswordPanelState = PasswordPanelState.Loading;
-	let showedLength = 0;
-	let logText: string = '';
+	let artist_name: string = $state('');
+	let net_total = $state(-1);
+	let artist_id: number = $state(0);
+	let panelState: PasswordPanelState = $state(PasswordPanelState.Loading);
+	let showedLength = $state(0);
+	let logText: string = $state('');
 
-	let firstDate: Date | null;
-	let lastDate: Date | null;
+	let firstDate: Date | null = $state();
+	let lastDate: Date | null = $state();
 	const PageQueryData = async () => {
 		artist_id = Number($page.params.id);
 		if (isNaN(artist_id)) {
@@ -59,7 +59,7 @@
 	});
 
 	onDestroy(unsubscribe);
-	let year_month: string | null = null;
+	let year_month: string | null = $state(null);
 </script>
 
 <div class="flex flex-col items-center gap-3">
