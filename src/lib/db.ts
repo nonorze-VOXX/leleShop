@@ -5,6 +5,7 @@ import { type Database } from './db.types';
 import DbArtistTrade from './db/DbArtistTrade';
 import DbCommission from './db/DbCommission';
 import DbStore from './db/DbStore';
+import DbArtist from './db/DbArtist';
 
 // export const supabase = createClient<Database>(PRIVATE_SUPABASE_URL, PRIVATE_SUPABASE_KEY);
 export const supabase = createClient<Database>(PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_KEY);
@@ -28,17 +29,7 @@ export type SalesTotalData = {
 export const onePageLength = 100;
 
 export default {
-	async GetArtistData(id: number | '*' = '*') {
-		let query = supabase.from('artist').select();
-		if (id !== '*') {
-			query = query.eq('id', id);
-		}
-		const { data, error } = await query;
-		if (error !== null) {
-			console.error(error);
-		}
-		return { data };
-	},
+	artist: DbArtist,
 
 	async GetArtistDataList(
 		option: { ordered: boolean; ascending: boolean } = { ordered: true, ascending: true }

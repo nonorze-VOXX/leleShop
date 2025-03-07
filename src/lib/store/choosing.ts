@@ -2,7 +2,9 @@ import { writable } from 'svelte/store';
 import { browser } from '$app/environment';
 
 // Get the value out of storage on load.
-let stored: string[] | '*' = '*';
+export type StoreList = string[] | '*';
+
+let stored: StoreList = '*';
 if (browser) {
 	stored =
 		localStorage !== undefined

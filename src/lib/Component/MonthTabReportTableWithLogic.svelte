@@ -4,7 +4,7 @@
 	import MonthTabReportTable from '$lib/Component/MonthTabReportTable.svelte';
 	import db, { onePageLength } from '$lib/db';
 	import { ThisMonthFirstDate } from '$lib/function/Utils';
-	import MonthTab from './MonthTab.svelte';
+	import MonthTab from './reportComponent/MonthTab.svelte';
 	import { selectedStore } from '$lib/store/choosing';
 
 	export let artist_id: number;

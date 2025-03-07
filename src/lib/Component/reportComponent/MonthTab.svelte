@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { createEventDispatcher } from 'svelte';
-	import SmallButton from './SmallButton.svelte';
+	import SmallButton from '../SmallButton.svelte';
 
 	export let tabDataList: string[];
 	export let showedMonth: string;

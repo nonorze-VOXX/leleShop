@@ -1,9 +1,9 @@
 <script lang="ts">
 	import type { ArtistWithTradeRow, SalesTotalData } from '$lib/db';
 	import { GetAllMonth } from '$lib/function/Utils';
-	import ReportTable from './ReportTable.svelte';
+	import ReportTable from './reportComponent/ReportTable.svelte';
 	import { createEventDispatcher } from 'svelte';
-	import YearMonthTabs from './YearMonthTabs.svelte';
+	import YearMonthTabs from './reportComponent/YearMonthTabs.svelte';
 	import { YearMonth } from '$lib/class/YearMonth';
 
 	export let tradeDataList: ArtistWithTradeRow[];
@@ -39,8 +39,8 @@
 
 <div class="flex w-full flex-col">
 	<YearMonthTabs
-		bind:tabDataList
-		bind:yearMonth
+		{tabDataList}
+		{yearMonth}
 		{yearRange}
 		on:onTabChange={(e) => {
 			ClickTab(e.detail.showedMonth);

@@ -30,7 +30,7 @@
 		on:onTabChange={handleYearTabChange}
 	></YearTab>
 	<MonthTab
-		bind:tabDataList
+		{tabDataList}
 		showedMonth={yearMonth.month.toString()}
 		on:onTabChange={handleMonthTabChange}
 	></MonthTab>
