@@ -6,19 +6,15 @@
 	import PasswordPanel from './PasswordPanel.svelte';
 	import { onDestroy, onMount } from 'svelte';
 	import { supabase } from '$lib/db';
-	import { page } from '$app/stores';
+	import { page } from '$app/state';
 	import TradeCount from '$lib/Component/reportComponent/TradeCount.svelte';
 	import InfoBox from '$lib/Component/InfoBox.svelte';
 	import { selectedStore } from '$lib/store/choosing';
 	import { browser } from '$app/environment';
 	import { FormatNumberToTwoDigi } from '$lib/function/Utils';
 	import RemitAndCommission from '$lib/Component/reportComponent/RemitAndCommission.svelte';
+	import { PasswordPanelState } from './PanelState';
 
-	enum PasswordPanelState {
-		Loading,
-		NotAdmit,
-		Admit
-	}
 	let artist_name: string = $state('');
 	let net_total = $state(-1);
 	let artist_id: number = $state(0);
@@ -26,10 +22,10 @@
 	let showedLength = $state(0);
 	let logText: string = $state('');
 
-	let firstDate: Date | null = $state();
-	let lastDate: Date | null = $state();
+	let firstDate: Date | null = $state(null);
+	let lastDate: Date | null = $state(null);
 	const PageQueryData = async () => {
-		artist_id = Number($page.params.id);
+		artist_id = Number(page.params.id);
 		if (isNaN(artist_id)) {
 			logText = 'artist_id is not a number';
 			return;
@@ -74,7 +70,7 @@
 			<InfoBox title={artist_name}></InfoBox>
 		</div>
 		<PasswordPanel
-			bind:artist_id
+			{artist_id}
 			on:success={() => {
 				panelState = PasswordPanelState.Admit;
 			}}
@@ -82,15 +78,15 @@
 	{:else if panelState === PasswordPanelState.Admit}
 		<div class="flex flex-wrap justify-center gap-4 text-center text-sm font-semibold">
 			<InfoBox title={artist_name}></InfoBox>
-			<TradeCount bind:showedLength></TradeCount>
+			<TradeCount {showedLength}></TradeCount>
 			{#if year_month}
-				<RemitAndCommission bind:net_total bind:artist_id bind:year_month></RemitAndCommission>
+				<RemitAndCommission {net_total} {artist_id} {year_month}></RemitAndCommission>
 			{/if}
 
-			<DownloadButton bind:firstDate bind:lastDate bind:artist_id></DownloadButton>
+			<DownloadButton {firstDate} {lastDate} {artist_id}></DownloadButton>
 		</div>
 		<MonthTabReportTableWithLogic
-			bind:artist_id
+			{artist_id}
 			on:change={(e) => {
 				net_total = e.detail.net_total;
 				firstDate = e.detail.firstDate;

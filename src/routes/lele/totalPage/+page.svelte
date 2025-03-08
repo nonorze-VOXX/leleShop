@@ -20,17 +20,19 @@
 	let dataReady = $state(false);
 
 	let yearRange = $state({ min: new Date().getFullYear(), max: new Date().getFullYear() }); // Adjust min year as needed
-	let RemitDataMulNetTotal: {
-		netSaleMulRemit: number;
-		total_sales: number;
-		net_sales: number;
-		discount: number;
-		quantity: number;
-		artist_id: number | null;
-		artist_name: string | null;
-		store_name: string;
-		commission: number;
-	}[] = $state([]);
+	let RemitDataMulNetTotal = $state<
+		{
+			netSaleMulRemit: number;
+			total_sales: number;
+			net_sales: number;
+			discount: number;
+			quantity: number;
+			artist_id: number | null;
+			artist_name: string | null;
+			store_name: string;
+			commission: number;
+		}[]
+	>([]);
 
 	const FetchData = async (yearMonth: YearMonth) => {
 		dataReady = false;
@@ -62,10 +64,9 @@
 		dataReady = true;
 	};
 
-	let yearMonth = $state(new YearMonth(
-		ThisMonthFirstDate(-1).getFullYear(),
-		ThisMonthFirstDate(-1).getMonth() + 1
-	));
+	let yearMonth = $state(
+		new YearMonth(ThisMonthFirstDate(-1).getFullYear(), ThisMonthFirstDate(-1).getMonth() + 1)
+	);
 	let tabDataList: string[] = $state(GetAllMonth());
 	const ClickTab = async (tabData: string) => {
 		yearMonth.month = parseInt(tabData);
@@ -102,8 +103,8 @@
 
 {#if yearMonth}
 	<YearMonthTabs
-		bind:tabDataList
-		bind:yearMonth
+		{tabDataList}
+		{yearMonth}
 		{yearRange}
 		on:onTabChange={async (e) => {
 			await ClickTab(e.detail.showedMonth);
@@ -115,10 +116,10 @@
 {/if}
 {#if RemitDataMulNetTotal}
 	<TotalTable
-		bind:totalData
-		bind:realTotal
-		bind:RemitDataMulNetTotal
-		bind:storeData
+		{totalData}
+		{realTotal}
+		{RemitDataMulNetTotal}
+		{storeData}
 		{dataReady}
 		selectedStore={$selectedStore}
 	></TotalTable>

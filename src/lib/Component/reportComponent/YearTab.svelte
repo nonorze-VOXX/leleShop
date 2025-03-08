@@ -14,7 +14,6 @@
 	let focus: boolean[] = $state([]);
 	let tabDataList: string[] = $state([]);
 
-
 	function UpdateFocus() {
 		focus = [];
 		tabDataList.forEach((element) => {
@@ -37,9 +36,9 @@
 <div class="m-2 flex justify-start gap-2 overflow-auto">
 	{#each tabDataList as tabData}
 		<MidButton
-			bind:focus={focus[tabDataList.indexOf(tabData)]}
-			bind:text={tabData}
-			on:click={() => {
+			focus={focus[tabDataList.indexOf(tabData)]}
+			text={tabData}
+			onclick={() => {
 				showedYear = tabData;
 				dispatch('onTabChange', { showedYear: tabData });
 				UpdateFocus();

@@ -35,8 +35,6 @@
 	};
 
 	let yearRange = { min: min_year, max: new Date().getFullYear() };
-
-	
 </script>
 
 <div class="flex w-full flex-col">
@@ -51,5 +49,5 @@
 			ClickYearTab(e.detail.showedYear);
 		}}
 	></YearMonthTabs>
-	<ReportTable bind:showedTradeDataList bind:totalData></ReportTable>
+	<ReportTable {showedTradeDataList} {totalData}></ReportTable>
 </div>

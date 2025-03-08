@@ -1,43 +1,36 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
+	import { TabEnum } from './Menu';
 	import MenuButton from './MenuButton.svelte';
 
-	enum TabEnum {
-		artist_list,
-		report_key,
-		total,
-		import,
-		// store,
-		artist_commission
-	}
 	let tabType: TabEnum = $state(TabEnum.artist_list);
 </script>
 
 <div class="flex justify-start gap-2 overflow-auto p-2">
 	<MenuButton
 		label="Artist List"
-		on:click={() => {
+		onclick={() => {
 			tabType = TabEnum.artist_list;
 			goto('/lele/artistList');
 		}}
 	/>
 	<MenuButton
 		label="Manage Key"
-		on:click={() => {
+		onclick={() => {
 			tabType = TabEnum.report_key;
 			goto('/lele/reportKey');
 		}}
 	/>
 	<MenuButton
 		label="Import"
-		on:click={() => {
+		onclick={() => {
 			tabType = TabEnum.import;
 			goto('/lele/import');
 		}}
 	/>
 	<MenuButton
 		label="Total"
-		on:click={() => {
+		onclick={() => {
 			tabType = TabEnum.total;
 			goto('/lele/totalPage');
 		}}
@@ -51,7 +44,7 @@
 	/> -->
 	<MenuButton
 		label="Artist Commission"
-		on:click={() => {
+		onclick={() => {
 			tabType = TabEnum.artist_commission;
 			goto('/lele/artistCommission');
 		}}

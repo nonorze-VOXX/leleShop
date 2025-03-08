@@ -32,9 +32,9 @@
 <div class="mx-2 flex justify-start overflow-auto">
 	{#each tabDataList as tabData}
 		<SmallButton
-			bind:focus={focus[tabDataList.indexOf(tabData)]}
-			bind:text={tabData}
-			on:click={() => {
+			focus={focus[tabDataList.indexOf(tabData)]}
+			text={tabData}
+			onclick={() => {
 				showedMonth = tabData;
 				dispatch('onTabChange', { showedMonth: tabData });
 				UpdateFocus();

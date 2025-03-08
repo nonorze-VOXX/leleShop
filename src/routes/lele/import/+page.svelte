@@ -1,20 +1,16 @@
 <script lang="ts">
-	import { preventDefault } from 'svelte/legacy';
-
 	import { ProcessFile } from './importFunction';
-	enum ProcessedStatus {
-		NORMAL,
-		PROCESSING,
-		ERROR,
-		PROCESSED
-	}
+	import { ProcessedStatus } from './importBase';
 
 	let newTradeHeadCount: number = $state(0);
 	let newTradeBodyCount: number = $state(0);
 	let susTrade: string[] = $state([]);
 	let processed: ProcessedStatus = $state(ProcessedStatus.NORMAL);
 	let submitLog: string = $state('');
-	async function handleSubmit(event: { currentTarget: EventTarget & HTMLFormElement }) {
+	async function handleSubmit(
+		event: SubmitEvent & { currentTarget: EventTarget & HTMLFormElement }
+	) {
+		event.preventDefault();
 		const formData = new FormData(event.currentTarget);
 		processed = ProcessedStatus.PROCESSING;
 
@@ -49,10 +45,7 @@
 <div
 	class="flex flex-col items-center rounded-xl border-4 border-lele-line bg-lele-bg p-5 font-bold"
 >
-	<form
-		onsubmit={preventDefault(handleSubmit)}
-		class="flex w-full flex-col items-center gap-4 text-lg"
-	>
+	<form onsubmit={handleSubmit} class="flex w-full flex-col items-center gap-4 text-lg">
 		<div>
 			<!-- <label for="file">Upload your file</label> -->
 			<input multiple type="file" id="file" name="fileToUpload" accept=".csv" required />
