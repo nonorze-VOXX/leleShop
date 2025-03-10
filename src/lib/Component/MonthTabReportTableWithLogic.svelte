@@ -6,6 +6,7 @@
 	import { ThisMonthFirstDate } from '$lib/function/Utils';
 	import MonthTab from './reportComponent/MonthTab.svelte';
 	import { selectedStore } from '$lib/store/choosing';
+	import type { DateRange } from '$lib/type';
 
 	interface Props {
 		artist_id: number;
@@ -22,7 +23,7 @@
 		total_quantity: 0
 	});
 	let pageIndex: string[] = $state([]);
-	let dateRange: { firstDate: Date; lastDate: Date };
+	let dateRange: DateRange;
 	let min_year: number | null = $state(null);
 	let unsubscribe = selectedStore.subscribe(async (e) => {
 		store_list = $selectedStore;
@@ -33,7 +34,7 @@
 	});
 	onMount(async () => {
 		store_list = $selectedStore;
-		await DateChange(ThisMonthFirstDate(-1), ThisMonthFirstDate());
+		await DateChange({ firstDate: ThisMonthFirstDate(-1), lastDate: ThisMonthFirstDate() });
 		const { data, error } = await db.GetTradeDataMinYear();
 		if (error) {
 			console.error(error);
@@ -42,10 +43,10 @@
 		min_year = data;
 	});
 	async function refreshByStoreList() {
-		if (dateRange) await DateChange(dateRange.firstDate, dateRange.lastDate);
+		if (dateRange) await DateChange(dateRange);
 	}
-	const DateChange = async (firstDate: Date, lastDate: Date) => {
-		dateRange = { firstDate, lastDate };
+	const DateChange = async (dateRange: DateRange) => {
+		const { firstDate, lastDate } = dateRange;
 		const { count } = await db.GetTradeDataCount(artist_id, store_list, { firstDate, lastDate });
 
 		pageIndex = [];
@@ -55,6 +56,9 @@
 		pageIndex = pageIndex;
 		nowPage = pageIndex[0] ?? '0';
 		tradeDataList = (await UpdateTradeData()) ?? [];
+		if (firstDate === null || lastDate === null) {
+			return;
+		}
 		await UpdateTotalData({ firstDate, lastDate });
 		dispatch('change', {
 			net_total: total.net_total,
@@ -88,23 +92,23 @@
 		});
 		return data;
 	};
-	// store_list = store_list;
 </script>
 
 {#if tradeDataList && min_year}
 	<MonthTabReportTable
 		{min_year}
-		bind:tradeDataList
+		{tradeDataList}
 		bind:totalData={total}
-		on:changeShowedDataList={async (e) => {
-			await DateChange(e.detail.firstDay, e.detail.lastDay);
+		onDateRangeChange={async (e) => {
+			dateRange = e;
+			await DateChange(e);
 		}}
 	></MonthTabReportTable>
 	<MonthTab
-		bind:tabDataList={pageIndex}
-		bind:showedMonth={nowPage}
+		tabDataList={pageIndex}
+		showedMonth={nowPage}
 		shape="full"
-		on:onTabChange={async () => {
+		monthChange={async () => {
 			tradeDataList = (await PageChange()) ?? [];
 		}}
 	></MonthTab>

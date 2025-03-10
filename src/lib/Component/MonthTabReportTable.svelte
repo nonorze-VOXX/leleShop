@@ -2,28 +2,25 @@
 	import type { ArtistWithTradeRow, SalesTotalData } from '$lib/db';
 	import { GetAllMonth } from '$lib/function/Utils';
 	import ReportTable from './reportComponent/ReportTable.svelte';
-	import { createEventDispatcher } from 'svelte';
 	import YearMonthTabs from './reportComponent/YearMonthTabs.svelte';
 	import { YearMonth } from '$lib/class/YearMonth';
+	import type { DateRange } from '$lib/type';
 
 	interface Props {
 		tradeDataList: ArtistWithTradeRow[];
 		totalData: SalesTotalData;
 		min_year: number;
+		onDateRangeChange: (dateRange: DateRange) => void;
 	}
 
-	let { tradeDataList, totalData = $bindable(), min_year }: Props = $props();
-	let showedTradeDataList: ArtistWithTradeRow[] = $derived(tradeDataList);
+	let { onDateRangeChange, tradeDataList, totalData = $bindable(), min_year }: Props = $props();
 	let tabDataList: string[] = GetAllMonth();
-	const dispatch = createEventDispatcher<{
-		changeShowedDataList: { firstDay: Date; lastDay: Date };
-	}>();
 
 	let yearRange = { min: min_year, max: new Date().getFullYear() };
 	const yearMonthChange = (yearMonth: YearMonth) => {
-		dispatch('changeShowedDataList', {
-			firstDay: yearMonth.getFirstTimePoint(),
-			lastDay: yearMonth.getLastTimePoint()
+		onDateRangeChange({
+			firstDate: yearMonth.getFirstTimePoint(),
+			lastDate: yearMonth.getLastTimePoint()
 		});
 	};
 </script>
@@ -35,5 +32,5 @@
 		{yearRange}
 		{yearMonthChange}
 	></YearMonthTabs>
-	<ReportTable {showedTradeDataList} {totalData}></ReportTable>
+	<ReportTable showedTradeDataList={tradeDataList} {totalData}></ReportTable>
 </div>
