@@ -1,15 +1,16 @@
 <script lang="ts">
+	import { FormatNumberToTwoDigi } from '$lib/function/Utils';
 	import SmallButton from '../SmallButton.svelte';
 
 	interface Props {
 		tabDataList: string[];
-		showedMonth: string;
+		initShowedMonth: string;
 		shape?: 'full' | 'up' | 'down';
 		monthChange: (month: number) => void;
 	}
 
-	let { tabDataList, monthChange, showedMonth: initShowedMonth, shape = 'up' }: Props = $props();
-	let nowShowedMonth = $state(initShowedMonth);
+	let { tabDataList, monthChange, initShowedMonth, shape = 'up' }: Props = $props();
+	let nowShowedMonth = $state(FormatNumberToTwoDigi(initShowedMonth));
 </script>
 
 <div class="mx-2 flex justify-start overflow-auto">
@@ -19,6 +20,8 @@
 			text={tabData}
 			onclick={() => {
 				nowShowedMonth = tabData;
+				console.log(tabData);
+				console.log(parseInt(tabData));
 				monthChange(parseInt(nowShowedMonth));
 			}}
 			{shape}

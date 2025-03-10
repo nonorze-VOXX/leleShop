@@ -106,7 +106,7 @@
 	></MonthTabReportTable>
 	<MonthTab
 		tabDataList={pageIndex}
-		showedMonth={nowPage}
+		initShowedMonth={nowPage}
 		shape="full"
 		monthChange={async () => {
 			tradeDataList = (await PageChange()) ?? [];

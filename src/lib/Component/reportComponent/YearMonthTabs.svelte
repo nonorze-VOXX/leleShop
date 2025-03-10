@@ -28,5 +28,5 @@
 
 <div class="flex w-full flex-col">
 	<YearTab shape="full" showedYear={yearMonth.year.toString()} {yearRange} {yearChange}></YearTab>
-	<MonthTab {tabDataList} showedMonth={yearMonth.month.toString()} {monthChange}></MonthTab>
+	<MonthTab {tabDataList} initShowedMonth={yearMonth.month.toString()} {monthChange}></MonthTab>
 </div>
