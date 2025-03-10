@@ -3,7 +3,7 @@
 	import { GetTotalWithRemit, GetTradeTotalDataEachOne } from './totalPage';
 	import { GetAllMonth, ThisMonthFirstDate } from '$lib/function/Utils';
 	import YearMonthTabs from '$lib/Component/reportComponent/YearMonthTabs.svelte';
-	import { selectedStore } from '$lib/store/choosing';
+	import { selectedStore, type StoreList } from '$lib/store/choosing';
 	import { browser } from '$app/environment';
 	import db, { type StoreRow } from '$lib/db';
 	import { YearMonth } from '$lib/class/YearMonth';
@@ -33,13 +33,29 @@
 			commission: number;
 		}[]
 	>([]);
+	// const yearMonth = $state(
+	// 	new YearMonth(ThisMonthFirstDate(-1).getFullYear(), ThisMonthFirstDate(-1).getMonth() + 1)
+	// );
+	// const CreateFetchWithYearMonth = (yearMonth: YearMonth) => {
+	// 	return () => {
+	// 		return FetchData(yearMonth);
+	// 	};
+	// };
+	const GetInitYearMonth = () => {
+		return new YearMonth(
+			ThisMonthFirstDate(-1).getFullYear(),
+			ThisMonthFirstDate(-1).getMonth() + 1
+		);
+	};
+	let nowYearMonth = GetInitYearMonth();
+	// let FetchFunctionByLatestYearMonth = CreateFetchWithYearMonth(yearMonth);
 
-	const FetchData = async (yearMonth: YearMonth) => {
+	const FetchDataDeep = async (yearMonth: YearMonth, storeList: StoreList) => {
 		dataReady = false;
 		const { data, error } = await GetTradeTotalDataEachOne(
 			yearMonth.getFirstTimePoint(),
 			yearMonth.getLastTimePoint(),
-			$selectedStore
+			storeList
 		);
 		if (error) {
 			console.error(error);
@@ -50,33 +66,24 @@
 		totalData.map((data) => {
 			realTotal.push(data.net_sales);
 		});
-		if ($selectedStore !== '*') {
-			const remitPromises = $selectedStore.map((store) => GetTotalWithRemit(yearMonth, store));
+		if (storeList !== '*') {
+			const remitPromises = storeList.map((store) => GetTotalWithRemit(yearMonth, store));
 			const remitResults = await Promise.all(remitPromises);
 			const flat = remitResults.flatMap((commission, index) =>
 				commission.map((e) => ({
 					...e,
-					store_name: $selectedStore[index]
+					store_name: storeList[index]
 				}))
 			);
 			RemitDataMulNetTotal = flat;
 		}
 		dataReady = true;
 	};
+	const FetchData = async (yearMonth: YearMonth) => {
+		return await FetchDataDeep(yearMonth, $selectedStore);
+	};
 
-	let yearMonth = $state(
-		new YearMonth(ThisMonthFirstDate(-1).getFullYear(), ThisMonthFirstDate(-1).getMonth() + 1)
-	);
 	let tabDataList: string[] = $state(GetAllMonth());
-	const ClickTab = async (tabData: string) => {
-		yearMonth.month = parseInt(tabData);
-		await FetchData(yearMonth);
-	};
-
-	const ClickYearTab = async (tabData: string) => {
-		yearMonth.year = parseInt(tabData);
-		await FetchData(yearMonth);
-	};
 
 	let storeData: StoreRow[] = $state([]);
 
@@ -92,28 +99,25 @@
 			if (!error) yearRange.min = data;
 		});
 
-		await FetchData(yearMonth);
+		await FetchData(nowYearMonth);
 	});
 	onDestroy(
 		selectedStore.subscribe(async () => {
-			if (browser) await FetchData(yearMonth);
+			if (browser) await FetchData(nowYearMonth);
 		})
 	);
 </script>
 
-{#if yearMonth}
-	<YearMonthTabs
-		{tabDataList}
-		{yearMonth}
-		{yearRange}
-		on:onTabChange={async (e) => {
-			await ClickTab(e.detail.showedMonth);
-		}}
-		on:onYearTabChange={async (e) => {
-			await ClickYearTab(e.detail.showedYear);
-		}}
-	></YearMonthTabs>
-{/if}
+<YearMonthTabs
+	{tabDataList}
+	initYearMonth={GetInitYearMonth()}
+	{yearRange}
+	yearMonthChange={async (yearMonth) => {
+		// FetchFunctionByLatestYearMonth = CreateFetchWithYearMonth(yearMonth);
+		nowYearMonth = yearMonth;
+		await FetchData(yearMonth);
+	}}
+></YearMonthTabs>
 {#if RemitDataMulNetTotal}
 	<TotalTable
 		{totalData}
