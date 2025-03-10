@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { createEventDispatcher, onDestroy, onMount } from 'svelte';
+	import { onDestroy, onMount } from 'svelte';
 	import type { ArtistWithTradeRow, SalesTotalData } from '$lib/db';
 	import MonthTabReportTable from '$lib/Component/MonthTabReportTable.svelte';
 	import db, { onePageLength } from '$lib/db';
@@ -10,9 +10,15 @@
 
 	interface Props {
 		artist_id: number;
+		onDataChange: (e: {
+			net_total: number;
+			firstDate: Date;
+			lastDate: Date;
+			showedLength: number;
+		}) => void;
 	}
 
-	let { artist_id }: Props = $props();
+	let { artist_id, onDataChange }: Props = $props();
 	let store_list: string[] | '*';
 	let tradeDataList: ArtistWithTradeRow[] = $state([]);
 	let nowPage: string = $state('0');
@@ -60,7 +66,7 @@
 			return;
 		}
 		await UpdateTotalData({ firstDate, lastDate });
-		dispatch('change', {
+		onDataChange({
 			net_total: total.net_total,
 			firstDate,
 			lastDate,
@@ -71,9 +77,6 @@
 	async function UpdateTotalData(dateRange: { firstDate: Date; lastDate: Date }) {
 		total = await db.GetTradeTotal(artist_id, store_list, dateRange.firstDate, dateRange.lastDate);
 	}
-	const dispatch = createEventDispatcher<{
-		change: { net_total: number; firstDate: Date; lastDate: Date; showedLength: number };
-	}>();
 	const UpdateTradeData = async () => {
 		const { data } = await db.artistTrade.GetTradeDataWithPage({
 			id: artist_id,

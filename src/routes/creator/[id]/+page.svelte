@@ -87,11 +87,11 @@
 		</div>
 		<MonthTabReportTableWithLogic
 			{artist_id}
-			on:change={(e) => {
-				net_total = e.detail.net_total;
-				firstDate = e.detail.firstDate;
-				lastDate = e.detail.lastDate;
-				showedLength = e.detail.showedLength;
+			onDataChange={(e) => {
+				net_total = e.net_total;
+				firstDate = e.firstDate;
+				lastDate = e.lastDate;
+				showedLength = e.showedLength;
 				// todo: make no need to refresh to get year_month
 				year_month =
 					firstDate?.getFullYear().toString() +

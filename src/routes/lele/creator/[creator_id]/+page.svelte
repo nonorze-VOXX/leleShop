@@ -23,7 +23,7 @@
 <div class="flex flex-col items-center gap-3">
 	<div class="flex flex-wrap justify-center gap-4 text-center text-sm font-semibold">
 		<InfoBox title={artist_name}></InfoBox>
-		<TradeCount bind:showedLength></TradeCount>
+		<TradeCount {showedLength}></TradeCount>
 		{#if year_month}
 			<RemitAndCommission {net_total} {artist_id} {year_month} />
 		{/if}
@@ -31,14 +31,14 @@
 		<!-- <DownloadButton bind:firstDate bind:lastDate bind:artist_id></DownloadButton> -->
 	</div>
 	<MonthTabReportTableWithLogic
-		bind:artist_id
-		on:change={(e) => {
-			net_total = e.detail.net_total;
-			showedLength = e.detail.showedLength;
+		{artist_id}
+		onDataChange={(e) => {
+			net_total = e.net_total;
+			showedLength = e.showedLength;
 			year_month =
-				e.detail.firstDate?.getFullYear().toString() +
+				e.firstDate?.getFullYear().toString() +
 				'-' +
-				FormatNumberToTwoDigi((e.detail.firstDate?.getMonth() + 1).toString());
+				FormatNumberToTwoDigi((e.firstDate?.getMonth() + 1).toString());
 		}}
 	></MonthTabReportTableWithLogic>
 </div>

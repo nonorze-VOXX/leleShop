@@ -20,8 +20,6 @@
 			text={tabData}
 			onclick={() => {
 				nowShowedMonth = tabData;
-				console.log(tabData);
-				console.log(parseInt(tabData));
 				monthChange(parseInt(nowShowedMonth));
 			}}
 			{shape}
