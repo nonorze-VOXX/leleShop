@@ -16,7 +16,7 @@
 <div class="mx-2 flex justify-start overflow-auto">
 	{#each tabDataList as tabData}
 		<SmallButton
-			focus={nowShowedMonth === tabData}
+			focus={Number(nowShowedMonth) === Number(tabData)}
 			text={tabData}
 			onclick={() => {
 				nowShowedMonth = tabData;
