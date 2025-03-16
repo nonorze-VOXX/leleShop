@@ -12,7 +12,7 @@
 
 	let { yearChange, yearRange, showedYear: initYear, shape = 'up' }: Props = $props();
 	let showedYear = $state(initYear);
-	let tabDataList: string[] = $state(
+	let tabDataList: string[] = $derived(
 		Array.from({ length: yearRange.max - yearRange.min + 1 }, (_, i) =>
 			(yearRange.min + i).toString()
 		)
