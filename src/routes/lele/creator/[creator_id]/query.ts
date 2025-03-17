@@ -75,3 +75,17 @@ export function GetTotal(tradeData: ArtistWithTradeRow[]): SalesTotalData {
 		)
 	};
 }
+
+export const GetFilteredTradeData = (filterText: string, tradeData: ArtistWithTradeRow[]) => {
+	if (filterText.trim() === '') {
+		return tradeData;
+	}
+	const processedFilter = filterText
+		.trim()
+		.split(' ')
+		.map((s) => s.trim());
+
+	return tradeData.filter((d) =>
+		processedFilter.reduce((pre, cur) => pre || JSON.stringify(d).match(cur) !== null, false)
+	);
+};

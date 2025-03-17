@@ -12,7 +12,7 @@
 	import type { DateRange } from '$lib/type';
 
 	import { onDestroy, onMount } from 'svelte';
-	import { GetPageData, GetTotal } from './query';
+	import { GetFilteredTradeData, GetPageData, GetTotal } from './query';
 	const artist_id: number = $state(Number(page.params.creator_id));
 	let artist_name: string = $state('');
 	let yearRange: { min: number; max: number } = $state({ min: 0, max: 0 });
@@ -61,20 +61,6 @@
 			queryParam.storeList = $selectedStore;
 		})();
 	});
-	const GetFilteredTradeData = (filterText: string, tradeData: ArtistWithTradeRow[]) => {
-		if (filterText.trim() === '') {
-			return tradeData;
-		}
-		let processedFilter = filterText
-			.trim()
-			.split(' ')
-			.map((s) => s.trim());
-		// console.log(JSON.stringify(tradeData[0]));
-
-		return tradeData.filter((d) =>
-			processedFilter.reduce((pre, cur) => pre || JSON.stringify(d).match(cur) !== null, false)
-		);
-	};
 
 	const GetTradeData = async () => {
 		await GetPageData(queryParam).then((data) => {
@@ -108,10 +94,10 @@
 			<RemitAndCommission net_total={total.net_total} {artist_id} {year_month} />
 		{/if}
 	</div>
-	<div class="text-large flex flex-wrap gap-2 font-bold">
+	<div class="flex flex-wrap gap-2 text-lg font-bold">
 		<h2>filter</h2>
 		<input
-			class="rounded-md border-4 border-lele-line px-1"
+			class="w-60 rounded-md border-4 border-lele-line px-1 sm:w-80"
 			type="text"
 			bind:value={filterText}
 			onchange={() => {
