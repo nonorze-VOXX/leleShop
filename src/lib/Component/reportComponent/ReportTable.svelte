@@ -1,6 +1,4 @@
 <script lang="ts">
-	import { run } from 'svelte/legacy';
-
 	import { type ArtistWithTradeRow, type SalesTotalData } from '$lib/db';
 	import { FormatDate } from '$lib/function/Utils';
 	import LeleTable from '../htmlWrapper/LeleTable.svelte';
@@ -14,17 +12,10 @@
 
 	let { showedTradeDataList, totalData }: Props = $props();
 
-	let total = $state(-1);
-	let net_total = $state(-1);
-	let discount_total = $state(0);
-	let total_quantity = $state(0);
-
-	run(() => {
-		total = totalData.sales_total;
-		net_total = totalData.net_total;
-		discount_total = totalData.discount_total;
-		total_quantity = totalData.total_quantity;
-	});
+	let total = $derived(totalData.sales_total);
+	let net_total = $derived(totalData.net_total);
+	let discount_total = $derived(totalData.discount_total);
+	let total_quantity = $derived(totalData.total_quantity);
 </script>
 
 <LeleTable>

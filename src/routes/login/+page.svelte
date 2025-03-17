@@ -1,11 +1,14 @@
 <script lang="ts">
-	import { preventDefault } from 'svelte/legacy';
-
 	import { goto } from '$app/navigation';
 	import { supabase } from '$lib/db';
 
 	let loginFailed = $state(false);
-	async function LoginSubmit(event: { currentTarget: EventTarget & HTMLFormElement }) {
+	async function LoginSubmit(
+		event: SubmitEvent & {
+			currentTarget: EventTarget & HTMLFormElement;
+		}
+	) {
+		event.preventDefault();
 		const email = event.currentTarget.email.value;
 		const password = event.currentTarget.password.value;
 		const { error } = await supabase.auth.signInWithPassword({
@@ -25,7 +28,7 @@
 		<div class="flex flex-col items-center rounded-xl bg-white p-5">
 			<form
 				action="?/login"
-				onsubmit={preventDefault(LoginSubmit)}
+				onsubmit={LoginSubmit}
 				class="flex flex-col items-center gap-4 text-lg"
 			>
 				<div class="flex w-full items-center justify-between gap-3">

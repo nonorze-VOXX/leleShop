@@ -104,7 +104,7 @@
 		</div>
 		<PasswordPanel
 			{artist_id}
-			on:success={() => {
+			onSuccessLogin={() => {
 				panelState = PasswordPanelState.Admit;
 			}}
 		></PasswordPanel>

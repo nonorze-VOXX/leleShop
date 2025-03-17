@@ -1,6 +1,4 @@
 <script lang="ts">
-	import { preventDefault } from 'svelte/legacy';
-
 	import { supabase } from '$lib/db';
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
@@ -33,7 +31,13 @@
 		<div></div>
 		<div class="flex justify-end">
 			<div class="m-2 rounded-xl bg-red-600 px-3 font-semibold text-white">
-				<form action="/login?/logout" onsubmit={preventDefault(LogoutSubmit)}>
+				<form
+					action="/login?/logout"
+					onsubmit={(e) => {
+						e.preventDefault();
+						LogoutSubmit();
+					}}
+				>
 					<button type="submit">Logout</button>
 				</form>
 			</div>

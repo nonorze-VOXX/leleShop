@@ -1,6 +1,4 @@
 <script lang="ts">
-	import { run } from 'svelte/legacy';
-
 	import MidButton from '../MidButton.svelte';
 
 	interface Props {

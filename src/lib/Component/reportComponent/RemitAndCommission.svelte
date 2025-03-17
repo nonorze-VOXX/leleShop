@@ -1,6 +1,4 @@
 <script lang="ts">
-	import { run } from 'svelte/legacy';
-
 	import { browser } from '$app/environment';
 	import { supabase } from '$lib/db';
 	import { selectedStore } from '$lib/store/choosing';
