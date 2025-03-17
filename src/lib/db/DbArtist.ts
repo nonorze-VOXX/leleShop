@@ -7,6 +7,7 @@ export default {
 			query = query.eq('id', id);
 		}
 		const { data, error } = await query.order('id', { ascending: true });
+		console.log(data, id);
 		if (error !== null) {
 			console.error(error);
 		}

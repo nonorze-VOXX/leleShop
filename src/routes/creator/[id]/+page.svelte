@@ -5,57 +5,94 @@
 
 	import PasswordPanel from './PasswordPanel.svelte';
 	import { onDestroy, onMount } from 'svelte';
-	import { supabase } from '$lib/db';
+	import db, { supabase, type ArtistWithTradeRow, type SalesTotalData } from '$lib/db';
 	import { page } from '$app/state';
 	import TradeCount from '$lib/Component/reportComponent/TradeCount.svelte';
 	import InfoBox from '$lib/Component/InfoBox.svelte';
-	import { selectedStore } from '$lib/store/choosing';
+	import { selectedStore, type StoreList } from '$lib/store/choosing';
 	import { browser } from '$app/environment';
-	import { FormatNumberToTwoDigi } from '$lib/function/Utils';
+	import { FormatNumberToTwoDigi, GetAllMonth, ThisMonthFirstDate } from '$lib/function/Utils';
 	import RemitAndCommission from '$lib/Component/reportComponent/RemitAndCommission.svelte';
 	import { PasswordPanelState } from './PanelState';
+	import { YearMonth } from '$lib/class/YearMonth';
+	import YearMonthTabs from '$lib/Component/reportComponent/YearMonthTabs.svelte';
+	import ReportTable from '$lib/Component/reportComponent/ReportTable.svelte';
+	import { GetFilteredTradeData, GetPageData, GetTotal } from '$lib/function/query';
+	import type { DateRange } from '$lib/type';
 
 	let artist_name: string = $state('');
-	let net_total = $state(-1);
-	let artist_id: number = $state(0);
+	let artist_id: number = $state(Number(page.params.id));
 	let panelState: PasswordPanelState = $state(PasswordPanelState.Loading);
 	let showedLength = $state(0);
 	let logText: string = $state('');
 
 	let firstDate: Date | null = $state(null);
 	let lastDate: Date | null = $state(null);
-	const PageQueryData = async () => {
-		artist_id = Number(page.params.id);
-		if (isNaN(artist_id)) {
-			logText = 'artist_id is not a number';
+	let yearRange: { min: number; max: number } = $state({ min: 0, max: 0 });
+	let year_month: string | null = $state(null);
+	let total: SalesTotalData = $state({
+		sales_total: 0,
+		net_total: 0,
+		discount_total: 0,
+		total_quantity: 0
+	});
+	let filterText: string = $state('');
+	let queryParam: {
+		artist_id: number;
+		storeList: StoreList;
+		dateRange: DateRange;
+		page: number;
+	} = {
+		artist_id: artist_id,
+		storeList: '*',
+		dateRange: {
+			firstDate: ThisMonthFirstDate(-1),
+			lastDate: ThisMonthFirstDate()
+		},
+		page: 0
+	};
+	let queryedTradeDataList: ArtistWithTradeRow[] = $state([]);
+	let filteredTradeDataList: ArtistWithTradeRow[] = $state([]);
+	onMount(async () => {
+		panelState = PasswordPanelState.NotAdmit;
+		const artist_data = (await db.artist.GetArtistData(artist_id)).data ?? [];
+		console.log(artist_data);
+		artist_name = artist_data.length !== 0 ? artist_data[0].artist_name : 'not found this artist';
+		const { data, error } = await db.GetTradeDataMinYear();
+		if (error) {
+			console.error(error);
 			return;
 		}
-		{
-			const { data, error } = await supabase
-				.from('artist')
-				.select('artist_name')
-				.eq('id', artist_id)
-				.single();
-
-			if (error) {
-				logText = error.message;
-				return;
-			}
-
-			artist_name = data.artist_name;
-		}
-	};
-	onMount(() => {
-		panelState = PasswordPanelState.NotAdmit;
+		yearRange = { min: data, max: new Date().getFullYear() };
+		let initYM = YearMonth.now().getPreviousMonth();
+		year_month = initYM.year + '-' + FormatNumberToTwoDigi(initYM.month.toString());
 	}); // use selectedStore will init
-	const unsubscribe = selectedStore.subscribe(async (e) => {
-		if (browser) {
-			await PageQueryData();
-		}
+	onDestroy(() => {
+		selectedStore.subscribe(async (e) => {
+			queryParam.storeList = $selectedStore;
+		})();
 	});
+	const GetTradeData = async () => {
+		await GetPageData(queryParam).then((data) => {
+			queryedTradeDataList = data.tradeData;
 
-	onDestroy(unsubscribe);
-	let year_month: string | null = $state(null);
+			filteredTradeDataList = GetFilteredTradeData(filterText, queryedTradeDataList);
+			showedLength = filteredTradeDataList.length;
+			total = GetTotal(filteredTradeDataList);
+		});
+	};
+	const yearMonthChange = async (yearMonth: YearMonth) => {
+		queryParam.dateRange = {
+			firstDate: yearMonth.getFirstTimePoint(),
+			lastDate: yearMonth.getLastTimePoint()
+		};
+		queryParam.page = 0;
+		year_month =
+			yearMonth.getFirstTimePoint()?.getFullYear().toString() +
+			'-' +
+			FormatNumberToTwoDigi((yearMonth.getFirstTimePoint()?.getMonth() + 1).toString());
+		await GetTradeData();
+	};
 </script>
 
 <div class="flex flex-col items-center gap-3">
@@ -80,24 +117,33 @@
 			<InfoBox title={artist_name}></InfoBox>
 			<TradeCount {showedLength}></TradeCount>
 			{#if year_month}
-				<RemitAndCommission {net_total} {artist_id} {year_month}></RemitAndCommission>
+				<RemitAndCommission net_total={total.net_total} {artist_id} {year_month}
+				></RemitAndCommission>
 			{/if}
 
 			<DownloadButton {firstDate} {lastDate} {artist_id}></DownloadButton>
 		</div>
-		<MonthTabReportTableWithLogic
-			{artist_id}
-			onDataChange={(e) => {
-				net_total = e.net_total;
-				firstDate = e.firstDate;
-				lastDate = e.lastDate;
-				showedLength = e.showedLength;
-				// todo: make no need to refresh to get year_month
-				year_month =
-					firstDate?.getFullYear().toString() +
-					'-' +
-					FormatNumberToTwoDigi((firstDate?.getMonth() + 1).toString());
-			}}
-		></MonthTabReportTableWithLogic>
+		<div class="flex flex-wrap gap-2 text-lg font-bold">
+			<h2>filter</h2>
+			<input
+				class="w-60 rounded-md border-4 border-lele-line px-1 sm:w-80"
+				type="text"
+				bind:value={filterText}
+				onchange={() => {
+					filteredTradeDataList = GetFilteredTradeData(filterText, queryedTradeDataList);
+					showedLength = filteredTradeDataList.length;
+					total = GetTotal(filteredTradeDataList);
+				}}
+			/>
+		</div>
+		<div class="flex w-full flex-col">
+			<YearMonthTabs
+				tabDataList={GetAllMonth()}
+				initYearMonth={YearMonth.now().getPreviousMonth()}
+				{yearRange}
+				{yearMonthChange}
+			></YearMonthTabs>
+			<ReportTable showedTradeDataList={filteredTradeDataList} totalData={total}></ReportTable>
+		</div>
 	{/if}
 </div>

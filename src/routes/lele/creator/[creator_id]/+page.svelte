@@ -12,7 +12,7 @@
 	import type { DateRange } from '$lib/type';
 
 	import { onDestroy, onMount } from 'svelte';
-	import { GetFilteredTradeData, GetPageData, GetTotal } from './query';
+	import { GetFilteredTradeData, GetPageData, GetTotal } from '$lib/function/query';
 	const artist_id: number = $state(Number(page.params.creator_id));
 	let artist_name: string = $state('');
 	let yearRange: { min: number; max: number } = $state({ min: 0, max: 0 });

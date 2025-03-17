@@ -43,14 +43,6 @@
 	const unsubscribe = selectedStore.subscribe(fetchCommission);
 
 	onMount(fetchCommission);
-
-	run(() => {
-		year_month, fetchCommission();
-	});
-	run(() => {
-		net_total, fetchCommission();
-	});
-
 	onDestroy(unsubscribe);
 </script>
 
