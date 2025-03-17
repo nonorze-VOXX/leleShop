@@ -1,8 +1,5 @@
 <script lang="ts">
 	import DownloadButton from './DownloadButton.svelte';
-
-	import MonthTabReportTableWithLogic from '$lib/Component/MonthTabReportTableWithLogic.svelte';
-
 	import PasswordPanel from './PasswordPanel.svelte';
 	import { onDestroy, onMount } from 'svelte';
 	import db, { supabase, type ArtistWithTradeRow, type SalesTotalData } from '$lib/db';
@@ -10,7 +7,6 @@
 	import TradeCount from '$lib/Component/reportComponent/TradeCount.svelte';
 	import InfoBox from '$lib/Component/InfoBox.svelte';
 	import { selectedStore, type StoreList } from '$lib/store/choosing';
-	import { browser } from '$app/environment';
 	import { FormatNumberToTwoDigi, GetAllMonth, ThisMonthFirstDate } from '$lib/function/Utils';
 	import RemitAndCommission from '$lib/Component/reportComponent/RemitAndCommission.svelte';
 	import { PasswordPanelState } from './PanelState';
