@@ -7,12 +7,12 @@
 	import TradeCount from '$lib/Component/reportComponent/TradeCount.svelte';
 	import YearMonthTabs from '$lib/Component/reportComponent/YearMonthTabs.svelte';
 	import db, { type ArtistWithTradeRow, type SalesTotalData } from '$lib/db';
-	import { FormatNumberToTwoDigi, ThisMonthFirstDate } from '$lib/function/Utils';
+	import { FormatNumberToTwoDigi, GetAllMonth, ThisMonthFirstDate } from '$lib/function/Utils';
 	import { selectedStore, type StoreList } from '$lib/store/choosing';
 	import type { DateRange } from '$lib/type';
 
 	import { onDestroy, onMount } from 'svelte';
-	import { GetPageData } from './page';
+	import { GetPageData, GetTotal } from './query';
 	const artist_id: number = $state(Number(page.params.creator_id));
 	let artist_name: string = $state('');
 	let yearRange: { min: number; max: number } = $state({ min: 0, max: 0 });
@@ -31,7 +31,17 @@
 		page: 0
 	};
 	let showedLength = $state(0);
-	let showedTradeDataList: ArtistWithTradeRow[] = $state([]);
+	let queryedTradeDataList: ArtistWithTradeRow[] = $state([]);
+	let filteredTradeDataList: ArtistWithTradeRow[] = $state([]);
+	let year_month: string | null = $state(null);
+
+	let total: SalesTotalData = $state({
+		sales_total: 0,
+		net_total: 0,
+		discount_total: 0,
+		total_quantity: 0
+	});
+	let filterText: string = $state('');
 
 	onMount(async () => {
 		const artist_data = (await db.artist.GetArtistData(artist_id)).data ?? [];
@@ -42,7 +52,8 @@
 			return;
 		}
 		yearRange = { min: data, max: new Date().getFullYear() };
-		console.log($state.snapshot(yearRange));
+		let initYM = YearMonth.now().getPreviousMonth();
+		year_month = initYM.year + '-' + FormatNumberToTwoDigi(initYM.month.toString());
 	});
 
 	onDestroy(() => {
@@ -50,24 +61,31 @@
 			queryParam.storeList = $selectedStore;
 		})();
 	});
+	const GetFilteredTradeData = (filterText: string, tradeData: ArtistWithTradeRow[]) => {
+		if (filterText.trim() === '') {
+			return tradeData;
+		}
+		let processedFilter = filterText
+			.trim()
+			.split(' ')
+			.map((s) => s.trim());
+		// console.log(JSON.stringify(tradeData[0]));
+
+		return tradeData.filter((d) =>
+			processedFilter.reduce((pre, cur) => pre || JSON.stringify(d).match(cur) !== null, false)
+		);
+	};
+
 	const GetTradeData = async () => {
 		await GetPageData(queryParam).then((data) => {
-			showedTradeDataList = data.tradeData;
-			showedLength = data.count;
-			total = data.total;
+			queryedTradeDataList = data.tradeData;
+
+			filteredTradeDataList = GetFilteredTradeData(filterText, queryedTradeDataList);
+			showedLength = filteredTradeDataList.length;
+			total = GetTotal(filteredTradeDataList);
 		});
 	};
-	const pageChange = (page: number) => {
-		queryParam.page = page;
-	};
-	let year_month: string | null = $state(null);
 
-	let total: SalesTotalData = $state({
-		sales_total: 0,
-		net_total: 0,
-		discount_total: 0,
-		total_quantity: 0
-	});
 	const yearMonthChange = async (yearMonth: YearMonth) => {
 		queryParam.dateRange = {
 			firstDate: yearMonth.getFirstTimePoint(),
@@ -90,15 +108,26 @@
 			<RemitAndCommission net_total={total.net_total} {artist_id} {year_month} />
 		{/if}
 	</div>
+	<div class="text-large flex flex-wrap gap-2 font-bold">
+		<h2>filter</h2>
+		<input
+			class="rounded-md border-4 border-lele-line px-1"
+			type="text"
+			bind:value={filterText}
+			onchange={() => {
+				filteredTradeDataList = GetFilteredTradeData(filterText, queryedTradeDataList);
+				showedLength = filteredTradeDataList.length;
+				total = GetTotal(filteredTradeDataList);
+			}}
+		/>
+	</div>
 	<div class="flex w-full flex-col">
 		<YearMonthTabs
-			tabDataList={['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12']}
+			tabDataList={GetAllMonth()}
 			initYearMonth={YearMonth.now().getPreviousMonth()}
 			{yearRange}
 			{yearMonthChange}
 		></YearMonthTabs>
-		<ReportTable {showedTradeDataList} totalData={total}></ReportTable>
-
-		<!-- <PageTab count={showedLength} {pageChange}></PageTab> -->
+		<ReportTable showedTradeDataList={filteredTradeDataList} totalData={total}></ReportTable>
 	</div>
 </div>

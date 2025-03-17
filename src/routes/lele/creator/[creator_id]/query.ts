@@ -43,14 +43,10 @@ export const GetPageData = async (param: {
 
 	const tradeData: ArtistWithTradeRow[] = [];
 	for (let i = 0; i < count / onePageLength; i++) {
-		let query = QueryData({ ...param, count: false }).range(
+		const query = QueryData({ ...param, count: false }).range(
 			i * onePageLength,
 			(i + 1) * onePageLength - 1
 		);
-		const condition = false;
-		if (condition) {
-			query = query; //todo: filter
-		}
 		const res = await query;
 		if (res.error) {
 			console.error(res.error);
@@ -60,7 +56,10 @@ export const GetPageData = async (param: {
 		});
 	}
 
-	const total: SalesTotalData = {
+	return { tradeData };
+};
+export function GetTotal(tradeData: ArtistWithTradeRow[]): SalesTotalData {
+	return {
 		discount_total: tradeData.reduce(
 			(acc, cur) => acc + (cur && cur.discount ? cur.discount : 0),
 			0
@@ -75,5 +74,4 @@ export const GetPageData = async (param: {
 			0
 		)
 	};
-	return { tradeData, count, total };
-};
+}
