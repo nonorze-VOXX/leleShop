@@ -48,7 +48,7 @@
 					<td>
 						<Toggle
 							bind:checked={artists.visible}
-							on:change={() => {
+							onChange={() => {
 								UpdateVisiable(artists);
 							}}
 						></Toggle>

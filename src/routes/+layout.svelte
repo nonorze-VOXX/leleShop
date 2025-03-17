@@ -63,9 +63,9 @@
 			{:else}
 				{#each store_list as store}
 					<LeleButton
-						bind:text={store.store_name}
-						bind:choosing={selectState[store_list.indexOf(store)]}
-						on:click={() => {
+						text={store.store_name}
+						choosing={selectState[store_list.indexOf(store)]}
+						onClick={() => {
 							if ($selectedStore === '*') {
 								selectedStore.set([store.store_name]);
 							} else if (!Array.isArray($selectedStore)) {
