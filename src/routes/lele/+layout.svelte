@@ -3,6 +3,11 @@
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
 	import Menu from './Menu.svelte';
+	interface Props {
+		children?: import('svelte').Snippet;
+	}
+
+	let { children }: Props = $props();
 
 	onMount(async () => {
 		const access_token = (await supabase.auth.getSession()).data.session?.access_token;
@@ -26,7 +31,13 @@
 		<div></div>
 		<div class="flex justify-end">
 			<div class="m-2 rounded-xl bg-red-600 px-3 font-semibold text-white">
-				<form action="/login?/logout" on:submit|preventDefault={LogoutSubmit}>
+				<form
+					action="/login?/logout"
+					onsubmit={(e) => {
+						e.preventDefault();
+						LogoutSubmit();
+					}}
+				>
 					<button type="submit">Logout</button>
 				</form>
 			</div>
@@ -34,4 +45,4 @@
 	</div>
 </div>
 <Menu></Menu>
-<slot />
+{@render children?.()}

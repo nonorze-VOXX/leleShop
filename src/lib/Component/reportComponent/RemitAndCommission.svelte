@@ -7,10 +7,14 @@
 	import Remit from './Remit.svelte';
 	import Commission from './Commission.svelte';
 
-	export let net_total: number | null;
-	export let artist_id: number;
-	export let year_month: string;
-	let commission: number | null = null;
+	interface Props {
+		net_total: number | null;
+		artist_id: number;
+		year_month: string;
+	}
+
+	let { net_total, artist_id, year_month }: Props = $props();
+	let commission: number | null = $state(null);
 
 	const fetchCommission = async () => {
 		if (browser) {
@@ -37,10 +41,6 @@
 	const unsubscribe = selectedStore.subscribe(fetchCommission);
 
 	onMount(fetchCommission);
-
-	$: year_month, fetchCommission();
-	$: net_total, fetchCommission();
-
 	onDestroy(unsubscribe);
 </script>
 

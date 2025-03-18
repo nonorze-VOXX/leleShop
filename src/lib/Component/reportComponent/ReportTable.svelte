@@ -1,24 +1,21 @@
 <script lang="ts">
 	import { type ArtistWithTradeRow, type SalesTotalData } from '$lib/db';
 	import { FormatDate } from '$lib/function/Utils';
-	import LeleTable from './htmlWrapper/LeleTable.svelte';
-	import LeleTbody from './htmlWrapper/LeleTbody.svelte';
-	import LeleTbodyTr from './htmlWrapper/LeleTbodyTr.svelte';
-	import LeleThead from './htmlWrapper/LeleThead.svelte';
-	export let showedTradeDataList: ArtistWithTradeRow[];
-	export let totalData: SalesTotalData;
-
-	let total = -1;
-	let net_total = -1;
-	let discount_total = 0;
-	let total_quantity = 0;
-
-	$: {
-		total = totalData.sales_total;
-		net_total = totalData.net_total;
-		discount_total = totalData.discount_total;
-		total_quantity = totalData.total_quantity;
+	import LeleTable from '../htmlWrapper/LeleTable.svelte';
+	import LeleTbody from '../htmlWrapper/LeleTbody.svelte';
+	import LeleTbodyTr from '../htmlWrapper/LeleTbodyTr.svelte';
+	import LeleThead from '../htmlWrapper/LeleThead.svelte';
+	interface Props {
+		showedTradeDataList: ArtistWithTradeRow[];
+		totalData: SalesTotalData;
 	}
+
+	let { showedTradeDataList, totalData }: Props = $props();
+
+	let total = $derived(totalData.sales_total);
+	let net_total = $derived(totalData.net_total);
+	let discount_total = $derived(totalData.discount_total);
+	let total_quantity = $derived(totalData.total_quantity);
 </script>
 
 <LeleTable>

@@ -1,53 +1,36 @@
 <script lang="ts">
 	import type { ArtistWithTradeRow, SalesTotalData } from '$lib/db';
 	import { GetAllMonth } from '$lib/function/Utils';
-	import ReportTable from './ReportTable.svelte';
-	import { createEventDispatcher } from 'svelte';
-	import YearMonthTabs from './YearMonthTabs.svelte';
+	import ReportTable from './reportComponent/ReportTable.svelte';
+	import YearMonthTabs from './reportComponent/YearMonthTabs.svelte';
 	import { YearMonth } from '$lib/class/YearMonth';
+	import type { DateRange } from '$lib/type';
 
-	export let tradeDataList: ArtistWithTradeRow[];
-	export let totalData: SalesTotalData;
-	export let min_year: number;
-	let showedTradeDataList: ArtistWithTradeRow[];
+	interface Props {
+		tradeDataList: ArtistWithTradeRow[];
+		totalData: SalesTotalData;
+		min_year: number;
+		onDateRangeChange: (dateRange: DateRange) => void;
+	}
+
+	let { onDateRangeChange, tradeDataList, totalData = $bindable(), min_year }: Props = $props();
 	let tabDataList: string[] = GetAllMonth();
-	let yearMonth: YearMonth = YearMonth.now().getPreviousMonth();
-	const dispatch = createEventDispatcher<{
-		changeShowedDataList: { firstDay: Date; lastDay: Date };
-	}>();
-	const ClickTab = (tabData: string) => {
-		yearMonth.month = Number(tabData);
-		dispatch('changeShowedDataList', {
-			firstDay: yearMonth.getFirstTimePoint(),
-			lastDay: yearMonth.getLastTimePoint()
-		});
-	};
-	const ClickYearTab = (tabData: string) => {
-		yearMonth.year = Number(tabData);
-		dispatch('changeShowedDataList', {
-			firstDay: yearMonth.getFirstTimePoint(),
-			lastDay: yearMonth.getLastTimePoint()
-		});
-	};
 
 	let yearRange = { min: min_year, max: new Date().getFullYear() };
-
-	$: {
-		showedTradeDataList = tradeDataList;
-	}
+	const yearMonthChange = (yearMonth: YearMonth) => {
+		onDateRangeChange({
+			firstDate: yearMonth.getFirstTimePoint(),
+			lastDate: yearMonth.getLastTimePoint()
+		});
+	};
 </script>
 
 <div class="flex w-full flex-col">
 	<YearMonthTabs
-		bind:tabDataList
-		bind:yearMonth
+		{tabDataList}
+		initYearMonth={YearMonth.now().getPreviousMonth()}
 		{yearRange}
-		on:onTabChange={(e) => {
-			ClickTab(e.detail.showedMonth);
-		}}
-		on:onYearTabChange={(e) => {
-			ClickYearTab(e.detail.showedYear);
-		}}
+		{yearMonthChange}
 	></YearMonthTabs>
-	<ReportTable bind:showedTradeDataList bind:totalData></ReportTable>
+	<ReportTable showedTradeDataList={tradeDataList} {totalData}></ReportTable>
 </div>
