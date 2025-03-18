@@ -1,7 +1,7 @@
 <script lang="ts">
 	import InfoBox from '../InfoBox.svelte';
 
-	export let showedLength;
+	let { showedLength } = $props();
 </script>
 
 <InfoBox title="交易次數" value={showedLength}></InfoBox>

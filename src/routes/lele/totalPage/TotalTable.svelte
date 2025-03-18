@@ -1,20 +1,24 @@
 <script lang="ts">
+	import { run } from 'svelte/legacy';
+
 	import LeleTable from '$lib/Component/htmlWrapper/LeleTable.svelte';
 	import LeleThead from '$lib/Component/htmlWrapper/LeleThead.svelte';
 	import LeleTbody from '$lib/Component/htmlWrapper/LeleTbody.svelte';
 	import LeleTbodyTr from '$lib/Component/htmlWrapper/LeleTbodyTr.svelte';
 	import { type StoreRow } from '$lib/db';
 
-	export let totalData: {
+
+
+	interface Props {
+		totalData?: {
 		artist_name: string | null;
 		total_sales: number;
 		net_sales: number;
 		discount: number;
-	}[] = [];
-
-	export let dataReady;
-	export let realTotal: number[] = [];
-	export let RemitDataMulNetTotal: {
+	}[];
+		dataReady: any;
+		realTotal?: number[];
+		RemitDataMulNetTotal?: {
 		netSaleMulRemit: number;
 		total_sales: number;
 		net_sales: number;
@@ -24,10 +28,19 @@
 		artist_name: string | null;
 		store_name: string;
 		commission: number;
-	}[] = [];
+	}[];
+		storeData?: StoreRow[];
+		selectedStore: string[] | '*';
+	}
 
-	export let storeData: StoreRow[] = [];
-	export let selectedStore: string[] | '*';
+	let {
+		totalData = [],
+		dataReady,
+		realTotal = [],
+		RemitDataMulNetTotal = [],
+		storeData = [],
+		selectedStore
+	}: Props = $props();
 	const needSum = false;
 
 	function FindItem(artist_name: string | null, store_name: string) {
@@ -49,7 +62,9 @@
 			return acc + (FindItem(artist_name, store)?.netSaleMulRemit ?? 0);
 		}, 0);
 	}
-	$: dataReady;
+	run(() => {
+		dataReady;
+	});
 </script>
 
 <LeleTable>

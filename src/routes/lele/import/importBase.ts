@@ -3,6 +3,12 @@ import { type ImportedTrade, type ImportIndexOfHeader } from './importDTO';
 import type { TradeHeadRow } from '$lib/db';
 import { findIndex } from '$lib/function/Utils';
 
+export enum ProcessedStatus {
+	NORMAL,
+	PROCESSING,
+	ERROR,
+	PROCESSED
+}
 export const artistIndex = (dataHeader: string[]) => {
 	return findIndex(dataHeader, '類別');
 };

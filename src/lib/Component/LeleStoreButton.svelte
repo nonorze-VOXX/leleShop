@@ -1,6 +1,11 @@
 <script lang="ts">
-	export let text: string;
-	export let choosing: boolean = true;
+	interface Props {
+		text: string;
+		choosing?: boolean;
+		onClick: () => void;
+	}
+
+	let { onClick, text, choosing = true }: Props = $props();
 </script>
 
 <button
@@ -9,7 +14,7 @@
 	class:bg-lele-bg={!choosing}
 	class:text-lele-line={!choosing}
 	class:opacity-50={!choosing}
-	on:click
+	onclick={onClick}
 	class="flex justify-between rounded-xl border-4 border-lele-line p-2 font-bold"
 >
 	{#if text === 'The創'}

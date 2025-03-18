@@ -7,7 +7,7 @@
 	import { supabase, type StoreRow } from '$lib/db';
 	import { onMount } from 'svelte';
 
-	let storeData: StoreRow[] = [];
+	let storeData: StoreRow[] = $state([]);
 	onMount(async () => {
 		const { data, error } = await supabase.from('store').select('*');
 		if (error) {
@@ -15,7 +15,7 @@
 		}
 		storeData = data ?? [];
 	});
-	let newStoreName: string;
+	let newStoreName: string = $state();
 	async function updateStoreName(id: number, name: string) {
 		const { data, error } = await supabase
 			.from('store')
@@ -30,14 +30,14 @@
 		}
 		if (data) storeData = storeData.map((item) => (item.id === id ? data : item));
 	}
-	let selectedStoreId: number;
+	let selectedStoreId: number = $state();
 </script>
 
 <h1>店家列表</h1>
 
 {#if storeData}
 	<form
-		on:submit={async () => await updateStoreName(selectedStoreId, newStoreName)}
+		onsubmit={async () => await updateStoreName(selectedStoreId, newStoreName)}
 		class="m-2 flex w-fit justify-start gap-4 rounded-lg border-4 border-lele-line p-2 font-bold"
 	>
 		<select

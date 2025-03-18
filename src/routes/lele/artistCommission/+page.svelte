@@ -10,18 +10,18 @@
 	import { selectedStore } from '$lib/store/choosing';
 	import { onDestroy, onMount } from 'svelte';
 
-	let showStoreName: string[] = [];
-	let commissionData: CommissionViewRow[] = [];
-	let choosingArtist: number[] = [];
-	let choosingStoreName: string[] = [];
+	let showStoreName: string[] = $state([]);
+	let commissionData: CommissionViewRow[] = $state([]);
+	let choosingArtist: number[] = $state([]);
+	let choosingStoreName: string[] = $state([]);
 	let storeData: StoreRow[] = [];
-	let artistData: ArtistRow[] = [];
+	let artistData: ArtistRow[] = $state([]);
 
 	let choosingDate =
-		ThisMonthFirstDate().getFullYear() +
+		$state(ThisMonthFirstDate().getFullYear() +
 		'-' +
 		(ThisMonthFirstDate().getMonth() + 1).toString().padStart(2, '0') +
-		'-01';
+		'-01');
 
 	onDestroy(
 		selectedStore.subscribe(async () => {
@@ -91,7 +91,7 @@
 		choosingStoreName = [];
 	}
 
-	let newCommission: number;
+	let newCommission: number = $state();
 
 	async function updateCommission() {
 		const toInsert = [];
@@ -217,12 +217,12 @@
 </script>
 
 <!-- todo: only show visible shop -->
-<input type="date" bind:value={choosingDate} on:change={updateChoosingDate} />
+<input type="date" bind:value={choosingDate} onchange={updateChoosingDate} />
 <span>choose date only see year and month</span>
 
 {#if commissionData}
 	<form
-		on:submit={async () => {
+		onsubmit={async () => {
 			await updateCommission();
 		}}
 		class="m-2 flex w-fit justify-start gap-4 rounded-lg border-4 border-lele-line p-2 font-bold"
@@ -251,7 +251,7 @@
 						<label class="flex h-full w-full cursor-pointer items-center justify-center p-2">
 							<input
 								type="checkbox"
-								on:click={(e) => {
+								onclick={(e) => {
 									// @ts-expect-error no want to change e type use as
 									if (e?.target?.checked) {
 										choosingStoreName = [...choosingStoreName, s];
@@ -276,7 +276,7 @@
 						<label class="flex w-full cursor-pointer items-center">
 							<input
 								type="checkbox"
-								on:click={(e) => {
+								onclick={(e) => {
 									//@ts-expect-error
 									if (e?.target?.checked) {
 										choosingArtist = [...choosingArtist, artist.id];

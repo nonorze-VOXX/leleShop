@@ -6,8 +6,13 @@
 	import type { StoreRow } from '$lib/db';
 	import { findIndex } from '$lib/function/Utils';
 	import LeleButton from '$lib/Component/LeleStoreButton.svelte';
-	let store_list: StoreRow[] = [];
-	let selectState: boolean[] = [];
+	interface Props {
+		children?: import('svelte').Snippet;
+	}
+
+	let { children }: Props = $props();
+	let store_list: StoreRow[] = $state([]);
+	let selectState: boolean[] = $state([]);
 	function UpdateSelectState() {
 		store_list.forEach((store, i) => {
 			selectState[i] =
@@ -58,9 +63,9 @@
 			{:else}
 				{#each store_list as store}
 					<LeleButton
-						bind:text={store.store_name}
-						bind:choosing={selectState[store_list.indexOf(store)]}
-						on:click={() => {
+						text={store.store_name}
+						choosing={selectState[store_list.indexOf(store)]}
+						onClick={() => {
 							if ($selectedStore === '*') {
 								selectedStore.set([store.store_name]);
 							} else if (!Array.isArray($selectedStore)) {
@@ -83,7 +88,7 @@
 			{/if}
 		</div>
 		<div class="w-full p-4 lg:w-3/4 xl:w-3/4">
-			<slot />
+			{@render children?.()}
 		</div>
 	</div>
 	<footer>

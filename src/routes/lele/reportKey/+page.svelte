@@ -6,7 +6,7 @@
 	import { LeleTbody, LeleTable, LeleTbodyTr, LeleThead } from '$lib/Component/htmlWrapper';
 	import { onMount } from 'svelte';
 
-	let artistData: ArtistRow[] = [];
+	let artistData: ArtistRow[] = $state([]);
 	onMount(async () => {
 		artistData = (await db.GetArtistDataList())?.data ?? [];
 	});
@@ -53,7 +53,7 @@
 				<td>
 					<button
 						class="grow rounded-lg bg-lele-line p-2 text-center text-lele-bg"
-						on:click={async () => {
+						onclick={async () => {
 							await ButtonFunction(artist.id);
 						}}
 					>

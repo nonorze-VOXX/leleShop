@@ -1,9 +1,13 @@
 <script lang="ts">
 	import InfoBox from '$lib/Component/InfoBox.svelte';
 
-	export let artist_id: number;
-	export let firstDate: Date | null;
-	export let lastDate: Date | null;
+	interface Props {
+		artist_id: number;
+		firstDate: Date | null;
+		lastDate: Date | null;
+	}
+
+	let { artist_id, firstDate, lastDate }: Props = $props();
 </script>
 
 {#if firstDate && lastDate}

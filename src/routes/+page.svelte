@@ -6,7 +6,7 @@
 	import LeleTable from '$lib/Component/htmlWrapper/LeleTable.svelte';
 	import LeleTbodyTr from '$lib/Component/htmlWrapper/LeleTbodyTr.svelte';
 	import { selectedStore } from '$lib/store/choosing';
-	let artistData: ArtistViewRow[] = [];
+	let artistData: ArtistViewRow[] = $state([]);
 
 	onDestroy(
 		selectedStore.subscribe(async () => {

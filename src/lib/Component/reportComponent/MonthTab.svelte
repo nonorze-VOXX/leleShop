@@ -1,37 +1,26 @@
 <script lang="ts">
-	import { createEventDispatcher } from 'svelte';
+	import { FormatNumberToTwoDigi } from '$lib/function/Utils';
 	import SmallButton from '../SmallButton.svelte';
 
-	export let tabDataList: string[];
-	export let showedMonth: string;
-	export let shape: 'full' | 'up' | 'down' = 'up';
-	let focus: boolean[] = [];
-	$: {
-		// force tracking
-		tabDataList;
-		UpdateFocus();
+	interface Props {
+		tabDataList: string[];
+		initShowedMonth: string;
+		shape?: 'full' | 'up' | 'down';
+		monthChange: (month: number) => void;
 	}
-	function UpdateFocus() {
-		focus = [];
-		tabDataList.forEach((element) => {
-			focus.push(element === showedMonth);
-		});
-		focus = focus;
-	}
-	const dispatch = createEventDispatcher<{
-		onTabChange: { showedMonth: string };
-	}>();
+
+	let { tabDataList, monthChange, initShowedMonth, shape = 'up' }: Props = $props();
+	let nowShowedMonth = $state(FormatNumberToTwoDigi(initShowedMonth));
 </script>
 
 <div class="mx-2 flex justify-start overflow-auto">
 	{#each tabDataList as tabData}
 		<SmallButton
-			bind:focus={focus[tabDataList.indexOf(tabData)]}
-			bind:text={tabData}
-			on:click={() => {
-				showedMonth = tabData;
-				dispatch('onTabChange', { showedMonth: tabData });
-				UpdateFocus();
+			focus={Number(nowShowedMonth) === Number(tabData)}
+			text={tabData}
+			onclick={() => {
+				nowShowedMonth = tabData;
+				monthChange(parseInt(nowShowedMonth));
 			}}
 			{shape}
 		></SmallButton>

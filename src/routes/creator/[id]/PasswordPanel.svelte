@@ -1,15 +1,19 @@
 <script lang="ts">
 	import { supabase } from '$lib/db';
 	import LeleBox from '$lib/Component/LeleBox.svelte';
-	import { createEventDispatcher } from 'svelte';
 
-	export let artist_id: number;
-	let admit_fail = false;
+	interface Props {
+		artist_id: number;
+		onSuccessLogin: () => void;
+	}
 
-	const dispatch = createEventDispatcher<{
-		success: null;
-	}>();
-	const SubmitKey = async (event: { currentTarget: EventTarget & HTMLFormElement }) => {
+	let { artist_id, onSuccessLogin }: Props = $props();
+	let admit_fail = $state(false);
+
+	const SubmitKey = async (
+		event: SubmitEvent & { currentTarget: EventTarget & HTMLFormElement }
+	) => {
+		event.preventDefault();
 		const { data, error } = await supabase
 			.from('artist')
 			.select('report_key')
@@ -19,11 +23,11 @@
 			admit_fail = true;
 			return;
 		}
-		dispatch('success');
+		onSuccessLogin();
 	};
 </script>
 
-<form on:submit|preventDefault={SubmitKey} class="flex flex-col">
+<form onsubmit={SubmitKey} class="flex flex-col">
 	<div class="flex">
 		<input type="password" id="password" name="password" required />
 

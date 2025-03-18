@@ -1,37 +1,32 @@
 <script lang="ts">
-	import type { YearMonth } from '$lib/class/YearMonth';
+	import { YearMonth } from '$lib/class/YearMonth';
 	import MonthTab from './MonthTab.svelte';
 	import YearTab from './YearTab.svelte';
-	import { createEventDispatcher } from 'svelte';
 
-	export let tabDataList: string[];
-	export let yearMonth: YearMonth;
-	export let yearRange: { min: number; max: number };
+	interface Props {
+		tabDataList: string[];
+		yearRange: { min: number; max: number };
+		yearMonthChange: (yearMonth: YearMonth) => void;
+		initYearMonth: YearMonth;
+	}
 
-	const dispatch = createEventDispatcher<{
-		onTabChange: { showedMonth: string };
-		onYearTabChange: { showedYear: string };
-	}>();
+	let { initYearMonth, tabDataList, yearRange, yearMonthChange }: Props = $props();
 
-	const handleMonthTabChange = (e: CustomEvent<{ showedMonth: string }>) => {
-		dispatch('onTabChange', { showedMonth: e.detail.showedMonth });
+	let yearMonth: YearMonth = $state(initYearMonth);
+
+	const yearChange = (year: number) => {
+		yearMonth.year = year;
+		// console.log('year change' + yearMonth);
+		yearMonthChange(yearMonth);
 	};
-
-	const handleYearTabChange = (e: CustomEvent<{ showedYear: string }>) => {
-		dispatch('onYearTabChange', { showedYear: e.detail.showedYear });
+	const monthChange = (month: number) => {
+		yearMonth.month = month;
+		// console.log('month change' + yearMonth);
+		yearMonthChange(yearMonth);
 	};
 </script>
 
 <div class="flex w-full flex-col">
-	<YearTab
-		shape="full"
-		showedYear={yearMonth.year.toString()}
-		{yearRange}
-		on:onTabChange={handleYearTabChange}
-	></YearTab>
-	<MonthTab
-		{tabDataList}
-		showedMonth={yearMonth.month.toString()}
-		on:onTabChange={handleMonthTabChange}
-	></MonthTab>
+	<YearTab shape="full" showedYear={yearMonth.year.toString()} {yearRange} {yearChange}></YearTab>
+	<MonthTab {tabDataList} initShowedMonth={yearMonth.month.toString()} {monthChange}></MonthTab>
 </div>

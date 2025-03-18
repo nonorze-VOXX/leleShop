@@ -7,7 +7,7 @@
 	import LeleTbodyTr from '$lib/Component/htmlWrapper/LeleTbodyTr.svelte';
 	import { onMount } from 'svelte';
 
-	let artistData: ArtistRow[] = [];
+	let artistData: ArtistRow[] = $state([]);
 	onMount(async () => {
 		artistData = (await db.GetArtistDataList())?.data ?? [];
 	});
@@ -48,7 +48,7 @@
 					<td>
 						<Toggle
 							bind:checked={artists.visible}
-							on:change={() => {
+							onChange={() => {
 								UpdateVisiable(artists);
 							}}
 						></Toggle>

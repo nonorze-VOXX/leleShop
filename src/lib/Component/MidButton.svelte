@@ -1,7 +1,12 @@
 <script lang="ts">
-	export let focus: boolean;
-	export let text: string;
-	export let shape: 'full' | 'up' | 'down';
+	interface Props {
+		focus: boolean;
+		text: string;
+		shape: 'full' | 'up' | 'down';
+		onclick: () => void;
+	}
+
+	let { focus, text, shape, onclick }: Props = $props();
 </script>
 
 <div
@@ -16,7 +21,7 @@
 	class:border-b-4={shape === 'full' || shape === 'down'}
 	class=" border-l-4 border-r-4 border-lele-line font-semibold"
 >
-	<button on:click class="w-12">
+	<button {onclick} class="w-12">
 		{text}
 	</button>
 </div>
