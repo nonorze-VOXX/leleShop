@@ -13,18 +13,21 @@ export type Database = {
         Row: {
           artist_name: string
           id: number
+          real_name: string | null
           report_key: string | null
           visible: boolean
         }
         Insert: {
           artist_name: string
           id?: never
+          real_name?: string | null
           report_key?: string | null
           visible?: boolean
         }
         Update: {
           artist_name?: string
           id?: never
+          real_name?: string | null
           report_key?: string | null
           visible?: boolean
         }
@@ -257,14 +260,7 @@ export type Database = {
       }
     }
     Functions: {
-      get_total_trade: {
-        Args: {
-          artist_id: number
-          start_date: string
-          end_date: string
-        }
-        Returns: Record<string, unknown>
-      }
+      [_ in never]: never
     }
     Enums: {
       [_ in never]: never
