@@ -1,34 +1,30 @@
 <script lang="ts">
-	import { run } from 'svelte/legacy';
-
 	import LeleTable from '$lib/Component/htmlWrapper/LeleTable.svelte';
 	import LeleThead from '$lib/Component/htmlWrapper/LeleThead.svelte';
 	import LeleTbody from '$lib/Component/htmlWrapper/LeleTbody.svelte';
 	import LeleTbodyTr from '$lib/Component/htmlWrapper/LeleTbodyTr.svelte';
 	import { type StoreRow } from '$lib/db';
 
-
-
 	interface Props {
 		totalData?: {
-		artist_name: string | null;
-		total_sales: number;
-		net_sales: number;
-		discount: number;
-	}[];
+			artist_name: string | null;
+			total_sales: number;
+			net_sales: number;
+			discount: number;
+		}[];
 		dataReady: any;
 		realTotal?: number[];
 		RemitDataMulNetTotal?: {
-		netSaleMulRemit: number;
-		total_sales: number;
-		net_sales: number;
-		discount: number;
-		quantity: number;
-		artist_id: number | null;
-		artist_name: string | null;
-		store_name: string;
-		commission: number;
-	}[];
+			netSaleMulRemit: number;
+			total_sales: number;
+			net_sales: number;
+			discount: number;
+			quantity: number;
+			artist_id: number | null;
+			artist_name: string | null;
+			store_name: string;
+			commission: number;
+		}[];
 		storeData?: StoreRow[];
 		selectedStore: string[] | '*';
 	}
@@ -62,9 +58,6 @@
 			return acc + (FindItem(artist_name, store)?.netSaleMulRemit ?? 0);
 		}, 0);
 	}
-	run(() => {
-		dataReady;
-	});
 </script>
 
 <LeleTable>
@@ -80,16 +73,31 @@
 			{/if}
 		</tr>
 	</LeleThead>
-	{#if dataReady}
-		<LeleTbody>
+	<LeleTbody>
+		{#if dataReady}
 			<LeleTbodyTr>
 				<td class="p-2">Total</td>
-				<td class="p-2">{realTotal.reduce( (pre,nex)=>{return pre+nex }, 0) }</td>
+				<td class="p-2"
+					>{realTotal.reduce((pre, nex) => {
+						return pre + nex;
+					}, 0)}</td
+				>
 				{#each selectedStore as store}
-					<td class="p-2">{RemitDataMulNetTotal.filter( item => item.store_name === store).reduce( (pre,nex)=>{return pre+nex.netSaleMulRemit }, 0) }</td>
+					<td class="p-2"
+						>{RemitDataMulNetTotal.filter((item) => item.store_name === store).reduce(
+							(pre, nex) => {
+								return pre + nex.netSaleMulRemit;
+							},
+							0
+						)}</td
+					>
 				{/each}
 				{#if needSum}
-					<td class="p-2">{RemitDataMulNetTotal.reduce( (pre,nex)=>{return pre+nex.netSaleMulRemit }, 0) }</td>
+					<td class="p-2"
+						>{RemitDataMulNetTotal.reduce((pre, nex) => {
+							return pre + nex.netSaleMulRemit;
+						}, 0)}</td
+					>
 				{/if}
 			</LeleTbodyTr>
 			{#if RemitDataMulNetTotal.length === 0}
@@ -110,10 +118,10 @@
 					</LeleTbodyTr>
 				{/each}
 			{/if}
-		</LeleTbody>
-	{:else}
-		<tr>
-			<td class="p-2" colspan={selectedStore.length + 2}>Loading...</td>
-		</tr>
-	{/if}
+		{:else}
+			<tr>
+				<td class="p-2" colspan={selectedStore.length + 2}>Loading...</td>
+			</tr>
+		{/if}
+	</LeleTbody>
 </LeleTable>

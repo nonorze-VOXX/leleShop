@@ -101,11 +101,11 @@
 
 		await FetchData(nowYearMonth);
 	});
-	onDestroy(
-		selectedStore.subscribe(async () => {
-			if (browser) await FetchData(nowYearMonth);
-		})
-	);
+
+	const unsubscribe = selectedStore.subscribe(async (e) => {
+		if (browser) await FetchDataDeep(nowYearMonth, e);
+	});
+	onDestroy(unsubscribe);
 </script>
 
 <YearMonthTabs

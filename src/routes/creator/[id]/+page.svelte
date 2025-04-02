@@ -15,6 +15,7 @@
 	import ReportTable from '$lib/Component/reportComponent/ReportTable.svelte';
 	import { GetFilteredTradeData, GetPageData, GetTotal } from '$lib/function/query';
 	import type { DateRange } from '$lib/type';
+	import { browser } from '$app/environment';
 
 	let artist_name: string = $state('');
 	let artist_id: number = $state(Number(page.params.id));
@@ -63,11 +64,6 @@
 		let initYM = YearMonth.now().getPreviousMonth();
 		year_month = initYM.year + '-' + FormatNumberToTwoDigi(initYM.month.toString());
 	}); // use selectedStore will init
-	onDestroy(() => {
-		selectedStore.subscribe(async (e) => {
-			queryParam.storeList = $selectedStore;
-		})();
-	});
 	const GetTradeData = async () => {
 		await GetPageData(queryParam).then((data) => {
 			queryedTradeDataList = data.tradeData;
@@ -77,6 +73,13 @@
 			total = GetTotal(filteredTradeDataList);
 		});
 	};
+	const unsubscribe = selectedStore.subscribe(async (e) => {
+		queryParam.storeList = e;
+		if (browser) await GetTradeData();
+	});
+	onDestroy(() => {
+		unsubscribe();
+	});
 	const yearMonthChange = async (yearMonth: YearMonth) => {
 		queryParam.dateRange = {
 			firstDate: yearMonth.getFirstTimePoint(),

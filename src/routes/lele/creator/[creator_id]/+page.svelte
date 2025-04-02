@@ -13,6 +13,7 @@
 
 	import { onDestroy, onMount } from 'svelte';
 	import { GetFilteredTradeData, GetPageData, GetTotal } from '$lib/function/query';
+	import { browser } from '$app/environment';
 	const artist_id: number = $state(Number(page.params.creator_id));
 	let artist_name: string = $state('');
 	let yearRange: { min: number; max: number } = $state({ min: 0, max: 0 });
@@ -56,12 +57,6 @@
 		year_month = initYM.year + '-' + FormatNumberToTwoDigi(initYM.month.toString());
 	});
 
-	onDestroy(() => {
-		selectedStore.subscribe(async (e) => {
-			queryParam.storeList = $selectedStore;
-		})();
-	});
-
 	const GetTradeData = async () => {
 		await GetPageData(queryParam).then((data) => {
 			queryedTradeDataList = data.tradeData;
@@ -71,6 +66,14 @@
 			total = GetTotal(filteredTradeDataList);
 		});
 	};
+
+	const unsubscribe = selectedStore.subscribe(async (e) => {
+		queryParam.storeList = e;
+		if (browser) await GetTradeData();
+	});
+	onDestroy(() => {
+		unsubscribe();
+	});
 
 	const yearMonthChange = async (yearMonth: YearMonth) => {
 		queryParam.dateRange = {
