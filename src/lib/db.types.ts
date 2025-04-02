@@ -13,25 +13,52 @@ export type Database = {
         Row: {
           artist_name: string
           id: number
-          real_name: string | null
           report_key: string | null
           visible: boolean
         }
         Insert: {
           artist_name: string
           id?: never
-          real_name?: string | null
           report_key?: string | null
           visible?: boolean
         }
         Update: {
           artist_name?: string
           id?: never
-          real_name?: string | null
           report_key?: string | null
           visible?: boolean
         }
         Relationships: []
+      }
+      artist_alias: {
+        Row: {
+          artist_alias: string
+          artist_id: number
+        }
+        Insert: {
+          artist_alias: string
+          artist_id: number
+        }
+        Update: {
+          artist_alias?: string
+          artist_id?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "artist_alias_artist_id_fkey"
+            columns: ["artist_id"]
+            isOneToOne: false
+            referencedRelation: "artist"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "artist_alias_artist_id_fkey"
+            columns: ["artist_id"]
+            isOneToOne: false
+            referencedRelation: "default_artist_view"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       artist_commission: {
         Row: {
