@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { browser } from '$app/environment';
 	import { supabase } from '$lib/db';
-	import { selectedStore } from '$lib/store/choosing';
+	import { selectedStore, type StoreList } from '$lib/store/choosing';
 	import { onDestroy, onMount } from 'svelte';
 
 	import Remit from './Remit.svelte';
@@ -16,13 +16,13 @@
 	let { net_total, artist_id, year_month }: Props = $props();
 	let commission: number | null = $state(null);
 
-	const fetchCommission = async () => {
+	const fetchCommission = async (e: StoreList) => {
 		if (browser) {
-			if ($selectedStore !== '*' && $selectedStore.length === 1) {
+			if (e !== '*' && e.length === 1) {
 				const { data, error } = await supabase
 					.from('default_commission_view')
 					.select('*')
-					.eq('store_name', $selectedStore[0])
+					.eq('store_name', e[0])
 					.eq('artist_id', artist_id)
 					.eq('year_month', year_month);
 				if (error) {
@@ -40,7 +40,7 @@
 
 	const unsubscribe = selectedStore.subscribe(fetchCommission);
 
-	onMount(fetchCommission);
+	onMount(async () => fetchCommission($selectedStore));
 	onDestroy(unsubscribe);
 </script>
 
