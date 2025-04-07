@@ -55,6 +55,13 @@ export type Database = {
             foreignKeyName: "artist_alias_artist_id_fkey"
             columns: ["artist_id"]
             isOneToOne: false
+            referencedRelation: "artist_alias_map"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "artist_alias_artist_id_fkey"
+            columns: ["artist_id"]
+            isOneToOne: false
             referencedRelation: "default_artist_view"
             referencedColumns: ["id"]
           },
@@ -85,6 +92,13 @@ export type Database = {
             columns: ["artist_id"]
             isOneToOne: false
             referencedRelation: "artist"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "artist_commision_artist_id_fkey"
+            columns: ["artist_id"]
+            isOneToOne: false
+            referencedRelation: "artist_alias_map"
             referencedColumns: ["id"]
           },
           {
@@ -164,6 +178,13 @@ export type Database = {
             foreignKeyName: "trade_body_artist_id_fkey"
             columns: ["artist_id"]
             isOneToOne: false
+            referencedRelation: "artist_alias_map"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "trade_body_artist_id_fkey"
+            columns: ["artist_id"]
+            isOneToOne: false
             referencedRelation: "default_artist_view"
             referencedColumns: ["id"]
           },
@@ -204,6 +225,14 @@ export type Database = {
       }
     }
     Views: {
+      artist_alias_map: {
+        Row: {
+          artist_alias: string | null
+          artist_name: string | null
+          id: number | null
+        }
+        Relationships: []
+      }
       artist_trade: {
         Row: {
           artist_id: number | null
@@ -224,6 +253,13 @@ export type Database = {
             columns: ["artist_id"]
             isOneToOne: false
             referencedRelation: "artist"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "trade_body_artist_id_fkey"
+            columns: ["artist_id"]
+            isOneToOne: false
+            referencedRelation: "artist_alias_map"
             referencedColumns: ["id"]
           },
           {
@@ -267,6 +303,13 @@ export type Database = {
             columns: ["artist_id"]
             isOneToOne: false
             referencedRelation: "artist"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "artist_commision_artist_id_fkey"
+            columns: ["artist_id"]
+            isOneToOne: false
+            referencedRelation: "artist_alias_map"
             referencedColumns: ["id"]
           },
           {
