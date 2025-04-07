@@ -46,6 +46,10 @@ export async function GetArtistList() {
 	}
 	return artistList;
 }
+export async function GetArtistAliasList(nameList: string[]) {
+	const artistList = await db.artist.GetArtistAliasList(nameList);
+	return artistList;
+}
 export async function GetNoDupTradeHead(
 	tradeHeadSet: Set<{ store_id: number; trade_date: string; trade_id: string }>
 ) {

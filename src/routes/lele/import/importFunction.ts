@@ -9,7 +9,7 @@ import {
 	GetTradeHeadSet
 } from './importBase';
 import {
-	GetArtistList,
+	GetArtistAliasList,
 	getExistingArtists,
 	GetNoDupTradeHead,
 	saveNotExistArtist,
@@ -49,11 +49,15 @@ export const ProcessFile = async (file: File) => {
 		throw new Error(saveHead.error.message);
 	}
 
-	const artistList = await GetArtistList();
+	const artistNameList: string[] = Array.from(
+		importedTrade.reduce((pre, e) => pre.add(e.artist_name), new Set<string>())
+	);
+	const artistNameIdMap = await GetArtistAliasList(artistNameList);
 	const tradeBodyList: TradeBody[] = importedTrade
 		.map((e) => {
-			const al = artistList.data ?? [];
-			const artist_id = al.find((artist) => artist.artist_name === e.artist_name)?.id;
+			const artist_id = artistNameIdMap.find(
+				(artist) => artist.artist_alias === e.artist_name
+			)?.artist_id;
 			if (artist_id === undefined) {
 				throw new Error('artist not found');
 			}
