@@ -51,7 +51,7 @@
 
 			const { error: error2 } = await supabase
 				.from('artist_alias')
-				.delete()
+				.update({ artist_id: afterId })
 				.eq('artist_id', beforeId);
 			if (error2) {
 				LogForUser = error2.message;
