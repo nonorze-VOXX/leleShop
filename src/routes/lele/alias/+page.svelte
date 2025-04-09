@@ -80,7 +80,7 @@
 		bind:value={filterText}
 	/>
 </div>
-<div class="px-2 font-semibold text-lele-line">
+<div class="p-2 font-semibold text-lele-line">
 	edit: <Toggle bind:checked={edit}></Toggle>
 </div>
 {#if !edit}
@@ -110,10 +110,10 @@
 		<div></div>
 	</div>
 {:else}
-	<div class="flex">
-		<div class="border-2 border-lele-line p-2 font-semibold text-lele-line">
-			提示：合併後 左邊的商店頁面會消失，右邊會留下
-		</div>
+	<div class="w-fit rounded-xl border-2 border-lele-line px-2 font-semibold text-lele-line">
+		提示：合併後 左邊的商店頁面會消失，右邊會留下
+	</div>
+	<div class="flex py-2">
 		<form
 			onsubmit={async (e) => {
 				e.preventDefault();
