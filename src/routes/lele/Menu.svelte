@@ -49,4 +49,11 @@
 			goto('/lele/artistCommission');
 		}}
 	/>
+	<MenuButton
+		label="Artist Alias"
+		onclick={() => {
+			tabType = TabEnum.artist_alias;
+			goto('/lele/alias');
+		}}
+	/>
 </div>

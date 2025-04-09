@@ -8,7 +8,10 @@ export async function SaveTradeBody(body: TradeBody[]) {
 }
 
 export async function getExistingArtists(importedArtist: string[]) {
-	const exist_artist = await supabase.from('artist').select().in('artist_name', importedArtist);
+	const exist_artist = await supabase
+		.from('artist_alias')
+		.select()
+		.in('artist_alias', importedArtist);
 	if (exist_artist.error) {
 		throw new Error('artist not found');
 	}
@@ -28,6 +31,18 @@ async function SaveArtist(artist: Artist[]) {
 	if (error !== null) {
 		console.error(error);
 	}
+	const { error: error1 } = await supabase
+		.from('artist_alias')
+		.insert(
+			(data ?? []).map((e) => ({
+				artist_id: e.id,
+				artist_alias: e.artist_name
+			}))
+		)
+		.select();
+	if (error1 !== null) {
+		console.error(error1.message);
+	}
 	return { data, error };
 }
 export async function saveNotExistArtist(not_exist_artist: { artist_name: string }[]) {
@@ -44,6 +59,10 @@ export async function GetArtistList() {
 	if (artistList.error) {
 		throw new Error(artistList.error.message);
 	}
+	return artistList;
+}
+export async function GetArtistAliasList(nameList: string[]) {
+	const artistList = await db.artist.GetArtistAliasList(nameList);
 	return artistList;
 }
 export async function GetNoDupTradeHead(

@@ -4,5 +4,6 @@ export enum TabEnum {
 	total,
 	import,
 	// store,
-	artist_commission
+	artist_commission,
+	artist_alias
 }
