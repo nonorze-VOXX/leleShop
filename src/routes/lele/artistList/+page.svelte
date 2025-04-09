@@ -47,7 +47,7 @@
 				LogForUser = '不要空白';
 				return;
 			}
-			const { error } = await supabase
+			const { data, error } = await supabase
 				.from('artist')
 				.update({ artist_name: after })
 				.eq('artist_name', before)
@@ -58,7 +58,32 @@
 			} else {
 				LogForUser = 'success change ' + before + ' to ' + after;
 			}
-			artistData = (await db.GetArtistDataList())?.data ?? [];
+			const { data: exist, error: error1 } = await supabase
+				.from('artist_alias')
+				.select()
+				.eq('artist_alias', after);
+			if (error1) {
+				console.log(error1);
+				LogForUser = error1.message;
+				return;
+			}
+			if (exist.length === 0) {
+				const { error: error2 } = await supabase
+					.from('artist_alias')
+					.insert({ artist_alias: after, artist_id: data[0].id });
+				if (error2) {
+					console.log(error2);
+					LogForUser = error2.message;
+					return;
+				}
+			}
+
+			artistData = artistData.map((artist) => {
+				if (artist.artist_name === before) {
+					artist.artist_name = after;
+				}
+				return artist;
+			});
 		}}
 	>
 		<select
