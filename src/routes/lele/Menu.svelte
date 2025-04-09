@@ -8,6 +8,7 @@
 
 <div class="flex justify-start gap-2 overflow-auto p-2">
 	<MenuButton
+		choosing={tabType === TabEnum.artist_list}
 		label="Artist List"
 		onclick={() => {
 			tabType = TabEnum.artist_list;
@@ -15,6 +16,7 @@
 		}}
 	/>
 	<MenuButton
+		choosing={tabType === TabEnum.report_key}
 		label="Manage Key"
 		onclick={() => {
 			tabType = TabEnum.report_key;
@@ -22,6 +24,7 @@
 		}}
 	/>
 	<MenuButton
+		choosing={tabType === TabEnum.import}
 		label="Import"
 		onclick={() => {
 			tabType = TabEnum.import;
@@ -29,6 +32,7 @@
 		}}
 	/>
 	<MenuButton
+		choosing={tabType === TabEnum.total}
 		label="Total"
 		onclick={() => {
 			tabType = TabEnum.total;
@@ -43,6 +47,7 @@
 		}}
 	/> -->
 	<MenuButton
+		choosing={tabType === TabEnum.artist_commission}
 		label="Artist Commission"
 		onclick={() => {
 			tabType = TabEnum.artist_commission;
@@ -50,6 +55,7 @@
 		}}
 	/>
 	<MenuButton
+		choosing={tabType === TabEnum.artist_alias}
 		label="Artist Alias"
 		onclick={() => {
 			tabType = TabEnum.artist_alias;
