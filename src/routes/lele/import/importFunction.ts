@@ -33,7 +33,7 @@ export const ProcessFile = async (file: File) => {
 
 	const not_exist_artist: { artist_name: string }[] = await filterNonExistentArtists(
 		importedTrade,
-		exist_artist.data
+		exist_artist.data.map((e) => ({ artist_name: e.artist_alias }))
 	);
 
 	await saveNotExistArtist(not_exist_artist);
