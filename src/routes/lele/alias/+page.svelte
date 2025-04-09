@@ -80,7 +80,9 @@
 		bind:value={filterText}
 	/>
 </div>
-<Toggle bind:checked={edit}></Toggle>
+<div class="px-2 font-semibold text-lele-line">
+	edit: <Toggle bind:checked={edit}></Toggle>
+</div>
 {#if !edit}
 	<div class="flex">
 		<LeleTable>
@@ -109,6 +111,9 @@
 	</div>
 {:else}
 	<div class="flex">
+		<div class="border-2 border-lele-line p-2 font-semibold text-lele-line">
+			提示：合併後 左邊的商店頁面會消失，右邊會留下
+		</div>
 		<form
 			onsubmit={async (e) => {
 				e.preventDefault();
@@ -168,7 +173,11 @@
 			/>
 		</form>
 	</div>
-	<div class=" font-semibold text-lele-line">{LogForUser}</div>
+	{#if LogForUser}
+		<div class="w-fit rounded-xl border-2 border-lele-line px-2 font-semibold text-lele-line">
+			{LogForUser}
+		</div>
+	{/if}
 	{#if modify.length > 0}
 		<div class="my-2 rounded-lg border-2 border-lele-line bg-lele-bg p-2">
 			<input
