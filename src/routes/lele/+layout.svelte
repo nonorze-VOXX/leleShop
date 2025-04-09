@@ -26,11 +26,15 @@
 	}
 </script>
 
-<div class="flex justify-center border-b-2 border-lele-line">
+<div class="flex justify-center">
 	<div class="flex w-full justify-between">
-		<div></div>
-		<div class="flex justify-end">
-			<div class="m-2 rounded-xl bg-red-600 px-3 font-semibold text-white">
+		<div class="flex overflow-auto">
+			<Menu></Menu>
+		</div>
+		<!-- <div class="flex justify-end">
+			<div
+				class="m-2 content-center items-center justify-center rounded-xl bg-red-600 px-3 text-center font-semibold text-white"
+			>
 				<form
 					action="/login?/logout"
 					onsubmit={(e) => {
@@ -41,8 +45,7 @@
 					<button type="submit">Logout</button>
 				</form>
 			</div>
-		</div>
+		</div> -->
 	</div>
 </div>
-<Menu></Menu>
 {@render children?.()}
