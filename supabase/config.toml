@@ -132,7 +132,7 @@ enabled = true
 client_id = "env(GOOGLE_CLIENT_ID)"
 secret = "env(GOOGLE_SECRET)"
 url = ""
-redirect_uri = "http://localhost:5173"
+redirect_uri = "http://localhost:5173/lele"
 
 [auth.external.apple]
 enabled = false
