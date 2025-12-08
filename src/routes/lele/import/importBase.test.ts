@@ -14,7 +14,6 @@ import {
 	GetTradeHeadSet,
 	fileToArray,
 	StringToArray,
-	GetIndexByHeader,
 	filterNonExistentArtists,
 	GetArtistNameList
 } from './importBase';
@@ -139,22 +138,6 @@ describe('importBase', () => {
 			['a', 'b', 'c'],
 			['1', '2', '3']
 		]);
-	});
-
-	it('should get the correct index by header', () => {
-		const index = GetIndexByHeader(dataHeader);
-		expect(index).toEqual({
-			tradeIdIdx: 3,
-			artistIdx: 0,
-			itemNameIdx: 1,
-			quantityIdx: 2,
-			totalIdx: 4,
-			discountIdx: 5,
-			netIdx: 6,
-			dateIdx: 8,
-			storeIdx: 9,
-			stateIdx: 7
-		});
 	});
 });
 

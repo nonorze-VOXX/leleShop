@@ -114,44 +114,6 @@ export async function filterNonExistentArtists(
 	}
 	return not_exist_artist;
 }
-export const GetIndexByHeader = (dataHeader: string[]): ImportIndexOfHeader => {
-	const tradeIdIdx = tradeIdIndex(dataHeader);
-	const artistIdx = artistIndex(dataHeader);
-	const itemNameIdx = itemNameIndex(dataHeader);
-	const quantityIdx = quantityIndex(dataHeader);
-	const totalIdx = totalIndex(dataHeader);
-	const discountIdx = discountIndex(dataHeader);
-	const netIdx = netIndex(dataHeader);
-	const dateIdx = dateIndex(dataHeader);
-	const storeIdx = storeIndex(dataHeader);
-	const stateIdx = stateIndex(dataHeader);
-
-	if (
-		tradeIdIdx === -1 ||
-		artistIdx === -1 ||
-		itemNameIdx === -1 ||
-		quantityIdx === -1 ||
-		totalIdx === -1 ||
-		discountIdx === -1 ||
-		netIdx === -1 ||
-		dateIdx === -1 ||
-		storeIdx === -1
-	) {
-		throw new Error('header is wrong');
-	}
-	return {
-		tradeIdIdx,
-		artistIdx,
-		itemNameIdx,
-		quantityIdx,
-		totalIdx,
-		discountIdx,
-		netIdx,
-		dateIdx,
-		storeIdx,
-		stateIdx
-	};
-};
 export const GetArtistNameList = (data: { artist_name: string }[]) => {
 	const artistNameSet: string[] = [];
 	data.forEach((e) => {
