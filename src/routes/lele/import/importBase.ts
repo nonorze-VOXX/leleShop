@@ -2,6 +2,8 @@
 import { type ImportedTrade, type ImportIndexOfHeader } from './importDTO';
 import type { TradeHeadRow } from '$lib/db';
 import { findIndex } from '$lib/function/Utils';
+// @ts-ignore - papaparse doesn't have type definitions but is properly installed
+import Papa from 'papaparse';
 
 export enum ProcessedStatus {
 	NORMAL,
@@ -82,11 +84,19 @@ export const fileToArray = async (file: File): Promise<string[][]> => {
 	const text = await file.text();
 	return StringToArray(text);
 };
-export const StringToArray = (text: string): string[][] => {
-	return text
-		.split('\n')
-		.map((line) => line.trim().split(','))
-		.filter((words) => words.length > 1 || words[0] !== '');
+export const StringToArray = (text: string): Promise<string[][]> => {
+	return new Promise((resolve, reject) => {
+		Papa.parse(text, {
+			complete: (results: any) => {
+				const data = results.data as string[][];
+				const filtered = data.filter((row) => row.length > 1 || (row.length > 0 && row[0] !== ''));
+				resolve(filtered);
+			},
+			error: (error: any) => {
+				reject(error);
+			}
+		});
+	});
 };
 
 export async function filterNonExistentArtists(

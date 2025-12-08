@@ -53,7 +53,7 @@ describe('importDTO', () => {
 			'2024-07-08 23:03+8,2-1022,銷售,artist_random_id artist_name,sku,item_name,,,1.000,150.00,0.00,150.00,0.00,150.00,0.00,POS 2,The shop2,,,,,關閉\n\n' +
 			'2024-07-08 23:03,2-1022,銷售,artist_random_id artist_name,sku,item_name,,,1.000,150.00,0.00,150.00,0.00,150.00,0.00,POS 2,The shop1,,,,,關閉\n\n';
 
-		const body = StringToArray(context);
+		const body = await StringToArray(context);
 		const result = Array2DToImportedTrade(importIndexOfHeader, body);
 		expect(result).toStrictEqual(testTradeRow);
 	});
@@ -63,7 +63,7 @@ describe('importDTO', () => {
 			'2024-07-08 23:03+8,2-1022,銷售,artist_random_id artist_name,sku,item_name,,,1.000,150.00,0.00,150.00,0.00,150.00,0.00,POS 2,The shop2,,,,,關閉\n\n' +
 			'2024-07-08 23:03,2-1023,銷售,artist_random_id artist_name,sku,item_name,,,1.000,150.00,0.00,150.00,0.00,150.00,0.00,POS 2,The shop1,,,,,關閉\n\n';
 
-		const body = StringToArray(context);
+		const body = await StringToArray(context);
 		const importedTrade = Array2DToImportedTrade(importIndexOfHeader, body);
 		expect(importedTrade).toStrictEqual([
 			{
@@ -101,7 +101,7 @@ describe('importDTO', () => {
 			'2024-07-08 23:03+8,2-1023,銷售,artist_random_id artist_name,sku,item_name,,,1.000,150.00,0.00,150.00,0.00,150.00,0.00,POS 2,The shop2,,,,,取消\n\n' +
 			'2024-07-08 23:03,2-1022,銷售,artist_random_id artist_name,sku,item_name,,,1.000,150.00,0.00,150.00,0.00,150.00,0.00,POS 2,The shop1,,,,,關閉\n\n';
 
-		const body = StringToArray(context);
+		const body = await StringToArray(context);
 		const { importedTrade, susTradeIdList } = FilterSusTradeIdList(
 			Array2DToImportedTrade(importIndexOfHeader, body)
 		);

@@ -54,7 +54,7 @@ describe('new importFunction', () => {
 			// UTC+8 timezone test
 			const context =
 				'期,據號碼,收據類型,類別,SKU,商品,變體,修飾符已应用的,數量,銷售總額,折扣,淨銷售額,銷售成本,毛利潤,稅務,POS,商店,收銀員名稱,客戶名稱,客戶聯繫電話,註釋,狀態\n';
-			const contextArr = StringToArray(context);
+			const contextArr = await StringToArray(context);
 
 			const dataHeader = contextArr[0];
 
@@ -66,7 +66,7 @@ describe('new importFunction', () => {
 			// UTC+8 timezone test
 			const context =
 				'日期,收據號碼,收據類型,類別,SKU,商品,變體,修飾符已应用的,數量,銷售總額,折扣,淨銷售額,銷售成本,毛利潤,稅務,POS,商店,收銀員名稱,客戶名稱,客戶聯繫電話,註釋,狀態\n';
-			const contextArr = StringToArray(context);
+			const contextArr = await StringToArray(context);
 
 			const dataHeader = contextArr[0];
 

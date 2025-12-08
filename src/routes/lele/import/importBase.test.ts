@@ -132,9 +132,9 @@ describe('importBase', () => {
 		expect(result).toStrictEqual(answer);
 	});
 
-	it('should convert string to array', () => {
+	it('should convert string to array', async () => {
 		const text = 'a,b,c\n1,2,3';
-		const array = StringToArray(text);
+		const array = await StringToArray(text);
 		expect(array).toEqual([
 			['a', 'b', 'c'],
 			['1', '2', '3']
