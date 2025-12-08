@@ -2,7 +2,6 @@
 import { type ImportedTrade, type ImportIndexOfHeader } from './importDTO';
 import type { TradeHeadRow } from '$lib/db';
 import { findIndex } from '$lib/function/Utils';
-// @ts-ignore - papaparse doesn't have type definitions but is properly installed
 import Papa from 'papaparse';
 
 export enum ProcessedStatus {

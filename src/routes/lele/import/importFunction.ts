@@ -4,8 +4,6 @@ import Papa from 'papaparse';
 import {
 	filterNonExistentArtists,
 	GetArtistNameList,
-	getHeadBody,
-	GetIndexByHeader,
 	GetStoreSet,
 	GetTradeHeadSet
 } from './importBase';
