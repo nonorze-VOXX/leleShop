@@ -36,7 +36,7 @@
 				.catch((e) => {
 					processed = ProcessedStatus.ERROR;
 					submitLog = e.toString();
-					console.error(e);
+					alert('Error: ' + e.toString());
 				});
 		}
 	}
