@@ -96,6 +96,9 @@ async function PreInsertStores(importedTrade: ImportedTrade[]) {
 	const notExistStore = [...storeSet].filter((e) => {
 		return !storePreData.data.some((store) => store.store_name === e);
 	});
+	if (notExistStore.length === 0) {
+		return;
+	}
 	const saveStore = await supabase
 		.from('store')
 		.insert(
