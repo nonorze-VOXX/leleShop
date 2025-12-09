@@ -63,13 +63,6 @@ describe('new importFunction', () => {
 });
 
 describe('ProcessFile', () => {
-	it('wonderful', async () => {
-		const context = 'one,two,three,four\n1,2,3,4';
-		const file = new File([context], 'filename');
-		const text = await file.text();
-		const result = await ParseFileToRawImportTrade(text);
-		expect(result).toStrictEqual([{ one: '1', two: '2', three: '3', four: '4' }]);
-	});
 	it('test with chinese header', async () => {
 		const context =
 			'類別,商品,數量,收據號碼,銷售總額,折扣,淨銷售額,狀態,日期,商店\n' +
@@ -93,7 +86,12 @@ describe('ProcessFile', () => {
 		]);
 	});
 	it('only header', async () => {
-		const file = new File(['item_name,total_sales'], 'filename');
+		const file = new File(
+			[
+				'日期,收據號碼,收據類型,類別,SKU,商品,變體,修飾符已应用的,數量,銷售總額,折扣,淨銷售額,銷售成本,毛利潤,稅務,POS,商店,收銀員名稱,客戶名稱,客戶聯繫電話,註釋,狀態\n'
+			],
+			'filename'
+		);
 		const text = await file.text();
 		const result = await ParseFileToRawImportTrade(text);
 		expect(result).toStrictEqual([]);
@@ -102,6 +100,40 @@ describe('ProcessFile', () => {
 		const file = new File([], 'filename');
 		const text = await file.text();
 		await expect(ParseFileToRawImportTrade(text)).rejects.toThrow();
+	});
+	it('test with no have state', async () => {
+		const context =
+			'日期,收據號碼,收據類型,類別,SKU,商品,變體,修飾符已应用的,數量,銷售總額,折扣,淨銷售額,銷售成本,毛利潤,稅務,POS,商店,收銀員名稱,客戶名稱,客戶聯繫電話,註釋\n' +
+			'2024-12-02 22:53,6-1153,銷售,14 artist,1407,150 飲料杯袋(有袋底)雙面,,,1.000,150.00,0.00,150.00,0.00,150.00,0.00,POS 2,vonka,,,,';
+		const file = new File([context], 'filename');
+		const text = await file.text();
+		const result = await ParseFileToRawImportTrade(text);
+		expect(result).toStrictEqual([
+			{
+				POS: 'POS 2',
+				SKU: '1407',
+				trade_date: '2024-12-02 22:53',
+				trade_id: '6-1153',
+				artist_name: '14 artist',
+				item_name: '150 飲料杯袋(有袋底)雙面',
+				quantity: 1,
+				total_sales: 150,
+				discount: 0,
+				net_sales: 150,
+				state: '關閉',
+				store_name: 'vonka',
+				修飾符已应用的: '',
+				客戶名稱: '',
+				客戶聯繫電話: '',
+				收據類型: '銷售',
+				收銀員名稱: '',
+				毛利潤: '150.00',
+				稅務: '0.00',
+				註釋: '',
+				變體: '',
+				銷售成本: '0.00'
+			}
+		]);
 	});
 	it('real test', async () => {
 		const context =

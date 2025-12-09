@@ -15,11 +15,16 @@ import {
 	SaveTradeBody,
 	SaveTradeHead
 } from './importDb';
-import { FilterSusTradeIdList, type ImportedTrade, type ImportedTradeWithState } from './importDTO';
+import {
+	FilterSusTradeIdList as FilterNotCloseTradeIdList,
+	type ImportedTrade,
+	type ImportedTradeWithState
+} from './importDTO';
 
 export const ProcessFile = async (file: File) => {
 	const RawImportTrade: ImportedTradeWithState[] = await ParseFileToRawImportTrade(file);
-	const { importedTrade: importingTrade, susTradeIdList } = FilterSusTradeIdList(RawImportTrade);
+	const { importedTrade: importingTrade, susTradeIdList } =
+		FilterNotCloseTradeIdList(RawImportTrade);
 
 	const importedArtist = GetArtistNameList(importingTrade);
 	const exist_artist = await getExistingArtists(importedArtist);
@@ -143,6 +148,42 @@ export async function ParseFileToRawImportTrade(
 			return value;
 		}
 	});
+	let header = presult.meta.fields;
+	// check all column exist
+	if (
+		!header?.includes('artist_name') ||
+		!header?.includes('item_name') ||
+		!header?.includes('quantity') ||
+		!header?.includes('trade_id') ||
+		!header?.includes('total_sales') ||
+		!header?.includes('discount') ||
+		!header?.includes('net_sales') ||
+		!header?.includes('trade_date') ||
+		!header?.includes('store_name')
+	) {
+		let missingColumns: string[] = [];
+		if (header) {
+			const requiredColumns = [
+				'artist_name',
+				'item_name',
+				'quantity',
+				'trade_id',
+				'total_sales',
+				'discount',
+				'net_sales',
+				'trade_date',
+				'store_name'
+			];
+			missingColumns = requiredColumns.filter((col) => !header?.includes(col));
+		}
+		throw new Error('缺少必要欄位: ' + missingColumns.join(', '));
+	}
+	// if no have state cloumn, fill 關閉 to all row
+	if (!header?.includes('state')) {
+		presult.data.forEach((row) => {
+			(row as any)['state'] = '關閉';
+		});
+	}
 	if (presult.errors.length > 0) {
 		throw new Error(
 			'(可能傳到空檔案)Parse error: ' + presult.errors.map((e) => e.message).join('; ')

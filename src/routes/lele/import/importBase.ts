@@ -97,12 +97,9 @@ export async function filterNonExistentArtists(
 	return not_exist_artist;
 }
 export const GetArtistNameList = (data: { artist_name: string }[]) => {
-	const artistNameSet: string[] = [];
+	let s = new Set<string>();
 	data.forEach((e) => {
-		if (artistNameSet.some((artistName) => artistName === e.artist_name)) {
-			return;
-		}
-		artistNameSet.push(e.artist_name);
+		s.add(e.artist_name);
 	});
-	return artistNameSet;
+	return Array.from(s);
 };

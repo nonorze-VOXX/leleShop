@@ -21,12 +21,12 @@ export type ImportIndexOfHeader = {
 };
 
 export const FilterSusTradeIdList = (importedTradeWithState: ImportedTradeWithState[]) => {
-	const susTradeIdList: string[] = [];
+	const notCloseTradeIdList: string[] = [];
 	for (const e of importedTradeWithState) {
 		if (e.state !== '關閉') {
-			susTradeIdList.push(e.trade_id);
+			notCloseTradeIdList.push(e.trade_id);
 		}
 	}
 	const importedTrade: ImportedTrade[] = importedTradeWithState.filter((e) => e.state === '關閉');
-	return { susTradeIdList, importedTrade };
+	return { susTradeIdList: notCloseTradeIdList, importedTrade };
 };
