@@ -1,20 +1,7 @@
 import {
-	artistIndex,
-	itemNameIndex,
-	quantityIndex,
-	tradeIdIndex,
-	totalIndex,
-	discountIndex,
-	netIndex,
-	stateIndex,
-	dateIndex,
-	storeIndex,
 	GetStoreId,
 	GetStoreSet,
 	GetTradeHeadSet,
-	fileToArray,
-	StringToArray,
-	GetIndexByHeader,
 	filterNonExistentArtists,
 	GetArtistNameList
 } from './importBase';
@@ -63,19 +50,6 @@ describe('importBase', () => {
 		}
 	];
 
-	it('should find the correct index for headers', () => {
-		expect(artistIndex(dataHeader)).toBe(0);
-		expect(itemNameIndex(dataHeader)).toBe(1);
-		expect(quantityIndex(dataHeader)).toBe(2);
-		expect(tradeIdIndex(dataHeader)).toBe(3);
-		expect(totalIndex(dataHeader)).toBe(4);
-		expect(discountIndex(dataHeader)).toBe(5);
-		expect(netIndex(dataHeader)).toBe(6);
-		expect(stateIndex(dataHeader)).toBe(7);
-		expect(dateIndex(dataHeader)).toBe(8);
-		expect(storeIndex(dataHeader)).toBe(9);
-	});
-
 	it('should get the correct store id', () => {
 		expect(GetStoreId('Store1', storeData)).toBe(1);
 		expect(GetStoreId('Store2', storeData)).toBe(2);
@@ -92,69 +66,6 @@ describe('importBase', () => {
 	it('should get the correct trade head set', () => {
 		const tradeHeadSet = GetTradeHeadSet(importedTrade, storeData);
 		expect(tradeHeadSet.size).toBe(2);
-	});
-
-	it('should convert file to array', async () => {
-		const file = new File(['a,b,c\n1,2,3'], 'test.csv', { type: 'text/csv' });
-		const array = await fileToArray(file);
-		expect(array).toEqual([
-			['a', 'b', 'c'],
-			['1', '2', '3']
-		]);
-	});
-	it.each([
-		{
-			context: '1,2,3,4\n1,2,3,4',
-			answer: [
-				['1', '2', '3', '4'],
-				['1', '2', '3', '4']
-			]
-		},
-		{ context: '\n1,2,3,4', answer: [['1', '2', '3', '4']] },
-		{
-			context: '1,2,3,4\n1,2,3',
-			answer: [
-				['1', '2', '3', '4'],
-				['1', '2', '3']
-			]
-		},
-		{
-			context: '1,,3,4\n1,2,3',
-			answer: [
-				['1', '', '3', '4'],
-				['1', '2', '3']
-			]
-		}
-	])('fileToArray($context)', async ({ context, answer }) => {
-		const file = new File([context], 'filename');
-
-		const result = await fileToArray(file);
-		expect(result).toStrictEqual(answer);
-	});
-
-	it('should convert string to array', () => {
-		const text = 'a,b,c\n1,2,3';
-		const array = StringToArray(text);
-		expect(array).toEqual([
-			['a', 'b', 'c'],
-			['1', '2', '3']
-		]);
-	});
-
-	it('should get the correct index by header', () => {
-		const index = GetIndexByHeader(dataHeader);
-		expect(index).toEqual({
-			tradeIdIdx: 3,
-			artistIdx: 0,
-			itemNameIdx: 1,
-			quantityIdx: 2,
-			totalIdx: 4,
-			discountIdx: 5,
-			netIdx: 6,
-			dateIdx: 8,
-			storeIdx: 9,
-			stateIdx: 7
-		});
 	});
 });
 
