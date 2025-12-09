@@ -134,7 +134,7 @@ export async function ParseFileToRawImportTrade(
 				日期: 'trade_date',
 				商店: 'store_name'
 			};
-			return headerMap[header] || header;
+			return headerMap[header.trim()] || header.trim();
 		},
 		transform: (value: string, header: string) => {
 			if (
