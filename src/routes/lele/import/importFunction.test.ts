@@ -1,7 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { getHeadBody } from './importBase';
 import { GetArtistNameList } from './importBase';
-import { GetTradeHeadSet, StringToArray } from './importBase';
+import { GetTradeHeadSet } from './importBase';
 import type { ImportedTradeWithState } from './importDTO';
 import { ParseFileToRawImportTrade } from './importFunction';
 
@@ -43,12 +42,6 @@ describe('new importFunction', () => {
 			store_name: 'The shop2'
 		}
 	];
-	it('get head body from file', async () => {
-		const context = '1,2,3,4\n1,2,3,4';
-		const file = new File([context], 'filename');
-		const result = await getHeadBody(file);
-		expect(result).toStrictEqual({ head: ['1', '2', '3', '4'], body: [['1', '2', '3', '4']] });
-	});
 
 	it('get artist name set in imported trade', async () => {
 		const artistSet = GetArtistNameList(testTradeRow);
@@ -143,14 +136,5 @@ describe('ProcessFile', () => {
 				銷售成本: '0.00'
 			}
 		]);
-	});
-	it('empty file', async () => {
-		const file = new File([], 'filename');
-		await expect(getHeadBody(file)).rejects.toThrowError();
-	});
-	it('only header', async () => {
-		const context = '1,2,3,4\n';
-		const file = new File([context], 'filename');
-		expect(await getHeadBody(file)).toStrictEqual({ head: ['1', '2', '3', '4'], body: [] });
 	});
 });

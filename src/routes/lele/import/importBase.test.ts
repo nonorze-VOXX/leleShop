@@ -12,8 +12,6 @@ import {
 	GetStoreId,
 	GetStoreSet,
 	GetTradeHeadSet,
-	fileToArray,
-	StringToArray,
 	filterNonExistentArtists,
 	GetArtistNameList
 } from './importBase';
@@ -91,53 +89,6 @@ describe('importBase', () => {
 	it('should get the correct trade head set', () => {
 		const tradeHeadSet = GetTradeHeadSet(importedTrade, storeData);
 		expect(tradeHeadSet.size).toBe(2);
-	});
-
-	it('should convert file to array', async () => {
-		const file = new File(['a,b,c\n1,2,3'], 'test.csv', { type: 'text/csv' });
-		const array = await fileToArray(file);
-		expect(array).toEqual([
-			['a', 'b', 'c'],
-			['1', '2', '3']
-		]);
-	});
-	it.each([
-		{
-			context: '1,2,3,4\n1,2,3,4',
-			answer: [
-				['1', '2', '3', '4'],
-				['1', '2', '3', '4']
-			]
-		},
-		{ context: '\n1,2,3,4', answer: [['1', '2', '3', '4']] },
-		{
-			context: '1,2,3,4\n1,2,3',
-			answer: [
-				['1', '2', '3', '4'],
-				['1', '2', '3']
-			]
-		},
-		{
-			context: '1,,3,4\n1,2,3',
-			answer: [
-				['1', '', '3', '4'],
-				['1', '2', '3']
-			]
-		}
-	])('fileToArray($context)', async ({ context, answer }) => {
-		const file = new File([context], 'filename');
-
-		const result = await fileToArray(file);
-		expect(result).toStrictEqual(answer);
-	});
-
-	it('should convert string to array', async () => {
-		const text = 'a,b,c\n1,2,3';
-		const array = await StringToArray(text);
-		expect(array).toEqual([
-			['a', 'b', 'c'],
-			['1', '2', '3']
-		]);
 	});
 });
 

@@ -79,24 +79,6 @@ export const GetTradeHeadSet = (
 	});
 	return tradeHeadSet;
 };
-export const fileToArray = async (file: File): Promise<string[][]> => {
-	const text = await file.text();
-	return StringToArray(text);
-};
-export const StringToArray = (text: string): Promise<string[][]> => {
-	return new Promise((resolve, reject) => {
-		Papa.parse(text, {
-			complete: (results: any) => {
-				const data = results.data as string[][];
-				const filtered = data.filter((row) => row.length > 1 || (row.length > 0 && row[0] !== ''));
-				resolve(filtered);
-			},
-			error: (error: any) => {
-				reject(error);
-			}
-		});
-	});
-};
 
 export async function filterNonExistentArtists(
 	importedTrade: { artist_name: string }[],
@@ -124,15 +106,3 @@ export const GetArtistNameList = (data: { artist_name: string }[]) => {
 	});
 	return artistNameSet;
 };
-export async function getHeadBody(file: File) {
-	const headBody = await fileToArray(file).then((arr) => {
-		const [h, ...b] = arr;
-		return { head: h, body: b };
-	});
-	if (headBody.head === undefined) {
-		throw new Error('head format is wrong or file is empty');
-	}
-	const head = headBody.head;
-	const body = headBody.body;
-	return { head, body };
-}
