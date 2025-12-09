@@ -145,6 +145,15 @@ export async function ParseFileToRawImportTrade(
 			) {
 				return parseFloat(value);
 			}
+			if (header === 'trade_date') {
+				let date;
+				if (value.split('+').length === 2 || value.split('Z').length === 2) {
+					date = new Date(value);
+				} else {
+					date = new Date(value + '+08');
+				}
+				return date.toISOString();
+			}
 			return value;
 		}
 	});

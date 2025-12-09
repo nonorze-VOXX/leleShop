@@ -112,7 +112,7 @@ describe('ProcessFile', () => {
 			{
 				POS: 'POS 2',
 				SKU: '1407',
-				trade_date: '2024-12-02 22:53',
+				trade_date: '2024-12-02T14:53:00.000Z',
 				trade_id: '6-1153',
 				artist_name: '14 artist',
 				item_name: '150 飲料杯袋(有袋底)雙面',
@@ -146,7 +146,7 @@ describe('ProcessFile', () => {
 			{
 				POS: 'POS 2',
 				SKU: '1407',
-				trade_date: '2024-12-02 22:53',
+				trade_date: '2024-12-02T14:53:00.000Z',
 				trade_id: '6-1153',
 				artist_name: '14 artist',
 				item_name: '150 飲料杯袋(有袋底)雙面',
