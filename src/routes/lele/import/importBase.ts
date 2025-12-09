@@ -1,8 +1,6 @@
 // this file main perpose is no import supabase for test without supabase key
 import { type ImportedTrade, type ImportIndexOfHeader } from './importDTO';
 import type { TradeHeadRow } from '$lib/db';
-import { findIndex } from '$lib/function/Utils';
-import Papa from 'papaparse';
 
 export enum ProcessedStatus {
 	NORMAL,
@@ -10,36 +8,6 @@ export enum ProcessedStatus {
 	ERROR,
 	PROCESSED
 }
-export const artistIndex = (dataHeader: string[]) => {
-	return findIndex(dataHeader, '類別');
-};
-export const itemNameIndex = (dataHeader: string[]) => {
-	return findIndex(dataHeader, '商品');
-};
-export const quantityIndex = (dataHeader: string[]) => {
-	return findIndex(dataHeader, '數量');
-};
-export const tradeIdIndex = (dataHeader: string[]) => {
-	return findIndex(dataHeader, '收據號碼');
-};
-export const totalIndex = (dataHeader: string[]) => {
-	return findIndex(dataHeader, '銷售總額');
-};
-export const discountIndex = (dataHeader: string[]) => {
-	return findIndex(dataHeader, '折扣');
-};
-export const netIndex = (dataHeader: string[]) => {
-	return findIndex(dataHeader, '淨銷售額');
-};
-export const stateIndex = (dataHeader: string[]) => {
-	return findIndex(dataHeader, '狀態');
-};
-export const dateIndex = (dataHeader: string[]) => {
-	return findIndex(dataHeader, '日期');
-};
-export const storeIndex = (dataHeader: string[]) => {
-	return findIndex(dataHeader, '商店');
-};
 
 export const GetStoreId = (store_name: string, storeData: { id: number; store_name: string }[]) => {
 	const store = storeData.find((e) => e.store_name === store_name);

@@ -1,14 +1,4 @@
 import {
-	artistIndex,
-	itemNameIndex,
-	quantityIndex,
-	tradeIdIndex,
-	totalIndex,
-	discountIndex,
-	netIndex,
-	stateIndex,
-	dateIndex,
-	storeIndex,
 	GetStoreId,
 	GetStoreSet,
 	GetTradeHeadSet,
@@ -59,19 +49,6 @@ describe('importBase', () => {
 			total_sales: 1
 		}
 	];
-
-	it('should find the correct index for headers', () => {
-		expect(artistIndex(dataHeader)).toBe(0);
-		expect(itemNameIndex(dataHeader)).toBe(1);
-		expect(quantityIndex(dataHeader)).toBe(2);
-		expect(tradeIdIndex(dataHeader)).toBe(3);
-		expect(totalIndex(dataHeader)).toBe(4);
-		expect(discountIndex(dataHeader)).toBe(5);
-		expect(netIndex(dataHeader)).toBe(6);
-		expect(stateIndex(dataHeader)).toBe(7);
-		expect(dateIndex(dataHeader)).toBe(8);
-		expect(storeIndex(dataHeader)).toBe(9);
-	});
 
 	it('should get the correct store id', () => {
 		expect(GetStoreId('Store1', storeData)).toBe(1);
