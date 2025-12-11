@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import type { ArtistWithTradeRow } from '$lib/db';
+	import { aggregateDataByDate } from './SellRankChartFunction';
 
 	let chartContainer: HTMLDivElement;
 	let chart: any;
@@ -8,29 +9,6 @@
 
 	export let tradeDataList: ArtistWithTradeRow[] = [];
 	export let metric: 'net_sales' | 'total_sales' | 'quantity' = 'net_sales';
-
-	// Aggregate data by date
-	function aggregateDataByDate(trades: ArtistWithTradeRow[]) {
-		const dateMap = new Map<string, { net_sales: number; total_sales: number; quantity: number }>();
-
-		trades.forEach((trade) => {
-			if (!trade.trade_date) return;
-
-			const date = new Date(trade.trade_date).toLocaleDateString('en-CA'); // YYYY-MM-DD format
-
-			const existing = dateMap.get(date) || { net_sales: 0, total_sales: 0, quantity: 0 };
-			existing.net_sales += trade.net_sales ?? 0;
-			existing.total_sales += trade.total_sales ?? 0;
-			existing.quantity += trade.quantity ?? 0;
-
-			dateMap.set(date, existing);
-		});
-
-		// Sort by date
-		return Array.from(dateMap.entries())
-			.sort(([dateA], [dateB]) => new Date(dateA).getTime() - new Date(dateB).getTime())
-			.map(([date, data]) => ({ date, ...data }));
-	}
 
 	async function initChart() {
 		if (!chartContainer) return;
@@ -175,6 +153,7 @@
 	// Re-initialize chart when data or settings change
 	$: if (chartContainer && (tradeDataList || metric)) {
 		initChart();
+		console.log(tradeDataList.map((item) => item.trade_date));
 	}
 </script>
 
