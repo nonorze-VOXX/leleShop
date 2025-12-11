@@ -16,6 +16,7 @@
 	import { GetFilteredTradeData, GetPageData, GetTotal } from '$lib/function/query';
 	import type { DateRange } from '$lib/type';
 	import { browser } from '$app/environment';
+	import SellRankChart from '$lib/Component/chart/SellRankChart.svelte';
 
 	let artist_name: string = $state('');
 	let artist_id: number = $state(Number(page.params.id));
@@ -143,6 +144,7 @@
 				{yearMonthChange}
 			></YearMonthTabs>
 			<ReportTable showedTradeDataList={filteredTradeDataList} totalData={total}></ReportTable>
+			<SellRankChart tradeDataList={filteredTradeDataList}></SellRankChart>
 		</div>
 	{/if}
 </div>
