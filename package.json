@@ -42,6 +42,7 @@
 	"type": "module",
 	"dependencies": {
 		"@supabase/supabase-js": "^2.47.10",
+		"apexcharts": "^3.46.0",
 		"papaparse": "^5.5.3"
 	}
 }
