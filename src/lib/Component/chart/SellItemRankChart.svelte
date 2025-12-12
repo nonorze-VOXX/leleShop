@@ -142,7 +142,6 @@
 	// Re-initialize chart when data or settings change
 	$: if (chartContainer && tradeDataList) {
 		initChart();
-		console.log(tradeDataList.map((item) => item.trade_date));
 	}
 </script>
 

@@ -55,7 +55,6 @@
 	onMount(async () => {
 		panelState = PasswordPanelState.NotAdmit;
 		const artist_data = (await db.artist.GetArtistData(artist_id)).data ?? [];
-		console.log(artist_data);
 		artist_name = artist_data.length !== 0 ? artist_data[0].artist_name : 'not found this artist';
 		const { data, error } = await db.GetTradeDataMinYear();
 		if (error) {
