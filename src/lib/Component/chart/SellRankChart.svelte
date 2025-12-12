@@ -8,7 +8,7 @@
 	let ApexCharts: any;
 
 	export let tradeDataList: ArtistWithTradeRow[] = [];
-	export let metric: 'net_sales' | 'total_sales' | 'quantity' = 'net_sales';
+	export let metric: 'net_sales';
 
 	async function initChart() {
 		if (!chartContainer) return;
@@ -24,9 +24,7 @@
 		const metricValues = aggregatedData.map((item) => item[metric]);
 
 		const metricLabel = {
-			net_sales: 'Net Sales',
-			total_sales: 'Total Sales',
-			quantity: 'Quantity'
+			net_sales: 'Net Sales'
 		}[metric];
 
 		const leleLineColor = '#583225';
@@ -106,9 +104,6 @@
 				},
 				y: {
 					formatter: (value) => {
-						if (metric === 'quantity') {
-							return `${Math.round(value)} units`;
-						}
 						return `$${value.toFixed(2)}`;
 					}
 				}
@@ -158,20 +153,6 @@
 </script>
 
 <div class="my-2 flex flex-col gap-4 rounded-xl border-2 border-lele-line p-2">
-	<div class="flex flex-col gap-2">
-		<div class="flex items-center gap-2">
-			<label for="metric-select" class="text-sm font-medium">Metric:</label>
-			<select
-				id="metric-select"
-				bind:value={metric}
-				class="rounded border border-gray-300 px-2 py-1"
-			>
-				<option value="net_sales">Net Sales</option>
-				<option value="quantity">Quantity</option>
-			</select>
-		</div>
-	</div>
-
 	<div bind:this={chartContainer} class="h-fit w-full"></div>
 
 	{#if tradeDataList.length === 0}
