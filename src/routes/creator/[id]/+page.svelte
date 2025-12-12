@@ -17,6 +17,7 @@
 	import type { DateRange } from '$lib/type';
 	import { browser } from '$app/environment';
 	import SellRankChart from '$lib/Component/chart/SellRankChart.svelte';
+	import SellItemRankChart from '$lib/Component/chart/SellItemRankChart.svelte';
 
 	let artist_name: string = $state('');
 	let artist_id: number = $state(Number(page.params.id));
@@ -145,6 +146,7 @@
 			></YearMonthTabs>
 			<ReportTable showedTradeDataList={filteredTradeDataList} totalData={total}></ReportTable>
 			<SellRankChart tradeDataList={filteredTradeDataList}></SellRankChart>
+			<SellItemRankChart tradeDataList={filteredTradeDataList}></SellItemRankChart>
 		</div>
 	{/if}
 </div>

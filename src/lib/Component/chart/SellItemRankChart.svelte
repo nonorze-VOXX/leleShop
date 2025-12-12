@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import type { ArtistWithTradeRow } from '$lib/db';
-	import { aggregateDataByDate } from './SellRankChartFunction';
+	import { aggregateDataByDate, aggregateDataByItem } from './SellRankChartFunction';
 
 	let chartContainer: HTMLDivElement;
 	let chart: any;
@@ -17,12 +17,10 @@
 			ApexCharts = (await import('apexcharts')).default;
 		}
 
-		const aggregatedData = aggregateDataByDate(tradeDataList);
+		const aggregatedData = aggregateDataByItem(tradeDataList);
 
-		const dates = aggregatedData.map((item) => item.date);
+		const names = aggregatedData.map((item) => item.itemName);
 		const metricValues = aggregatedData.map((item) => item.net_sales);
-
-		const metricLabel = 'Net Sales';
 
 		const leleLineColor = '#583225';
 
@@ -53,21 +51,20 @@
 			},
 			series: [
 				{
-					name: metricLabel,
+					name: 'Net Sales',
 					data: metricValues
 				}
 			],
 			xaxis: {
-				categories: dates,
-				type: 'datetime',
+				categories: names,
+				type: 'category',
 				labels: {
-					format: 'MMM dd, yyyy',
-					rotate: -45
+					rotate: -90
 				}
 			},
 			yaxis: {
 				title: {
-					text: metricLabel
+					text: ''
 				},
 				labels: {
 					formatter: function (value) {
