@@ -40,7 +40,6 @@
 	const needSum = false;
 
 	function FindItem(artist_name: string | null, store_name: string) {
-		console.log('finding ', RemitDataMulNetTotal);
 		return RemitDataMulNetTotal.find(
 			(item) => item.artist_name === artist_name && item.store_name === store_name
 		);

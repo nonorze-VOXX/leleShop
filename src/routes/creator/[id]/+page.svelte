@@ -17,6 +17,7 @@
 	import type { DateRange } from '$lib/type';
 	import { browser } from '$app/environment';
 	import SellRankChart from '$lib/Component/chart/SellRankChart.svelte';
+	import SellItemRankChart from '$lib/Component/chart/SellItemRankChart.svelte';
 
 	let artist_name: string = $state('');
 	let artist_id: number = $state(Number(page.params.id));
@@ -54,7 +55,6 @@
 	onMount(async () => {
 		panelState = PasswordPanelState.NotAdmit;
 		const artist_data = (await db.artist.GetArtistData(artist_id)).data ?? [];
-		console.log(artist_data);
 		artist_name = artist_data.length !== 0 ? artist_data[0].artist_name : 'not found this artist';
 		const { data, error } = await db.GetTradeDataMinYear();
 		if (error) {
@@ -145,6 +145,7 @@
 			></YearMonthTabs>
 			<ReportTable showedTradeDataList={filteredTradeDataList} totalData={total}></ReportTable>
 			<SellRankChart tradeDataList={filteredTradeDataList}></SellRankChart>
+			<SellItemRankChart tradeDataList={filteredTradeDataList}></SellItemRankChart>
 		</div>
 	{/if}
 </div>
