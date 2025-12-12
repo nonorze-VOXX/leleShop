@@ -146,7 +146,7 @@
 	}
 </script>
 
-<div class="my-2 flex flex-col gap-4 rounded-xl border-2 border-lele-line p-2">
+<div class="my-2 flex flex-col gap-4 rounded-xl border-2 border-lele-line py-2">
 	<div bind:this={chartContainer} class="h-fit w-full"></div>
 
 	{#if tradeDataList.length === 0}
