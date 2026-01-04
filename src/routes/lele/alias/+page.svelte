@@ -9,6 +9,27 @@
 
 	let aliasList: ArtistAliasMapRow[] = $state([]);
 	let LogForUser = $state('');
+	let edit = $state(false);
+	let filterText = $state('');
+	let showedAliasList: ArtistAliasMapRow[] = $derived.by(() => {
+		if (filterText.trim() === '')
+			return [...aliasList].sort((a, b) => {
+				if (a.artist_alias === null) return -1;
+				if (b.artist_alias === null) return 1;
+				if (a.artist_alias < b.artist_alias) return -1;
+				if (a.artist_alias > b.artist_alias) return 1;
+				return 0;
+			});
+		const processedFilter = filterText
+			.trim()
+			.split(' ')
+			.map((s) => s.trim());
+		return [...aliasList]
+			.filter((d) =>
+				processedFilter.reduce((pre, cur) => pre || JSON.stringify(d).match(cur) !== null, false)
+			)
+			.sort();
+	});
 	const UpdateAliasList = async () => {
 		const { data, error } = await supabase.from('artist_alias_map').select('*');
 		if (error) {
@@ -16,23 +37,10 @@
 			LogForUser = error.message;
 		} else {
 			aliasList = data;
-			showedAliasList = aliasList;
 		}
 	};
 	onMount(async () => {
 		await UpdateAliasList();
-	});
-	let edit = $state(false);
-	let filterText = $state('');
-	let showedAliasList: ArtistAliasMapRow[] = $derived.by(() => {
-		if (filterText.trim() === '') return aliasList;
-		const processedFilter = filterText
-			.trim()
-			.split(' ')
-			.map((s) => s.trim());
-		return aliasList.filter((d) =>
-			processedFilter.reduce((pre, cur) => pre || JSON.stringify(d).match(cur) !== null, false)
-		);
 	});
 	let modify: ArtistWithTradeRow[] = $state([]);
 	let modifyFunction: () => Promise<void>;
@@ -145,18 +153,18 @@
 					return before + ' -> ' + after;
 				};
 			}}
-			class="flex gap-2"
+			class="flex flex-wrap gap-2"
 		>
 			<select
 				name="beforeName"
 				id="beforeName"
-				class=" rounded-lg border-lele-line bg-lele-line p-2 font-semibold text-lele-bg"
+				class=" h-fit rounded-lg border-lele-line bg-lele-line p-2 font-semibold text-lele-bg"
 			>
 				{#each showedAliasList as alias}
 					<option value={alias.artist_alias}>{alias.artist_alias}</option>
 				{/each}
 			</select>
-			<div class="h-full content-center text-center font-semibold text-lele-line">{'=>'}</div>
+			<div class="h-fit content-center text-center font-semibold text-lele-line">{'=>'}</div>
 			<select
 				name="afterName"
 				id="afterName"
@@ -185,6 +193,7 @@
 				value="OK!"
 				onclick={async () => {
 					modifyFunction().then(() => (LogForUser = modifyLog() + ' rename OK!'));
+					modify = [];
 				}}
 				class=" rounded-lg border-lele-line bg-lele-line p-2 font-semibold text-lele-bg"
 			/>
