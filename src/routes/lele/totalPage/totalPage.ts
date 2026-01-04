@@ -16,7 +16,7 @@ export async function GetTradeTotalDataEachOne(
 		)
 		.gte('trade_date', firstDate.toISOString())
 		.lt('trade_date', lastDate.toISOString())
-		.order('artist_id', { ascending: true });
+		.order('artist_name', { ascending: true });
 
 	if (store_list !== '*') {
 		query.in('store_name', store_list);
