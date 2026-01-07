@@ -5,9 +5,11 @@
 	import LeleThead from '$lib/Component/htmlWrapper/LeleThead.svelte';
 	import Toggle from '$lib/Component/Toggle.svelte';
 	import { supabase, type ArtistAliasMapRow, type ArtistWithTradeRow } from '$lib/db';
+	import type { CommissionViewRow } from '$lib/db/DbCommission';
 	import { onMount } from 'svelte';
 
 	let aliasList: ArtistAliasMapRow[] = $state([]);
+	let commissionData: CommissionViewRow[] = $state([]);
 	let LogForUser = $state('');
 	let edit = $state(false);
 	let filterText = $state('');
@@ -39,8 +41,17 @@
 			aliasList = data;
 		}
 	};
+	const UpdateCommissionData = async () => {
+		const { data, error } = await supabase.from('default_commission_view').select('*');
+		if (error) {
+			console.error(error);
+		} else {
+			commissionData = data ?? [];
+		}
+	};
 	onMount(async () => {
 		await UpdateAliasList();
+		await UpdateCommissionData();
 	});
 	let modify: ArtistWithTradeRow[] = $state([]);
 	let modifyFunction: () => Promise<void>;
@@ -65,6 +76,48 @@
 				LogForUser = error2.message;
 				return;
 			}
+
+			// Handle commission merge: update commission to the higher value
+			const beforeCommissions = commissionData.filter((c) => c.artist_id === beforeId);
+			const afterCommissions = commissionData.filter((c) => c.artist_id === afterId);
+
+			for (const beforeCommission of beforeCommissions) {
+				const afterCommission = afterCommissions.find(
+					(c) =>
+						c.store_id === beforeCommission.store_id && c.year_month === beforeCommission.year_month
+				);
+
+				if (afterCommission) {
+					// Update to the higher value
+					const higherCommission = Math.max(
+						beforeCommission.commission ?? 0,
+						afterCommission.commission ?? 0
+					);
+					const { error: commError } = await supabase
+						.from('artist_commission')
+						.update({ commission: higherCommission })
+						.eq('artist_id', afterId)
+						.eq('store_id', beforeCommission.store_id ?? 0)
+						.eq('year_month', beforeCommission.year_month ?? '');
+					if (commError) {
+						LogForUser = commError.message;
+						return;
+					}
+				} else {
+					// Transfer the commission to the merged artist
+					const { error: commError } = await supabase
+						.from('artist_commission')
+						.update({ artist_id: afterId })
+						.eq('artist_id', beforeId)
+						.eq('store_id', beforeCommission.store_id ?? 0)
+						.eq('year_month', beforeCommission.year_month ?? '');
+					if (commError) {
+						LogForUser = commError.message;
+						return;
+					}
+				}
+			}
+
 			const { error: error3 } = await supabase.from('artist').delete().eq('id', beforeId);
 			if (error3) {
 				LogForUser = error3.message;
@@ -76,6 +129,7 @@
 				return;
 			}
 			aliasList = data ?? [];
+			await UpdateCommissionData();
 		};
 	};
 </script>
@@ -98,6 +152,7 @@
 				<tr>
 					<th> 暱稱 </th>
 					<th> 顯示名稱 </th>
+					<th> Commission </th>
 				</tr>
 			</LeleThead>
 			<LeleTbody>
@@ -109,6 +164,22 @@
 							</td>
 							<td>
 								{alias.artist_name}
+							</td>
+							<td>
+								{#if commissionData && alias.id !== null && alias.id !== undefined}
+									{@const commissions = commissionData.filter((c) => c.artist_id === alias.id)}
+									{#if commissions.length > 0}
+										{#each commissions as commission}
+											<div class="text-sm">
+												{commission.store_name}: {commission.commission}%
+											</div>
+										{/each}
+									{:else}
+										<div class="text-sm text-gray-500">No commission</div>
+									{/if}
+								{:else}
+									<div class="text-sm text-gray-500">-</div>
+								{/if}
 							</td>
 						</LeleTbodyTr>
 					{/if}
