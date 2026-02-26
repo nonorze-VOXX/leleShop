@@ -8,7 +8,7 @@
 
 	let artistData: ArtistRow[] = $state([]);
 	onMount(async () => {
-		artistData = (await db.GetArtistDataList())?.data ?? [];
+		artistData = (await db.GetArtistDataList({ ordered: true, ascending: true }))?.data ?? [];
 	});
 	const ButtonFunction = async (id: number) => {
 		const random = randomNumber(5);

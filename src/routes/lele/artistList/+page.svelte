@@ -9,7 +9,7 @@
 
 	let artistData: ArtistRow[] = $state([]);
 	onMount(async () => {
-		artistData = (await db.GetArtistDataList())?.data ?? [];
+		artistData = (await db.GetArtistDataList({ ordered: true, ascending: true }))?.data ?? [];
 	});
 	const UpdateVisiable = async (artistData: ArtistRow) => {
 		const id = artistData.id;
