@@ -2,16 +2,16 @@
 	interface Props {
 		title: string;
 		value?: string | number;
-		text_color?: 'normal' | 'red';
+		bg_color?: 'normal' | 'red';
 	}
 
-	let { title, value = '', text_color = 'normal' }: Props = $props();
+	let { title, value = '', bg_color = 'normal' }: Props = $props();
 </script>
 
 <div
-	class="flex justify-between rounded-xl bg-lele-line p-2 {text_color === 'red'
-		? 'text-red-400'
-		: 'text-lele-bg'}"
+	class="flex justify-between rounded-xl p-2 text-lele-bg {bg_color === 'red'
+		? 'bg-red-400'
+		: 'bg-lele-line'}"
 >
 	<p class="inline">
 		{title}

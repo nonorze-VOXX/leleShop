@@ -13,7 +13,7 @@
 	{#if commission !== null}
 		<InfoBox
 			title="匯款金額"
-			text_color="red"
+			bg_color="red"
 			value={Math.ceil(net_total * ((100 - commission) / 100))}
 		></InfoBox>
 	{:else}
