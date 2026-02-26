@@ -14,9 +14,6 @@
 		: 'bg-lele-line'}"
 >
 	<p class="inline">
-		{title}
-		{#if value !== ''}:
-		{/if}
+		{title + (value !== '' ? ': ' + value : '')}
 	</p>
-	<p class="inline">{value}</p>
 </div>
