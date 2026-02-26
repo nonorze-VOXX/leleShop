@@ -17,11 +17,12 @@
 	let storeData: StoreRow[] = [];
 	let artistData: ArtistRow[] = $state([]);
 
-	let choosingDate =
-		$state(ThisMonthFirstDate().getFullYear() +
-		'-' +
-		(ThisMonthFirstDate().getMonth() + 1).toString().padStart(2, '0') +
-		'-01');
+	let choosingDate = $state(
+		ThisMonthFirstDate().getFullYear() +
+			'-' +
+			(ThisMonthFirstDate().getMonth() + 1).toString().padStart(2, '0') +
+			'-01'
+	);
 
 	onDestroy(
 		selectedStore.subscribe(async () => {
@@ -51,7 +52,7 @@
 
 		if ($selectedStore !== '*') query = query.in('store_name', $selectedStore);
 
-		const { data, error } = await query;
+		const { data, error } = await query.order('artist_name');
 		if (error) {
 			console.error(error);
 		}
@@ -74,7 +75,8 @@
 
 		const { data: artistDataResponse, error: artistError } = await supabase
 			.from('artist')
-			.select('*');
+			.select('*')
+			.order('artist_name', { ascending: true });
 		if (artistError) {
 			console.error(artistError);
 		}

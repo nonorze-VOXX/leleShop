@@ -16,7 +16,8 @@ export default {
 		const { data, error } = await supabase
 			.from('artist_alias')
 			.select()
-			.in('artist_alias', nameList);
+			.in('artist_alias', nameList)
+			.order('artist_alias', { ascending: true });
 		if (error) {
 			throw new Error(error.message);
 		}

@@ -33,7 +33,10 @@
 			.sort();
 	});
 	const UpdateAliasList = async () => {
-		const { data, error } = await supabase.from('artist_alias_map').select('*');
+		const { data, error } = await supabase
+			.from('artist_alias_map')
+			.select('*')
+			.order('artist_name', { ascending: true });
 		if (error) {
 			// console.log(error.message);
 			LogForUser = error.message;
@@ -123,7 +126,10 @@
 				LogForUser = error3.message;
 				return;
 			}
-			const { error: error4, data } = await supabase.from('artist_alias_map').select('*');
+			const { error: error4, data } = await supabase
+				.from('artist_alias_map')
+				.select('*')
+				.order('artist_name', { ascending: true });
 			if (error4) {
 				LogForUser = error4.message;
 				return;
