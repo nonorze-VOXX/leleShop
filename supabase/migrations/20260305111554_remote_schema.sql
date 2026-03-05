@@ -12,6 +12,10 @@ drop trigger if exists "prefixes_create_hierarchy" on "storage"."prefixes";
 
 drop trigger if exists "prefixes_delete_hierarchy" on "storage"."prefixes";
 
+drop trigger if exists protect_buckets_delete on storage.buckets;
+
+drop trigger if exists protect_objects_delete on storage.objects;
+
 CREATE TRIGGER protect_buckets_delete BEFORE DELETE ON storage.buckets FOR EACH STATEMENT EXECUTE FUNCTION storage.protect_delete();
 
 CREATE TRIGGER protect_objects_delete BEFORE DELETE ON storage.objects FOR EACH STATEMENT EXECUTE FUNCTION storage.protect_delete();
