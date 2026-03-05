@@ -8,9 +8,16 @@ drop trigger if exists "objects_insert_create_prefix" on "storage"."objects";
 
 drop trigger if exists "objects_update_create_prefix" on "storage"."objects";
 
-drop trigger if exists "prefixes_create_hierarchy" on "storage"."prefixes";
-
-drop trigger if exists "prefixes_delete_hierarchy" on "storage"."prefixes";
+do $$
+begin
+  if exists (
+    select 1 from information_schema.tables 
+    where table_schema = 'storage' and table_name = 'prefixes'
+  ) then
+    drop trigger if exists "prefixes_create_hierarchy" on "storage"."prefixes";
+    drop trigger if exists "prefixes_delete_hierarchy" on "storage"."prefixes";
+  end if;
+end $$;
 
 drop trigger if exists protect_buckets_delete on storage.buckets;
 
