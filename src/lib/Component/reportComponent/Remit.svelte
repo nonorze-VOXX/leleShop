@@ -17,8 +17,8 @@
 			value={Math.ceil(net_total * ((100 - commission) / 100))}
 		></InfoBox>
 	{:else}
-		<InfoBox title="匯款金額" value={'僅供選擇單一店鋪時查看'}></InfoBox>
+		<InfoBox bg_color="red" title="匯款金額" value={'僅供選擇單一店鋪時查看'}></InfoBox>
 	{/if}
 {:else}
-	<InfoBox title="匯款金額" value={'計算中'}></InfoBox>
+	<InfoBox bg_color="red" title="匯款金額" value={'計算中'}></InfoBox>
 {/if}
