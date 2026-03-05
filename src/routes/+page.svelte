@@ -9,10 +9,10 @@
 	let artistData: ArtistViewRow[] = $state([]);
 
 	onDestroy(
-		selectedStore.subscribe(async () => {
+		selectedStore.subscribe(async (newStore) => {
 			let query = supabase.from('default_artist_view').select('*');
-			if ($selectedStore !== '*') {
-				query = query.in('store_name', $selectedStore);
+			if (newStore !== '*') {
+				query = query.in('store_name', newStore);
 			}
 			const { data, error } = await query.order('artist_name');
 			if (error) {
