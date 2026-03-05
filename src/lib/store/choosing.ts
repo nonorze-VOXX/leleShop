@@ -14,7 +14,8 @@ if (browser) {
 			: '*';
 }
 
-export const selectedStore = writable(stored || '[]');
+// Use nullish coalescing so an empty array ([]) isn't replaced by the string '[]'.
+export const selectedStore = writable(stored ?? []);
 
 // Anytime the store changes, update the local storage value.
 if (browser)

@@ -24,23 +24,24 @@
 			'-01'
 	);
 
-	onDestroy(
-		selectedStore.subscribe(async () => {
-			await OnStoreChange();
-		})
-	);
+	onMount(() => {
+		const unsubscribe = selectedStore.subscribe(async (newSelectedStore) => {
+			await OnStoreChange(newSelectedStore);
+		});
 
-	async function OnStoreChange() {
-		if ($selectedStore === '*') {
+		return unsubscribe;
+	});
+
+	async function OnStoreChange(newSelectedStore: '*' | string[]) {
+		if (newSelectedStore === '*') {
 			const { data, error } = await db.store.getStoreData();
 			if (error) {
 				console.error(error);
 			}
 			storeData = data ?? [];
 			showStoreName = (data ?? []).map((item) => item.store_name);
-			$selectedStore = showStoreName;
 		} else {
-			showStoreName = $selectedStore;
+			showStoreName = newSelectedStore;
 		}
 		choosingStoreName = choosingStoreName.filter((item) => showStoreName.includes(item));
 		await QueryCommissionData();
